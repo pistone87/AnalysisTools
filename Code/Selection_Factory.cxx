@@ -13,6 +13,7 @@
 #include "inugent/TriggerStudy.h"
 #include "inugent/TriggerStudyMC.h"
 #include "inugent/TauLifeTime.h"
+#include "pistone/LightChargedHiggs.h"
 
 Selection_Factory::Selection_Factory(){
 }
@@ -36,6 +37,8 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   else if(Analysis.Contains("triggerstudymc"))s=new TriggerStudyMC(Analysis,UncertType);
   else if(Analysis.Contains("triggerstudy"))s=new TriggerStudy(Analysis,UncertType);
   else if(Analysis.Contains("taulifetime"))s=new TauLifeTime(Analysis,UncertType);
+  else if(Analysis.Contains("example"))s=new Example(Analysis,UncertType);
+  else if(Analysis.Contains("lightchargedhiggs"))s=new LightChargedHiggs(Analysis,UncertType);
   else{
     std::cout << "WARNING: Selection_Factory::Factory INVALID ANALYSIS TYPE.... USING DEFAULT <Example.h> " << std::endl;
     s=new Example(Analysis,UncertType);
@@ -46,3 +49,4 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   s->SetLumi(lumi);
   return s;
 }
+

@@ -192,8 +192,7 @@ class Ntuple_Controller{
   TMatrixF     Vtx_Cov(unsigned int i);
   std::vector<int>  Vtx_Track_idx(unsigned int i){return Ntp->Vtx_Track_idx->at(i);}
   float Vtx_isFake(unsigned int i){return Ntp->Vtx_isFake->at(i);}
-  bool isVtxGood(unsigned int i);
-  bool isVtxGood_muJets(unsigned int i); //claudia
+  bool isVtxGood(unsigned int i); 
 
 
   // Muon information
@@ -228,14 +227,12 @@ class Ntuple_Controller{
   float          Muon_numberOfMatchedStations(unsigned int i){return Ntp->Muon_numberOfMatchedStations->at(i);}
   float          Muon_normChi2(unsigned int i){return Ntp->Muon_normChi2->at(i);}
   float          Muon_hitPattern_numberOfValidMuonHits(unsigned int i){return Ntp->Muon_hitPattern_numberOfValidMuonHits->at(i);}
-  float          Muon_innerTrack_numberOfValidHits(unsigned int i){return Ntp->Muon_innerTrack_numberofValidHits->at(i);}
+  float          Muon_innerTrack_numberofValidHits(unsigned int i){return Ntp->Muon_innerTrack_numberofValidHits->at(i);}
   float          Muon_numberOfMatches(unsigned int i){return Ntp->Muon_numberOfMatches->at(i);}
   int            Muon_numberOfChambers(unsigned int i){return Ntp->Muon_numberOfChambers->at(i);}
   int            Muon_Charge(unsigned int i){return Ntp->Muon_charge->at(i);}
   bool           isGoodMuon(unsigned int i);
   bool           isGoodMuon_nooverlapremoval(unsigned int i);
-  bool           isGoodMuon_muJets(unsigned int i); //claudia
-  bool           isGoodMuon_nooverlapremoval_muJets(unsigned int i); //claudia
   float          Muon_RelIso(unsigned int i);
 
   bool           Muon_isPFMuon(unsigned int i){return Ntp->Muon_isPFMuon->at(i);}                                                     

@@ -1,0 +1,8 @@
+Thin: False
+Skim: False
+HistoFile: InputData/Histo_hplusbwb_m160.txt
+Analysis: LightChargedHiggs
+UncertType: default
+SkimInfo: InputData/SkimSummary_hplusbwb_m160.log
+Lumi: 19789.301
+PlotStyle: style2
