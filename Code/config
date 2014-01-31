@@ -66,7 +66,7 @@ if [ $CommonUtils == 0 ]; then
     cd ../
 
     git init
-    git clone https://github.com/inugent/TauDataFormat.git TauDataFormat
+    git clone -b Production_2014_Jan_21 https://github.com/inugent/TauDataFormat.git TauDataFormat
     cd TauDataFormat
     git checkout
     cd ../
