@@ -21,6 +21,10 @@ if($UserID eq "nehrkorn"){
 if($UserID eq "kargoll"){
     $UserIDCern="bkargoll";
 }
+if($UserID eq "pistone"){
+    $UserIDCern="cpistone";
+}
+
 
 #Default vaules
 $InputDir="/net/scratch_cms/institut_3b/$UserID/Test";
