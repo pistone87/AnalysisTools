@@ -283,14 +283,17 @@ bool Ntuple_Controller::isGoodMuon_nooverlapremoval_muJets(unsigned int i){
 
   if(Muon_isGlobalMuon(i)
      && ( Muon_isPFMuon(i) )
-     && ( Muons_p4(i).Pt()>20. )
-     //&& ( fabs(Muons_p4(i).Eta())<2.1 )
-     //&& ( Muon_RelIso(i)<0.12 )
-     //&& ( Muon_normChi2(i)<10. )
-     //&& ( Muon_hitPattern_numberOfValidMuonHits(i)>0 )
-     //&& ( Muon_hitPattern_pixelLayerwithMeas(i)>5 )
-     //&& ( Muon_numberOfMatchedStations(i)>1 )
-     //&& ( Muon_innerTrack_numberOfValidHits(i)>0 )
+     && ( Muons_p4(i).Pt()>25. )
+     && ( fabs(Muons_p4(i).Eta())<2.4 )
+     && ( Muon_RelIso(i)<0.12 )
+     && ( Muon_normChi2(i)<10. )
+     && ( Muon_hitPattern_numberOfValidMuonHits(i)>0 )
+     && ( Muon_numberOfMatchedStations(i)>1 )
+     && ( Muon_numberofValidPixelHits(i)>0 )
+     && ( Muon_trackerLayersWithMeasurement(i)>5 )
+
+     //dxy < 0.2
+     //dz < 0.5
      ){ return true; }
 
   return false;
