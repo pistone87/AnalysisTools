@@ -1,7 +1,7 @@
+#include "LightChargedHiggs.h"
+
 #include <iostream>
 #include <cstdlib>
-
-#include "LightChargedHiggs.h"
 
 #include "HistoConfig.h"
 #include "TLorentzVector.h"
@@ -41,6 +41,7 @@ void  LightChargedHiggs::Configure(){
     if(i==NMu)          cut.at(NMu)=1;
   }
 
+
   TString hlabel;
   TString htitle;
   //for i<NCuts start
@@ -48,7 +49,8 @@ void  LightChargedHiggs::Configure(){
     title.push_back("");
     distindx.push_back(false);
     dist.push_back(std::vector<float>());
-    TString c="_Cut_";c+=i;
+    TString c="_Cut_";
+    c+=i;
   
     // PrimeVtx
     if(i==PrimeVtx){
@@ -59,8 +61,6 @@ void  LightChargedHiggs::Configure(){
       htitle.ReplaceAll("$","");
       htitle.ReplaceAll("\\","#");
       hlabel="Number of Prime Vertices";
-      //Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_PrimeVtx_",htitle,11,-0.5,10.5,hlabel,"Events"));
-      //Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_PrimeVtx_",htitle,11,-0.5,10.5,hlabel,"Events"));
       Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_PrimeVtx_",htitle,31,-0.5,30.5,hlabel,"Events"));
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_PrimeVtx_",htitle,31,-0.5,30.5,hlabel,"Events"));
     } //if(i==PrimeVtx)
@@ -85,7 +85,7 @@ void  LightChargedHiggs::Configure(){
       hlabel="Number of #mu";
       Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NMu_",htitle,6,-0.5,5.5,hlabel,"Events"));
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NMu_",htitle,6,-0.5,5.5,hlabel,"Events"));
-    }
+      }
 
   } //for i<NCuts end
 
@@ -105,7 +105,7 @@ void  LightChargedHiggs::Configure(){
 
 
   // muons
-  goodmuons=HConfig.GetTH1D(Name+"_goodmuons","goodmuons",20,0.,20.,"Number of tight muons");
+  goodmuons=HConfig.GetTH1D(Name+"_goodmuons","goodmuons",6,-0.5,5.5,"Number of tight muons");
   muonPt=HConfig.GetTH1D(Name+"_muonPt","muonPt",40,0.,250.,"p_{T}^{#mu}");
   muonEta=HConfig.GetTH1D(Name+"_muonEta","muonEta",20,-2.5,2.5,"#eta_{#mu}");
 
@@ -159,15 +159,19 @@ void  LightChargedHiggs::doEvent(){
 
   // trigger
   if(verbose) std::cout << " trigger " << std::endl;
-  value.at(TriggerOk)=1;
-  pass.at(TriggerOk)=true;
+
+  value.at(TriggerOk)=0;
+  if(Ntp->TriggerAccept("HLT_IsoMu24_v")){
+    value.at(TriggerOk)=1;
+  }
+  pass.at(TriggerOk)= (value.at(TriggerOk)==cut.at(TriggerOk));
   
 
 
   //
   // muon cuts
   //
-
+  
   if(verbose) std::cout << " muon cuts " << std::endl;
   std::vector<unsigned int> NGoodMuons;
   TLorentzVector GoodMuons;
@@ -182,7 +186,7 @@ void  LightChargedHiggs::doEvent(){
 
   value.at(NMu)=NGoodMuons.size();
   pass.at(NMu)=(value.at(NMu)>=cut.at(NMu));
-
+  
 
 
   // weights
@@ -204,7 +208,6 @@ void  LightChargedHiggs::doEvent(){
 
   if(status){
 
-
     // vertices
     NVtx.at(t).Fill(Ntp->NVtx(),w); //number of vertices
     unsigned int nGoodVtx=0;
@@ -214,7 +217,7 @@ void  LightChargedHiggs::doEvent(){
     }
     NGoodVtx.at(t).Fill(nGoodVtx,w); //number of good vertices
 
-
+    
     // muons
     bool passMuonSelection = 0;
     passMuonSelection = 
@@ -231,7 +234,7 @@ void  LightChargedHiggs::doEvent(){
       muonEta.at(t).Fill(GoodMuons.Eta());
 
     } // if passMuonSelection
-
+    
 
 
   } //if(status)

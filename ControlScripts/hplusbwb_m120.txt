@@ -1,2 +1,1 @@
-/pnfs/physik.rwth-aachen.de/cms/store/user/anehrkor/TTToHplusBWB_M-120_8TeV_ext-pythia6-tauola/TTToHplusBWB_M-120_8TeV_ext-pythia6-tauola_Production__Nov_06_2013_hr16_min51/0d6f5a4195f627016623c70449353cdb
-
+/pnfs/physik.rwth-aachen.de/cms/store/user/cherepan/TTToHplusBWB_M-120_8TeV_ext-pythia6-tauola/TauNtuple_Production_Production_2013_Dec_12_hplusbwb_m120_Dec_13_2013_hr18_min48/4f13451c222fd205e080480182712075
