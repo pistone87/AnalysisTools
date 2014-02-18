@@ -1,1 +1,2 @@
 ID= 16 AllEvt= 1000000.000000 AllEvtErr= 1000.000001 SelEvt= 130786.000000  SelEvtErr= 361.643560 AllEvtnoweight= 1000000.000000 SelEvtnoweight= 130786.000000 Eff(weight)= 0.130786 Eff(noweight)= 0.130786 Nfile= 401 
+ID= 70 AllEvt= 21675970.000000 AllEvtErr= 4655.743907 SelEvt= 3340571.000000  SelEvtErr= 1827.722822 AllEvtnoweight= 21675970.000000 SelEvtnoweight= 3340571.000000 Eff(weight)= 0.154114 Eff(noweight)= 0.154114 Nfile= 453

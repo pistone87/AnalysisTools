@@ -21,11 +21,15 @@
 #include "pistone/LightChargedHiggs.h"
 #endif
 #ifdef USE_nehrkorn
+#include "nehrkorn/ZtoEMu_ABCD.h"
 #include "nehrkorn/ZtoEMu_Fakerate.h"
 #include "nehrkorn/ZtoEMu_Skim.h"
 #include "nehrkorn/ZtoEMu.h"
 #endif
 #ifdef USE_kargoll
+
+#endif
+#ifdef USE_pistone
 
 #endif
 
@@ -61,11 +65,15 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   else if(Analysis.Contains("lightchargedhiggs"))s=new LightChargedHiggs(Analysis,UncertType);
 #endif
 #ifdef USE_nehrkorn
+  else if(Analysis.Contains("ztoemu_abcd")) s=new ZtoEMu_ABCD(Analysis,UncertType);
   else if(Analysis.Contains("ztoemu_fakerate"))s=new ZtoEMu_Fakerate(Analysis,UncertType);
   else if(Analysis.Contains("ztoemu_skim"))s=new ZtoEMu_Skim(Analysis,UncertType);
   else if(Analysis.Contains("ztoemu_mcsample"))s=new ZtoEMu(Analysis,UncertType);
 #endif
 #ifdef USE_kargoll
+
+#endif
+#ifdef USE_pistone
 
 #endif
   else{

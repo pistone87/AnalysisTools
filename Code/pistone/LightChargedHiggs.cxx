@@ -161,7 +161,7 @@ void  LightChargedHiggs::doEvent(){
   if(verbose) std::cout << " trigger " << std::endl;
 
   value.at(TriggerOk)=0;
-  if(Ntp->TriggerAccept("HLT_IsoMu24_v")){
+  if(Ntp->TriggerAccept("HLT_IsoMu24")){
     value.at(TriggerOk)=1;
   }
   pass.at(TriggerOk)= (value.at(TriggerOk)==cut.at(TriggerOk));
@@ -180,7 +180,7 @@ void  LightChargedHiggs::doEvent(){
   for(unsigned i=0; i<Ntp->NMuons(); i++){
     if(Ntp->isGoodMuon_muJets(i)){
       NGoodMuons.push_back(i);
-      GoodMuons = Ntp->Muons_p4(i);
+      GoodMuons = Ntp->Muon_p4(i);
     } //if
   } //for
 

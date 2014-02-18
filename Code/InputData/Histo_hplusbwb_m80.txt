@@ -1,2 +1,2 @@
-Histo: 70         228.00  ttbar t#bar{t}         414
+Histo: 70          228.00  ttbar t#bar{t}         414
 Histo: 16	    18.70  HplusBWB_M80 H^{+}bWb(m_{H^{+}}=80GeV)	632
