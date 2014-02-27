@@ -4,5 +4,5 @@ HistoFile: InputData/Histo_hplusbwb_m120.txt
 Analysis: LightChargedHiggs
 UncertType: default
 SkimInfo: InputData/SkimSummary_hplusbwb_m120.log
-Lumi: 19789.301
+Lumi: 19712.00
 PlotStyle: style2
