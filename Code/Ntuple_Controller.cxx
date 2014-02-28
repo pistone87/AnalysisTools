@@ -277,8 +277,8 @@ bool Ntuple_Controller::isGoodMuon_nooverlapremoval_muJets(unsigned int i){
   //  number of pixel hits > 0
   //  number of tracker layers with hits > 5
   //
-  //  | dxy | < 0.02cm (transverse IP of the muon wrt beamspot) not applied 
-  //  | dz | < 0.05cm (longitudinal distance of the tracker track wrt the primary vertex) not applied
+  //  | dxy | < 0.2cm (transverse IP of the muon wrt beamspot) not applied 
+  //  | dz | < 0.5cm (longitudinal distance of the tracker track wrt the primary vertex) not applied
 
   if(Muon_isGlobalMuon(i)
      && ( Muon_isPFMuon(i) )
