@@ -283,7 +283,7 @@ bool Ntuple_Controller::isGoodMuon_nooverlapremoval_muJets(unsigned int i){
   if(Muon_isGlobalMuon(i)
      && ( Muon_isPFMuon(i) )
      && ( Muon_p4(i).Pt()>25. )
-     && ( fabs(Muon_p4(i).Eta())<2.4 )
+     && ( fabs(Muon_p4(i).Eta())<2.1 )
      && ( Muon_RelIso(i)<0.12 )
      && ( Muon_normChi2(i)<10. )
      && ( Muon_hitPattern_numberOfValidMuonHits(i)>0 )
