@@ -1,9 +1,22 @@
 #ifndef HToTaumuTauh_h
 #define HToTaumuTauh_h
 
-#include "Selection.h"
+#include <TH1.h>
+#include <TString.h>
+#include <cmath>
 #include <vector>
-#include "TString.h"
+
+#include "../Selection.h"
+
+class TLorentzVector;
+class TVector3;
+
+// small struct needed to allow sorting indices by some value
+struct sortIdxByValue {
+    bool operator()(const std::pair<int,double> &left, const std::pair<int,double> &right) {
+        return left.second > right.second;
+    }
+};
 
 class HToTaumuTauh : public Selection {
 
@@ -22,8 +35,8 @@ class HToTaumuTauh : public Selection {
 	  NTauId,
 	  NTauIso,
 	  NTauKin,
-	  OppCharge,
 	  TriLeptonVeto,
+	  OppCharge,
 	  MT,
 	  CatCut1,
 	  CatCut2,
@@ -61,7 +74,6 @@ class HToTaumuTauh : public Selection {
   virtual void Store_ExtraDist();
   virtual void  Finish();
 
- private:
   // Selection Variables
   std::vector<TH1D> NCatFired;
 
@@ -115,35 +127,60 @@ class HToTaumuTauh : public Selection {
   std::vector<TH1D> MetPt;
   std::vector<TH1D> MetPhi;
 
+  std::vector<TH1D> NJetsKin;
+  std::vector<TH1D> JetKin1Pt;
+  std::vector<TH1D> JetKin1Eta;
+  std::vector<TH1D> JetKin1Phi;
+  std::vector<TH1D> JetKin1IsLooseId;
+  std::vector<TH1D> JetKin2IsLooseId;
+  std::vector<TH1D> JetKin2Pt;
+  std::vector<TH1D> JetKin2Eta;
+  std::vector<TH1D> JetKin2Phi;
+  std::vector<TH1D> NJetsId;
+  std::vector<TH1D> Jet1Pt;
+  std::vector<TH1D> Jet1Eta;
+  std::vector<TH1D> Jet1Phi;
+  std::vector<TH1D> Jet1IsB;
+  std::vector<TH1D> Jet2Pt;
+  std::vector<TH1D> Jet2Eta;
+  std::vector<TH1D> Jet2Phi;
+  std::vector<TH1D> Jet2IsB;
+
+  std::vector<TH1D> NBJets;
+  std::vector<TH1D> BJet1Pt;
+  std::vector<TH1D> BJet1Eta;
+  std::vector<TH1D> BJet1Phi;
+
 
   // cut values
   double cMu_dxy, cMu_dz, cMu_relIso, cMu_pt, cMu_eta;
-  double cTau_pt, cTau_eta, cMuTau_dR;
+  double cTau_pt, cTau_eta, cTau_rawIso, cMuTau_dR;
   double cMuTriLep_pt, cMuTriLep_eta, cEleTriLep_pt, cEleTriLep_eta;
   std::vector<TString> cTriggerNames;
-  double cVBFJet_eta, cVBFJet_pt;
-  double cCat_jetPt, cCat_jetEta, cCat_btagPt, cCat_splitTauPt;
+  double cCat_jetPt, cCat_jetEta, cCat_bjetPt, cCat_bjetEta, cCat_btagDisc, cCat_splitTauPt, cJetClean_dR;
 
   // flag for category to run
   TString categoryFlag;
 
+  // variables to hold selected objects (to be used e.g. for sync Ntuple)
+  int selVertex;
+  int selMuon;
+  int selTau;
+  std::vector<int> selKinJets, selBJets;
+  double selMjj, selJetdeta;
+  int selNjetingap;
+
+
+  // function definitions
   double dxy(TLorentzVector fourvector, TVector3 poca, TVector3 vtx);
   double dz(TLorentzVector fourvector, TVector3 poca, TVector3 vtx);
 
-  bool selectVertex(unsigned i);
-
-  double Muon_AbsIso(unsigned int i);
-  double Muon_RelIso(unsigned int i);
-  bool isTightMuon(unsigned i);
-  bool isTightMuon(unsigned i, unsigned i_vtx);
   bool selectMuon_Id(unsigned i, unsigned vertex);
   bool selectMuon_Kinematics(unsigned i);
 
   bool selectMuon_diMuonVeto(unsigned i, unsigned i_vtx);
   bool selectMuon_triLeptonVeto(unsigned i, int selectedMuon, unsigned i_vtx);
 
-  bool isLooseMVAElectron(unsigned i);
-  double Electron_RelIso(unsigned i);
   bool selectElectron_triLeptonVeto(unsigned i, unsigned i_vtx, std::vector<int>);
 
   bool selectPFTau_Id(unsigned i);
@@ -151,9 +188,10 @@ class HToTaumuTauh : public Selection {
   bool selectPFTau_Iso(unsigned i);
   bool selectPFTau_Kinematics(unsigned i);
 
-  bool selectPFJet_VBF(unsigned i);
-  bool selectPFJet_Categories(unsigned i);
-  bool selectBJet_Categories(unsigned i);
+  std::vector<int> sortPFjets();
+  bool selectPFJet_Kinematics(unsigned i, int selectedMuon, int selectedTau);
+  bool selectPFJet_Id(unsigned i);
+  bool selectBJet(unsigned i, int selectedMuon, int selectedTau);
 
   inline double transverseMass(double pt1, double phi1, double pt2, double phi2){
 	  return sqrt(2 * pt1 * pt2 * (1 - cos(phi1 - phi2)));
@@ -163,7 +201,7 @@ class HToTaumuTauh : public Selection {
   std::vector<float> cut_VBF, cut_OneJet, cut_ZeroJet, cut_NoCategory;
 
   void configure_VBF();
-  bool category_VBF();
+  bool category_VBF(std::vector<int> jetCollection, std::vector<int> bJetCollection);
 
   void configure_OneJetHigh();
   bool category_OneJetHigh(int selTau, std::vector<int> jetCollection, std::vector<int> bJetCollection, bool passedVBF);
@@ -180,5 +218,10 @@ class HToTaumuTauh : public Selection {
   void configure_NoCategory();
   bool category_NoCategory();
 
+
+ private:
+  // everything is in protected to be accessible by derived classes
+
 };
+
 #endif
