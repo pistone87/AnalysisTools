@@ -65,14 +65,16 @@ void Plots::Plot1D(std::vector<std::vector<TH1D> > histo,float Lumi,std::vector<
       if(verbose)std::cout << "Plots::Plot1D " << histo.size() << " j= " << j << " color.size()= " << colour.size() << " " 
 		<< histo.at(j).size() << std::endl;
       if(histo.at(j).size()>0 && histo.at(j).size()==colour.size()){
-	TLegend leg(0.25,0.75,0.9,0.925);
+	//TLegend leg(0.25,0.75,0.9,0.925);
+	double yleg = 0.925 - histo.at(j).size()*0.04;
+	TLegend leg(0.65,yleg,0.9,0.925);
 	leg.SetBorderSize(0);
 	leg.SetFillStyle(4000);
 	leg.SetFillColor(0);
 	leg.SetTextSize(0.03);
 	leg.SetMargin(0.15);
-	leg.SetNColumns(3);
-	leg.SetColumnSeparation(0.05);
+	//leg.SetNColumns(3);
+	//leg.SetColumnSeparation(0.05);
 	TH1D Total("Total","Total",histo.at(j).at(0).GetNbinsX(),
 		   histo.at(j).at(0).GetXaxis()->GetXmin(),
 		   histo.at(j).at(0).GetXaxis()->GetXmax());
@@ -159,12 +161,13 @@ void Plots::Plot1D(std::vector<std::vector<TH1D> > histo,float Lumi,std::vector<
 	    double max=histo.at(j).at(0).GetBinContent(histo.at(j).at(0).GetMaximumBin());
 	    if(l==1){
 	    histo.at(j).at(0).SetMinimum(0.01);
-	    histo.at(j).at(0).SetMaximum(100*max);
+	    //histo.at(j).at(0).SetMaximum(100*max);
+	    histo.at(j).at(0).SetMaximum(200*max);
 	    } 
 	    else {
 	      histo.at(j).at(0).SetMinimum(0);
 	      histo.at(j).at(0).SetMaximum(1.7*max);
-	  }
+	    }
 	    histo.at(j).at(0).Draw("E");
 	    MCHistoStack.Draw("Histsame");
 	    Total.Draw("E2same");
@@ -186,7 +189,8 @@ void Plots::Plot1D(std::vector<std::vector<TH1D> > histo,float Lumi,std::vector<
 	  if(l==1){
 	    histo.at(j).at(0).SetMinimum(0.01);
 	    if(max!=0){
-	      histo.at(j).at(0).SetMaximum(100*max);
+	      //histo.at(j).at(0).SetMaximum(100*max);
+	      histo.at(j).at(0).SetMaximum(200*max);
 	    }
 	    else{
 	      histo.at(j).at(0).SetMaximum(100);

@@ -10,6 +10,9 @@
 //******* LightChargedHiggs::LightChargedHiggs START
 LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
   Selection(Name_,id_)
+  ,mu_pt(25)
+  ,mu_eta(2.4)
+  ,mu_relIso(0.12)
 {
 }
 //******* LightChargedHiggs::LightChargedHiggs END
@@ -147,12 +150,16 @@ void  LightChargedHiggs::doEvent(){
   // Apply Selection
 
   // number of good vertices
-  if(verbose) std::cout << " find primary vertex " << std::endl;
+  if(verbose) std::cout << " vertex selection " << std::endl;
   unsigned int nGoodVtx=0;
+  int vertex = -1;
   for(unsigned int i=0; i<Ntp->NVtx(); i++){
-    if(Ntp->isVtxGood_muJets(i)) nGoodVtx++;
+    if(Ntp->isGoodVtx(i)){
+      if(vertex==-1) vertex=i;
+      nGoodVtx++;
+    }
   }
-
+  if(verbose) std::cout << " selected vertex: " << vertex << std::endl;
   value.at(PrimeVtx)=nGoodVtx;
   pass.at(PrimeVtx)=(value.at(PrimeVtx)>=cut.at(PrimeVtx));
   
@@ -161,7 +168,7 @@ void  LightChargedHiggs::doEvent(){
   if(verbose) std::cout << " trigger " << std::endl;
 
   value.at(TriggerOk)=0;
-  if(Ntp->TriggerAccept("HLT_IsoMu24_eta2p1_v")){
+  if(Ntp->TriggerAccept("HLT_IsoMu24_eta2p1")){
     value.at(TriggerOk)=1;
   }
   pass.at(TriggerOk)= (value.at(TriggerOk)==cut.at(TriggerOk));
@@ -178,7 +185,11 @@ void  LightChargedHiggs::doEvent(){
 
   // number of good muons
   for(unsigned i=0; i<Ntp->NMuons(); i++){
-    if(Ntp->isGoodMuon_muJets(i)){
+    if(Ntp->isTightMuon(i, vertex)
+       && Ntp->Muon_p4(i).Pt()>mu_pt
+       && fabs(Ntp->Muon_p4(i).Eta())<mu_eta
+       && Ntp->Muon_RelIso(i)<mu_relIso
+       ){
       NGoodMuons.push_back(i);
       GoodMuons = Ntp->Muon_p4(i);
     } //if

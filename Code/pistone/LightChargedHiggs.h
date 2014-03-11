@@ -41,6 +41,8 @@ class LightChargedHiggs : public Selection {
   std::vector<TH1D> muonPt;
   std::vector<TH1D> muonEta;
 
+  double mu_pt, mu_eta, mu_relIso;
+
 
 };
 #endif

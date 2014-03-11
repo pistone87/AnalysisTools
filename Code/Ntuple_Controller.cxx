@@ -232,76 +232,6 @@ bool Ntuple_Controller::isVtxGood(unsigned int i){
   return false;
 }
 
-//claudia
-bool Ntuple_Controller::isVtxGood_muJets(unsigned int i){
-  if(0<=i && i<NVtx()){
-    if( ( Vtx_Track_idx(i).size() > 4 )
-	&& ( Vtx(i).Z() < 24 )
-	&& ( ( Vtx(i).X()*Vtx(i).X() + Vtx(i).Y()*Vtx(i).Y() ) < 2 )
-	&& ( Vtx_isFake(i) == 0 ) ){ return true; }
-  }
-  
-  return false;
-  
-}
-
-
-//claudia
-//***** GoodMuon defined for muon+jets selection
-bool Ntuple_Controller::isGoodMuon_muJets(unsigned int i){
-  //  Top muon+jets selection without Transverse IP cut and PT cut at 17GeV for our trigger 
-  //  https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTopRefEventSel       
-  //  isGoodMuon_nooverlapremoval_muJets(i) with
-  //  deltaR(mu,jet)>0.3 where jet is any jet passing the jet requirements not applied  
-
-  if(isGoodMuon_nooverlapremoval_muJets(i)){
-    unsigned int jet_idx=0;
-    return !muonhasJetOverlap(i,jet_idx);
-  }
-  return false;
-}
-
-
-//claudia
-bool Ntuple_Controller::isGoodMuon_nooverlapremoval_muJets(unsigned int i){
-  //  Top muon+jets selection without Transverse IP cut and PT cut at 17GeV for our trigger and no overlpar removal applied
-  //  https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTopRefEventSel
-  //  muon is a GlobalMuon
-  //  muon is a PFMuon
-  //  pT > 20.GeV
-  //  | eta | < 2.1
-  //  relative isolation Irel(0.4) < 0.12 (where the isolation cone dR = 0.4)
-  //  chi2/ndof < 10.
-  //  number of muon hits > 0
-  //  number of matched muon stations > 1
-  //  number of pixel hits > 0
-  //  number of tracker layers with hits > 5
-  //
-  //  | dxy | < 0.02cm (transverse IP of the muon wrt beamspot) not applied 
-  //  | dz | < 0.05cm (longitudinal distance of the tracker track wrt the primary vertex) not applied
-
-  if(Muon_isGlobalMuon(i)
-     && ( Muon_isPFMuon(i) )
-     && ( Muon_p4(i).Pt()>25. )
-     && ( fabs(Muon_p4(i).Eta())<2.1 )
-     && ( Muon_RelIso(i)<0.12 )
-     && ( Muon_normChi2(i)<10. )
-     && ( Muon_hitPattern_numberOfValidMuonHits(i)>0 )
-     && ( Muon_numberOfMatchedStations(i)>1 )
-     && ( Muon_numberofValidPixelHits(i)>0 )
-     && ( Muon_trackerLayersWithMeasurement(i)>5 )
-
-     //dxy < 0.2
-     //dz < 0.5
-     ){ return true; }
-
-  return false;
-
-} // isGoodMuon_nooverlapremoval_muJets
-
-//----- GoodMuon defined for muon+jets selection
-
-
 bool Ntuple_Controller::isGoodVtx(unsigned int i){
 	if(fabs(Vtx(i).z())>=24) return false;
 	if(Vtx(i).Perp()>=2) return false;
@@ -552,7 +482,7 @@ bool Ntuple_Controller::isTightElectron(unsigned int i, unsigned int j){
 }
 
 float Ntuple_Controller::Electron_RelIso03(unsigned int i){
-	return (Electron_chargedHadronIso(i)+std::max((float)0.,Electron_neutralHadronIso(i)+Electron_photonIso(i)-RhoIsolationAllInputTags()*Electron_Aeff_R04(Electron_supercluster_eta(i))))/Electron_p4(i).Pt();
+	return (Electron_chargedHadronIso(i)+std::max((float)0.,Electron_neutralHadronIso(i)+Electron_photonIso(i)-RhoIsolationAllInputTags()*Electron_Aeff_R03(Electron_supercluster_eta(i))))/Electron_p4(i).Pt();
 }
 
 float Ntuple_Controller::Electron_RelIso04(unsigned int i){
