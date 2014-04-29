@@ -28,27 +28,6 @@ ZtoEMu_QCD::ZtoEMu_QCD(TString Name_, TString id_):
   ,zmax(94)
 {
     //verbose=true;
-	FRFile = new TFile("/net/scratch_cms/institut_3b/nehrkorn/FakeRates_2012_19ifb_rereco.root");
-	EmbEffFile = new TFile("/net/scratch_cms/institut_3b/nehrkorn/RecHitElectronEfficiencies.root");
-	ElectronFakeRate = (TH2D*)(FRFile->Get("ElectronFakeRateHist"));
-	MuonFakeRate = (TH2D*)(FRFile->Get("MuonFakeRateHist"));
-	EmbEff = (TH2D*)(EmbEffFile->Get("hPtEtaSFL"));
-
-	MuIdEffFile = new TFile("/net/scratch_cms/institut_3b/nehrkorn/MuonEfficiencies_Run2012ReReco_53X.root");
-	MuIsoEffFile = new TFile("/net/scratch_cms/institut_3b/nehrkorn/MuonEfficiencies_ISO_Run_2012ReReco_53X.root");
-	ETrigIdEffFile = new TFile("/net/scratch_cms/institut_3b/nehrkorn/ElectronEfficiencies_Run2012ReReco_53X_Trig.root");
-	ENonTrigIdEffFile = new TFile("/net/scratch_cms/institut_3b/nehrkorn/ElectronEfficiencies_Run2012ReReco_53X_NonTrig.root");
-
-	ElectronTrigEff = (TH2D*)(ETrigIdEffFile->Get("electronsDATAMCratio_FO_ID_ISO"));
-	ElectronNonTrigEff = (TH2D*)(ENonTrigIdEffFile->Get("h_electronScaleFactor_IdIsoSip"));
-	MuIdEff09 = (TGraphAsymmErrors*)(MuIdEffFile->Get("DATA_over_MC_Tight_pt_abseta<0.9"));
-	MuIdEff12 = (TGraphAsymmErrors*)(MuIdEffFile->Get("DATA_over_MC_Tight_pt_abseta0.9-1.2"));
-	MuIdEff21 = (TGraphAsymmErrors*)(MuIdEffFile->Get("DATA_over_MC_Tight_pt_abseta1.2-2.1"));
-	MuIdEff24 = (TGraphAsymmErrors*)(MuIdEffFile->Get("DATA_over_MC_Tight_pt_abseta2.1-2.4"));
-	MuIsoEff09 = (TGraphAsymmErrors*)(MuIsoEffFile->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta<0.9"));
-	MuIsoEff12 = (TGraphAsymmErrors*)(MuIsoEffFile->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta0.9-1.2"));
-	MuIsoEff21 = (TGraphAsymmErrors*)(MuIsoEffFile->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta1.2-2.1"));
-	MuIsoEff24 = (TGraphAsymmErrors*)(MuIsoEffFile->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta2.1-2.4"));
 }
 
 ZtoEMu_QCD::~ZtoEMu_QCD(){
@@ -196,6 +175,37 @@ void  ZtoEMu_QCD::Configure(){
         Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_ptbal_",htitle,40,0,200,hlabel,"Events"));
         Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_ptbal_",htitle,40,0,200,hlabel,"Events"));
     }
+
+    // calling external files (e.g. root files for efficiencies)
+    TString base = "";
+	if(runtype==GRID){
+		base = std::getenv("PWD");
+		base+="/Code/nehrkorn/";
+	}
+	else if(runtype==Local){
+		base+="/net/scratch_cms/institut_3b/nehrkorn/";
+	}
+	FRFile = new TFile(base+"FakeRates_2012_19ifb_rereco.root");
+	EmbEffFile = new TFile(base+"RecHitElectronEfficiencies.root");
+	MuIdEffFile = new TFile(base+"MuonEfficiencies_Run2012ReReco_53X.root");
+	MuIsoEffFile = new TFile(base+"MuonEfficiencies_ISO_Run_2012ReReco_53X.root");
+	ETrigIdEffFile = new TFile(base+"ElectronEfficiencies_Run2012ReReco_53X_Trig.root");
+	ENonTrigIdEffFile = new TFile(base+"ElectronEfficiencies_Run2012ReReco_53X_NonTrig.root");
+
+	ElectronFakeRate = (TH2D*)(FRFile->Get("ElectronFakeRateHist"));
+	MuonFakeRate = (TH2D*)(FRFile->Get("MuonFakeRateHist"));
+	EmbEff = (TH2D*)(EmbEffFile->Get("hPtEtaSFL"));
+
+	ElectronTrigEff = (TH2D*)(ETrigIdEffFile->Get("electronsDATAMCratio_FO_ID_ISO"));
+	ElectronNonTrigEff = (TH2D*)(ENonTrigIdEffFile->Get("h_electronScaleFactor_IdIsoSip"));
+	MuIdEff09 = (TGraphAsymmErrors*)(MuIdEffFile->Get("DATA_over_MC_Tight_pt_abseta<0.9"));
+	MuIdEff12 = (TGraphAsymmErrors*)(MuIdEffFile->Get("DATA_over_MC_Tight_pt_abseta0.9-1.2"));
+	MuIdEff21 = (TGraphAsymmErrors*)(MuIdEffFile->Get("DATA_over_MC_Tight_pt_abseta1.2-2.1"));
+	MuIdEff24 = (TGraphAsymmErrors*)(MuIdEffFile->Get("DATA_over_MC_Tight_pt_abseta2.1-2.4"));
+	MuIsoEff09 = (TGraphAsymmErrors*)(MuIsoEffFile->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta<0.9"));
+	MuIsoEff12 = (TGraphAsymmErrors*)(MuIsoEffFile->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta0.9-1.2"));
+	MuIsoEff21 = (TGraphAsymmErrors*)(MuIsoEffFile->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta1.2-2.1"));
+	MuIsoEff24 = (TGraphAsymmErrors*)(MuIsoEffFile->Get("DATA_over_MC_combRelIsoPF04dBeta<012_Tight_pt_abseta2.1-2.4"));
 
     //-----------
   }
@@ -370,6 +380,7 @@ void  ZtoEMu_QCD::doEvent(){
   // pt thresholds
   //
   if(verbose) std::cout << "Setting pt thresholds" << std::endl;
+  bool leadingmu = false;
   value.at(ptthreshold)=0;
   if(muidx!=999 && eidx!=999){
 	  value.at(ptthreshold)=1;
@@ -379,6 +390,7 @@ void  ZtoEMu_QCD::doEvent(){
 		  if(!Ntp->TriggerAccept("HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v")) value.at(ptthreshold)=0;
 	  }else if(Ntp->Electron_p4(eidx).Et()<e_pthigh){
 		  if(!Ntp->TriggerAccept("HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v")) value.at(ptthreshold)=0;
+		  else leadingmu = true;
 	  }
   }
   pass.at(ptthreshold)=(value.at(ptthreshold)==cut.at(ptthreshold));
@@ -509,15 +521,11 @@ void  ZtoEMu_QCD::doEvent(){
   bool etrackjet(false);
   bool mutrackjet(false);
   std::vector<unsigned int> jetsfromvtx;
-  std::vector<unsigned int> loosejets;
-  std::vector<unsigned int> mediumjets;
-  std::vector<unsigned int> tightjets;
 
   // clean jets
   for(unsigned int i=0;i<Ntp->NPFJets();i++){
-	  if(Ntp->PFJet_PUJetID_looseWP(i)>0.5) loosejets.push_back(i);
-	  if(Ntp->PFJet_PUJetID_mediumWP(i)>0.5) mediumjets.push_back(i);
-	  if(Ntp->PFJet_PUJetID_tightWP(i)>0.5) tightjets.push_back(i);
+	  etrackjet = false;
+	  mutrackjet = false;
 	  if(eidx!=999 && muidx!=999){
 		  for(unsigned int j=0;j<Ntp->PFJet_Track_idx(i).size();j++){
 			  if(Ntp->PFJet_Track_idx(i).at(j)==Ntp->Electron_Track_idx(eidx)) etrackjet = true;
@@ -611,7 +619,7 @@ void  ZtoEMu_QCD::doEvent(){
   if(verbose) std::cout << "do weights" << std::endl;
   double wobs(1),w(1);
   if(!Ntp->isData() && Ntp->GetMCID()!=34){
-    w*=Ntp->EvtWeight3D();
+    w*=Ntp->PUWeight();
     if(verbose)std::cout << "void  ZtoEMu_QCD::doEvent() k" << w << " " << wobs << std::endl;
     if(pass.at(NMu)){
     	w*=MuonIDeff(muidx);

@@ -71,7 +71,7 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   else if(Analysis.Contains("ztoemu_qcd")) s=new ZtoEMu_QCD(Analysis,UncertType);
   else if(Analysis.Contains("ztoemu_fakerate"))s=new ZtoEMu_Fakerate(Analysis,UncertType);
   else if(Analysis.Contains("ztoemu_skim"))s=new ZtoEMu_Skim(Analysis,UncertType);
-  else if(Analysis.Contains("ztoemu_mcsample"))s=new ZtoEMu(Analysis,UncertType);
+  else if(Analysis.Contains("ztoemu"))s=new ZtoEMu(Analysis,UncertType);
 #endif
 #ifdef USE_kargoll
   else if(Analysis.Contains("htotaumutauh")) s=new HToTaumuTauh(Analysis,UncertType);
@@ -84,10 +84,10 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
     std::cout << "WARNING: Selection_Factory::Factory INVALID ANALYSIS TYPE.... USING DEFAULT <Example.h> " << std::endl;
     s=new Example(Analysis,UncertType);
   }
-  s->Configure();
   s->SetMode(mode);
   s->SetRunType(runtype);
   s->SetLumi(lumi);
+  s->Configure();
   return s;
 }
 
