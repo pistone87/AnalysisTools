@@ -180,7 +180,6 @@ void Ntuple_Controller::doTaus(){
 void Ntuple_Controller::doMET(){
 }
 
-
 //Physics get Functions
 int Ntuple_Controller::GetMCID(){
   if((Ntp->DataMC_Type)==DataMCType::DY_ll_Signal && HistoC.hasID(DataMCType::DY_ll_Signal)){
@@ -582,20 +581,21 @@ bool Ntuple_Controller::isJetID(unsigned int i){
   //  https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTopRefEventSel  
   //  Jet ID :
   //  number of constituents>1 (patJet->numberOfDaughters())
-  //  CEF<0.99 (patJet->chargedEmEnergyFraction())
   //  NHF<0.99 (patJet->neutralHadronEnergyFraction())
   //  NEF<0.99 (patJet->neutralEmEnergyFraction())
+  //  if |η|<2.4, CEF<0.99 (patJet->chargedEmEnergyFraction())
   //  if |η|<2.4, CHF>0 (patJet->chargedHadronEnergyFraction())
   //  if |η|<2.4, NCH>0 (patJet->chargedMultiplicity()) 
   /////////////////////////////////////////////////////////////////////////
   // apply jet ID
-  bool JetID_ok=false;
+  //bool JetID_ok=false; //useless???
   if(PFJet_numberOfDaughters(i)>1){
-    if(PFJet_chargedEmEnergyFraction(i)<0.99){
-      if(PFJet_neutralHadronEnergyFraction(i)<0.99){
-	if(PFJet_neutralEmEnergyFraction(i)<0.99){
-	  if(fabs(PFJet_p4(i).Eta())<2.4){
-	    if(PFJet_chargedHadronEnergyFraction(i)>0){
+  //if(PFJet_chargedEmEnergyFraction(i)<0.99){
+    if(PFJet_neutralHadronEnergyFraction(i)<0.99){
+      if(PFJet_neutralEmEnergyFraction(i)<0.99){
+        if(fabs(PFJet_p4(i).Eta())<2.4){
+          if(PFJet_chargedEmEnergyFraction(i)<0.99){
+            if(PFJet_chargedHadronEnergyFraction(i)>0.){
 	      if(PFJet_chargedMultiplicity(i)>0){
 		return true;
 	      }

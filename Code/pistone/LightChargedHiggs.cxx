@@ -10,9 +10,11 @@
 //******* LightChargedHiggs::LightChargedHiggs START
 LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
   Selection(Name_,id_)
-  ,mu_pt(25)
+  ,mu_pt(25.)
   ,mu_eta(2.4)
   ,mu_relIso(0.12)
+  ,jet_pt(20.)  //very loose pt cut; pt=35. loose, pt=45 tight
+  ,jet_eta(2.4)
 {
 }
 //******* LightChargedHiggs::LightChargedHiggs END
@@ -42,6 +44,7 @@ void  LightChargedHiggs::Configure(){
     if(i==TriggerOk)    cut.at(TriggerOk)=1;
     if(i==PrimeVtx)     cut.at(PrimeVtx)=1;
     if(i==NMu)          cut.at(NMu)=1;
+    if(i==NJets)        cut.at(NJets)=2;
   }
 
 
@@ -90,6 +93,19 @@ void  LightChargedHiggs::Configure(){
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NMu_",htitle,6,-0.5,5.5,hlabel,"Events"));
       }
 
+
+    // NJets
+    else if(i==NJets){
+      title.at(i)="Number of jets $>=$";
+      title.at(i)+=cut.at(NJets);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of jets";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NJets_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NJets_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      }
+
   } //for i<NCuts end
 
  
@@ -109,8 +125,15 @@ void  LightChargedHiggs::Configure(){
 
   // muons
   goodmuons=HConfig.GetTH1D(Name+"_goodmuons","goodmuons",6,-0.5,5.5,"Number of tight muons");
-  muonPt=HConfig.GetTH1D(Name+"_muonPt","muonPt",40,0.,250.,"p_{T}^{#mu}");
+  muonPt=HConfig.GetTH1D(Name+"_muonPt","muonPt",40,0.,250.,"p_{T}^{#mu} / GeV");
   muonEta=HConfig.GetTH1D(Name+"_muonEta","muonEta",20,-2.5,2.5,"#eta_{#mu}");
+
+
+  // jets
+  goodjets=HConfig.GetTH1D(Name+"_goodjets","goodjets",6,-0.5,5.5,"Number of loose jets");
+  jetPt=HConfig.GetTH1D(Name+"_jetPt","jetPt",40,0.,250.,"p_{T}^{jet} / GeV");
+  jetEta=HConfig.GetTH1D(Name+"_jetEta","jetEta",20,-2.5,2.5,"#eta_{jet}");
+  jetMass=HConfig.GetTH1D(Name+"_jetMass","jetMass",40,0.,120.,"m_{jet} / GeV");
 
 
   Selection::ConfigureHistograms();
@@ -128,10 +151,18 @@ void  LightChargedHiggs::Store_ExtraDist(){
   Extradist1d.push_back(&NGoodVtx);
   Extradist1d.push_back(&NTrackperVtx);
 
+
   // muon observables
   Extradist1d.push_back(&goodmuons);
   Extradist1d.push_back(&muonPt);
   Extradist1d.push_back(&muonEta);
+  
+  
+  // jet observables
+  Extradist1d.push_back(&goodjets);
+  Extradist1d.push_back(&jetPt);
+  Extradist1d.push_back(&jetEta);
+  Extradist1d.push_back(&jetMass);
 
 }
 //******* LightChargedHiggs::Store_ExtraDist END
@@ -147,9 +178,18 @@ void  LightChargedHiggs::doEvent(){
   if(!HConfig.GetHisto(Ntp->isData(), id, t)){ std::cout << " failed to find id " <<std::endl; return; }
   
 
-  // Apply Selection
 
+  //////////////////////////
+  //                      //
+  //    Apply Selection   //
+  //                      //
+  //////////////////////////
+
+
+  //
   // number of good vertices
+  //
+
   if(verbose) std::cout << " vertex selection " << std::endl;
   unsigned int nGoodVtx=0;
   int vertex = -1;
@@ -164,7 +204,11 @@ void  LightChargedHiggs::doEvent(){
   pass.at(PrimeVtx)=(value.at(PrimeVtx)>=cut.at(PrimeVtx));
   
 
+
+  //
   // trigger
+  //
+
   if(verbose) std::cout << " trigger " << std::endl;
 
   value.at(TriggerOk)=0;
@@ -183,7 +227,7 @@ void  LightChargedHiggs::doEvent(){
   std::vector<unsigned int> NGoodMuons;
   TLorentzVector GoodMuons;
 
-  // number of good muons
+  // number of good muons, i.e. pass the tight muon selection
   for(unsigned i=0; i<Ntp->NMuons(); i++){
     if(Ntp->isTightMuon(i, vertex)
        && Ntp->Muon_p4(i).Pt()>mu_pt
@@ -197,15 +241,36 @@ void  LightChargedHiggs::doEvent(){
 
   value.at(NMu)=NGoodMuons.size();
   pass.at(NMu)=(value.at(NMu)>=cut.at(NMu));
+
+
+
+  //
+  // jet cuts
+  //
   
+  if(verbose) std::cout << " jet cuts " << std::endl;
+  std::vector<unsigned int> NGoodJets;
+  TLorentzVector GoodJets;
+
+  // number of good jets, i.e. that pass the loose jet selection
+  for(unsigned i=0; i<Ntp->NPFJets(); i++){
+    if(Ntp->isJetID(i)
+       && Ntp->PFJet_p4(i).Pt()>jet_pt
+       && fabs(Ntp->PFJet_p4(i).Eta())<mu_eta
+       ){
+      NGoodJets.push_back(i);
+      GoodJets = Ntp->PFJet_p4(i);
+    } //if
+  } //for
+
+  value.at(NJets)=NGoodJets.size();
+  pass.at(NJets)=(value.at(NJets)>=cut.at(NJets));
 
 
   // weights
   if(verbose) std::cout << " do weights " << std::endl;
   double wobs=1;
-  double w;
-  if(!Ntp->isData()){ w = Ntp->EvtWeight3D(); }
-  else{ w=1; }
+  double w=1;
 
 
 
@@ -216,6 +281,17 @@ void  LightChargedHiggs::doEvent(){
 
   // Add plots
   if(verbose) std::cout << " add plots " << std::endl;
+
+
+  //boolean variable for the muon+jet selection
+  bool passSelection = 0;
+  
+  passSelection = 
+    pass.at(PrimeVtx)            //primary vertex
+    && pass.at(TriggerOk)        //trigger
+    && pass.at(NMu)              //tight muon selection
+    && pass.at(NJets);           //loose jet selection
+
 
   if(status){
 
@@ -229,24 +305,22 @@ void  LightChargedHiggs::doEvent(){
     NGoodVtx.at(t).Fill(nGoodVtx,w); //number of good vertices
 
     
-    // muons
-    bool passMuonSelection = 0;
-    passMuonSelection = 
-      pass.at(PrimeVtx)
-      && pass.at(TriggerOk)
-      && pass.at(NMu);
 
+    if(passSelection){
 
-    goodmuons.at(t).Fill(NGoodMuons.size());
-
-    if(passMuonSelection){
-    
+      //muons    
+      goodmuons.at(t).Fill(NGoodMuons.size());
       muonPt.at(t).Fill(GoodMuons.Pt());
       muonEta.at(t).Fill(GoodMuons.Eta());
 
-    } // if passMuonSelection
-    
+      //jets
+      goodjets.at(t).Fill(NGoodJets.size());
+      jetPt.at(t).Fill(GoodJets.Pt());
+      jetEta.at(t).Fill(GoodJets.Eta());
+      jetMass.at(t).Fill(GoodJets.M());
 
+    } // if passSelection
+    
 
   } //if(status)
 

@@ -17,6 +17,7 @@ class LightChargedHiggs : public Selection {
   enum cuts {TriggerOk=0,
 	     PrimeVtx,
 	     NMu,
+             NJets,
 	     NCuts};
 
 
@@ -36,12 +37,22 @@ class LightChargedHiggs : public Selection {
   std::vector<TH1D> NGoodVtx;
   std::vector<TH1D> NTrackperVtx;
 
+
   //muons
   std::vector<TH1D> goodmuons;
   std::vector<TH1D> muonPt;
   std::vector<TH1D> muonEta;
 
   double mu_pt, mu_eta, mu_relIso;
+
+
+  //jets
+  std::vector<TH1D> goodjets;
+  std::vector<TH1D> jetPt;
+  std::vector<TH1D> jetEta;
+  std::vector<TH1D> jetMass;
+
+  double jet_pt, jet_eta;
 
 
 };

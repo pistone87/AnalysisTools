@@ -3,6 +3,6 @@ Skim: False
 HistoFile: InputData/Histo_hplusbwb_m80.txt
 Analysis: LightChargedHiggs
 UncertType: default
-SkimInfo: InputData/SkimSummary_hplusbwb_m80.log
+SkimInfo: InputData/SkimSummaryM80_Prod20140320.log
 Lumi: 19712.00
 PlotStyle: style2
