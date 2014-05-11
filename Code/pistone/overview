@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+
+import fnmatch
+import os
+
+
+for dir in os.listdir('.'):
+    if not dir.startswith('Set_'): continue
+    if not os.path.exists(dir+'/lightchargedhiggs_default.pdf'):
+        print dir
+
