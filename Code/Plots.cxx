@@ -161,8 +161,8 @@ void Plots::Plot1D(std::vector<std::vector<TH1D> > histo,float Lumi,std::vector<
 	    double max=histo.at(j).at(0).GetBinContent(histo.at(j).at(0).GetMaximumBin());
 	    if(l==1){
 	    histo.at(j).at(0).SetMinimum(0.01);
-	    //histo.at(j).at(0).SetMaximum(100*max);
-	    histo.at(j).at(0).SetMaximum(600*max); //claudia
+	    histo.at(j).at(0).SetMaximum(100*max);
+	    //histo.at(j).at(0).SetMaximum(600*max); //cleo
 	    } 
 	    else {
 	      histo.at(j).at(0).SetMinimum(0);
@@ -190,8 +190,8 @@ void Plots::Plot1D(std::vector<std::vector<TH1D> > histo,float Lumi,std::vector<
 	  if(l==1){
 	    histo.at(j).at(0).SetMinimum(0.01);
 	    if(max!=0){
-	      //histo.at(j).at(0).SetMaximum(100*max);
-	      histo.at(j).at(0).SetMaximum(600*max); //cleo
+	      histo.at(j).at(0).SetMaximum(100*max);
+	      //histo.at(j).at(0).SetMaximum(600*max); //cleo
 	    }
 	    else{
 	      histo.at(j).at(0).SetMaximum(100);

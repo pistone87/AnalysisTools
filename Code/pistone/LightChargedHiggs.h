@@ -9,51 +9,60 @@
 class LightChargedHiggs : public Selection {
 
  public:
-  LightChargedHiggs(TString Name_, TString id_);
-  virtual ~LightChargedHiggs();
+    LightChargedHiggs(TString Name_, TString id_);
+    virtual ~LightChargedHiggs();
 
-  virtual void  Configure();
+    virtual void  Configure();
 
-  enum cuts {TriggerOk=0,
-	     PrimeVtx,
-	     NMu,
-             NJets,
-	     NCuts};
+    enum cuts {TriggerOk=0,
+                PrimeVtx,
+                NMu,
+                NJets,
+                NTau,
+	            NCuts};
 
 
  protected:
-  virtual void doEvent();
-  virtual void Store_ExtraDist();
-  virtual void Finish();
+    virtual void doEvent();
+    virtual void Store_ExtraDist();
+    virtual void Finish();
 
 
  private:
-  //
-  // Selection Variables
-  //
+    //
+    // Selection Variables
+    //
 
-  // vertices
-  std::vector<TH1D> NVtx;
-  std::vector<TH1D> NGoodVtx;
-  std::vector<TH1D> NTrackperVtx;
-
-
-  //muons
-  std::vector<TH1D> goodmuons;
-  std::vector<TH1D> muonPt;
-  std::vector<TH1D> muonEta;
-
-  double mu_pt, mu_eta, mu_relIso;
+    // vertices
+    std::vector<TH1D> NVtx;
+    std::vector<TH1D> NGoodVtx;
+    std::vector<TH1D> NTrackperVtx;
 
 
-  //jets
-  std::vector<TH1D> goodjets;
-  std::vector<TH1D> jetPt;
-  std::vector<TH1D> jetEta;
-  std::vector<TH1D> jetMass;
+    //muons
+    std::vector<TH1D> goodmuons;
+    std::vector<TH1D> muonPt;
+    std::vector<TH1D> muonEta;
 
-  double jet_pt, jet_eta;
+    double mu_pt, mu_eta, mu_relIso;
 
+
+    //jets
+    std::vector<TH1D> goodjets;
+    std::vector<TH1D> jetPt;
+    std::vector<TH1D> jetEta;
+    std::vector<TH1D> jetMass;
+
+    double jet_pt, jet_eta;
+
+
+    //tau
+    std::vector<TH1D> goodtaus;
+    std::vector<TH1D> tauPt;
+    std::vector<TH1D> tauEta;
+    std::vector<TH1D> tauPhi;
+
+    double tau_pt, tau_eta, tau_Iso;
 
 };
 #endif

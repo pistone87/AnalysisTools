@@ -11,10 +11,13 @@
 LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
   Selection(Name_,id_)
   ,mu_pt(25.)
-  ,mu_eta(2.4)
+  ,mu_eta(2.1)
   ,mu_relIso(0.12)
   ,jet_pt(20.)  //very loose pt cut; pt=35. loose, pt=45 tight
-  ,jet_eta(2.4)
+  ,jet_eta(2.5)
+  ,tau_pt(20.)
+  ,tau_eta(2.7)
+  ,tau_Iso(1.5)
 {
 }
 //******* LightChargedHiggs::LightChargedHiggs END
@@ -25,8 +28,8 @@ LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
 LightChargedHiggs::~LightChargedHiggs(){
   for(int j=0; j<Npassed.size(); j++){
     std::cout << "LightChargedHiggs::~LightChargedHiggs Selection Summary before: " 
-	 << Npassed.at(j).GetBinContent(1)     << " +/- " << Npassed.at(j).GetBinError(1)     << " after: "
-	 << Npassed.at(j).GetBinContent(NCuts) << " +/- " << Npassed.at(j).GetBinError(NCuts) << std::endl;
+      << Npassed.at(j).GetBinContent(1)     << " +/- " << Npassed.at(j).GetBinError(1)     << " after: "
+      << Npassed.at(j).GetBinContent(NCuts) << " +/- " << Npassed.at(j).GetBinError(NCuts) << std::endl;
   }
   std::cout << "LightChargedHiggs::~LightChargedHiggs()" << std::endl;
 }
@@ -45,6 +48,7 @@ void  LightChargedHiggs::Configure(){
     if(i==PrimeVtx)     cut.at(PrimeVtx)=1;
     if(i==NMu)          cut.at(NMu)=1;
     if(i==NJets)        cut.at(NJets)=2;
+    if(i==NTau)         cut.at(NTau)=1;
   }
 
 
@@ -106,6 +110,20 @@ void  LightChargedHiggs::Configure(){
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NJets_",htitle,6,-0.5,5.5,hlabel,"Events"));
       }
 
+
+    // NTau
+    else if(i==NTau){
+      title.at(i)="Number of $\\tau >=$";
+      title.at(i)+=cut.at(NTau);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of #tau";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NTau_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NTau_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      }
+
+
   } //for i<NCuts end
 
  
@@ -126,14 +144,21 @@ void  LightChargedHiggs::Configure(){
   // muons
   goodmuons=HConfig.GetTH1D(Name+"_goodmuons","goodmuons",6,-0.5,5.5,"Number of tight muons");
   muonPt=HConfig.GetTH1D(Name+"_muonPt","muonPt",40,0.,250.,"p_{T}^{#mu} / GeV");
-  muonEta=HConfig.GetTH1D(Name+"_muonEta","muonEta",20,-2.5,2.5,"#eta_{#mu}");
+  muonEta=HConfig.GetTH1D(Name+"_muonEta","muonEta",20,-3.0,3.0,"#eta_{#mu}");
 
 
   // jets
   goodjets=HConfig.GetTH1D(Name+"_goodjets","goodjets",6,-0.5,5.5,"Number of loose jets");
   jetPt=HConfig.GetTH1D(Name+"_jetPt","jetPt",40,0.,250.,"p_{T}^{jet} / GeV");
-  jetEta=HConfig.GetTH1D(Name+"_jetEta","jetEta",20,-2.5,2.5,"#eta_{jet}");
+  jetEta=HConfig.GetTH1D(Name+"_jetEta","jetEta",20,-3.0,3.0,"#eta_{jet}");
   jetMass=HConfig.GetTH1D(Name+"_jetMass","jetMass",40,0.,120.,"m_{jet} / GeV");
+
+
+  // taus
+  goodtaus=HConfig.GetTH1D(Name+"_goodtaus","goodtaus",6,-0.5,5.5,"Number of taus (3-prong)");
+  tauPt=HConfig.GetTH1D(Name+"_tauPt","tauPt",40,0.,250.,"p_{T}^{#tau} / GeV");
+  tauEta=HConfig.GetTH1D(Name+"_tauEta","tauEta",20,-3.0,3.0,"#eta_{#tau}");
+  tauPhi=HConfig.GetTH1D(Name+"_tauPhi","tauPhi",20,-3.0,3.0,"#phi_{#tau}");
 
 
   Selection::ConfigureHistograms();
@@ -144,7 +169,7 @@ void  LightChargedHiggs::Configure(){
 
 
 //******* LightChargedHiggs::Store_ExtraDist START
-void  LightChargedHiggs::Store_ExtraDist(){
+void LightChargedHiggs::Store_ExtraDist(){
 
   // vertices
   Extradist1d.push_back(&NVtx);
@@ -163,6 +188,14 @@ void  LightChargedHiggs::Store_ExtraDist(){
   Extradist1d.push_back(&jetPt);
   Extradist1d.push_back(&jetEta);
   Extradist1d.push_back(&jetMass);
+
+
+  // tau observables
+  Extradist1d.push_back(&goodtaus);
+  Extradist1d.push_back(&tauPt);
+  Extradist1d.push_back(&tauEta);
+  Extradist1d.push_back(&tauPhi);
+
 
 }
 //******* LightChargedHiggs::Store_ExtraDist END
@@ -209,10 +242,14 @@ void  LightChargedHiggs::doEvent(){
   // trigger
   //
 
+  // cross trigger muon+tau:
+  // HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v
+  // HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v 
+
   if(verbose) std::cout << " trigger " << std::endl;
 
   value.at(TriggerOk)=0;
-  if(Ntp->TriggerAccept("HLT_IsoMu24_eta2p1")){
+  if(Ntp->TriggerAccept("eta2p1_LooseIsoPFTau")){  
     value.at(TriggerOk)=1;
   }
   pass.at(TriggerOk)= (value.at(TriggerOk)==cut.at(TriggerOk));
@@ -228,7 +265,7 @@ void  LightChargedHiggs::doEvent(){
   TLorentzVector GoodMuons;
 
   // number of good muons, i.e. pass the tight muon selection
-  for(unsigned i=0; i<Ntp->NMuons(); i++){
+  for(unsigned int i=0; i<Ntp->NMuons(); i++){
     if(Ntp->isTightMuon(i, vertex)
        && Ntp->Muon_p4(i).Pt()>mu_pt
        && fabs(Ntp->Muon_p4(i).Eta())<mu_eta
@@ -253,7 +290,7 @@ void  LightChargedHiggs::doEvent(){
   TLorentzVector GoodJets;
 
   // number of good jets, i.e. that pass the loose jet selection
-  for(unsigned i=0; i<Ntp->NPFJets(); i++){
+  for(unsigned int i=0; i<Ntp->NPFJets(); i++){
     if(Ntp->isJetID(i)
        && Ntp->PFJet_p4(i).Pt()>jet_pt
        && fabs(Ntp->PFJet_p4(i).Eta())<mu_eta
@@ -265,6 +302,35 @@ void  LightChargedHiggs::doEvent(){
 
   value.at(NJets)=NGoodJets.size();
   pass.at(NJets)=(value.at(NJets)>=cut.at(NJets));
+
+
+
+  //
+  // tau cuts
+  //
+
+  if(verbose) std::cout << " tau cuts " << std::endl;
+  std::vector<unsigned int> NGoodTaus;
+  TLorentzVector GoodTaus;
+
+  // number of good taus, i.e. pass the tau selection + 3-prong requirement
+  for(unsigned int i=0; i<Ntp->NPFTaus(); i++){
+    if(Ntp->PFTau_p4(i).Pt()>tau_pt
+       && fabs(Ntp->PFTau_p4(i).Eta())<tau_eta
+       && Ntp->PFTau_hpsDecayMode(i)==10   // Decay Mode = 10 => 3-prong decay
+       && Ntp->PFTau_isHPSByDecayModeFinding(i)
+       && Ntp->PFTau_isHPSAgainstMuonTight(i)
+       && Ntp->PFTau_isHPSAgainstElectronsTight(i)
+       && Ntp->PFTau_HPSPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits(i)<tau_Iso
+       ){
+      NGoodTaus.push_back(i);
+      GoodTaus = Ntp->PFTau_p4(i);
+    } //if
+  } //for
+
+  value.at(NTau)=NGoodTaus.size();
+  pass.at(NTau)=(value.at(NTau)>=cut.at(NTau));
+
 
 
   // weights
@@ -290,8 +356,8 @@ void  LightChargedHiggs::doEvent(){
     pass.at(PrimeVtx)            //primary vertex
     && pass.at(TriggerOk)        //trigger
     && pass.at(NMu)              //tight muon selection
-    && pass.at(NJets);           //loose jet selection
-
+    && pass.at(NJets)            //loose jet selection
+    && pass.at(NTau);           //tau selection (3-prong)
 
   if(status){
 
@@ -318,6 +384,12 @@ void  LightChargedHiggs::doEvent(){
       jetPt.at(t).Fill(GoodJets.Pt());
       jetEta.at(t).Fill(GoodJets.Eta());
       jetMass.at(t).Fill(GoodJets.M());
+
+      //taus
+      goodtaus.at(t).Fill(NGoodTaus.size());
+      tauPt.at(t).Fill(GoodTaus.Pt());
+      tauEta.at(t).Fill(GoodTaus.Eta());
+      tauPhi.at(t).Fill(GoodTaus.Phi());
 
     } // if passSelection
     
