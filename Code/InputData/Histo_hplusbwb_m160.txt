@@ -1,7 +1,7 @@
 Histo:  1      -1       Data           Data                            1
 Histo: 16       8.5     HplusBWB_M80   H^{+}bWb                      632
-Histo: 20   36895.8     MC_WJ          W+jets                        619
-Histo: 23   12298.6     MC_WJ_tau      W+jets(#tau)                  617
+Histo: 20   24171.4     MC_WJ          W+jets(#mu,e)                 619
+Histo: 23   12085.7     MC_WJ_tau      W+jets(#tau)                  617
 Histo: 33    1966.7     MC_DY_tautau   Z/#gamma#rightarrow#tau#tau   400
 Histo: 32    1966.7     MC_DY_mumu     Z/#gamma#rightarrow#mu#mu     877
 Histo: 31    1966.7     MC_DY_ee       Z/#gamma#rightarrow~ee        876

@@ -17,8 +17,8 @@ class LightChargedHiggs : public Selection {
     enum cuts {TriggerOk=0,
                 PrimeVtx,
                 NMu,
-                NJets,
                 NTau,
+                NJets,
 	            NCuts};
 
 
@@ -39,30 +39,63 @@ class LightChargedHiggs : public Selection {
     std::vector<TH1D> NTrackperVtx;
 
 
-    //muons
-    std::vector<TH1D> goodmuons;
+    // Muons
+    // before cuts
     std::vector<TH1D> muonPt;
     std::vector<TH1D> muonEta;
+
+    // after selection
+    std::vector<TH1D> goodMuons;
+    std::vector<TH1D> goodMuonPt;
+    std::vector<TH1D> goodMuonEta;
 
     double mu_pt, mu_eta, mu_relIso;
 
 
-    //jets
-    std::vector<TH1D> goodjets;
-    std::vector<TH1D> jetPt;
-    std::vector<TH1D> jetEta;
-    std::vector<TH1D> jetMass;
-
-    double jet_pt, jet_eta;
-
-
-    //tau
-    std::vector<TH1D> goodtaus;
+    // Tau
+    // before cuts
     std::vector<TH1D> tauPt;
     std::vector<TH1D> tauEta;
     std::vector<TH1D> tauPhi;
+    std::vector<TH1D> tauDR;
 
-    double tau_pt, tau_eta, tau_Iso;
+    // after selection
+    std::vector<TH1D> goodTaus;
+    std::vector<TH1D> goodTauPt;
+    std::vector<TH1D> goodTauEta;
+    std::vector<TH1D> goodTauPhi;
+    std::vector<TH1D> goodTauDR;
+
+    double tau_pt, tau_eta;
+
+
+
+    // Jets
+    // before cuts
+    // jet1st
+    std::vector<TH1D> jet1stPt;
+    std::vector<TH1D> jet1stEta;
+    std::vector<TH1D> jet1stMass;
+
+    // jet2nd
+    std::vector<TH1D> jet2ndPt;
+    std::vector<TH1D> jet2ndEta;
+    std::vector<TH1D> jet2ndMass;
+
+    // after selection
+    std::vector<TH1D> goodJets;
+
+    // jet1st
+    std::vector<TH1D> goodJet1stPt;
+    std::vector<TH1D> goodJet1stEta;
+    std::vector<TH1D> goodJet1stMass;
+
+    // jet2nd
+    std::vector<TH1D> goodJet2ndPt;
+    std::vector<TH1D> goodJet2ndEta;
+    std::vector<TH1D> goodJet2ndMass;
+
+    double jet_pt, jet_eta;
 
 };
 #endif
