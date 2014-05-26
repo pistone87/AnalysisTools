@@ -54,6 +54,7 @@ void  LightChargedHiggs::Configure(){
   }
 
 
+
   TString hlabel;
   TString htitle;
   //for i<NCuts start
@@ -303,7 +304,6 @@ void  LightChargedHiggs::doEvent(){
   pass.at(PrimeVtx)=(value.at(PrimeVtx)>=cut.at(PrimeVtx));
   
 
-
   //
   // trigger
   //
@@ -319,7 +319,6 @@ void  LightChargedHiggs::doEvent(){
     value.at(TriggerOk)=1;
   }
   pass.at(TriggerOk)= (value.at(TriggerOk)==cut.at(TriggerOk));
-  
 
 
   //
@@ -332,7 +331,8 @@ void  LightChargedHiggs::doEvent(){
 
   if(verbose) std::cout << " muon cuts " << std::endl;
   std::vector<unsigned int> GoodMuonsIdx;
-  unsigned int muon1st;
+  GoodMuonsIdx.clear();
+  unsigned int muon1st(999);
   TLorentzVector muonCandidate;
 
   // number of good muons, i.e. muons that pass the tight muon selection
@@ -360,8 +360,9 @@ void  LightChargedHiggs::doEvent(){
     } //if
   } //for
 
-  muonCandidate = Ntp->Muon_p4(muon1st);
-
+  if(muon1st!=999){
+    muonCandidate = Ntp->Muon_p4(muon1st);
+  } //if
 
 
   //
@@ -374,7 +375,8 @@ void  LightChargedHiggs::doEvent(){
 
   if(verbose) std::cout << " tau cuts " << std::endl;
   std::vector<unsigned int> GoodTausIdx;
-  unsigned int tau1st;
+  GoodTausIdx.clear();
+  unsigned int tau1st(999);
   TLorentzVector tauCandidate;
 
   // number of good taus, i.e. taus that pass the tau selection + 3-prong requirement
@@ -405,8 +407,9 @@ void  LightChargedHiggs::doEvent(){
     } //if
   } //for
 
-  tauCandidate = Ntp->PFTau_p4(tau1st);
-
+  if(tau1st!=999){
+    tauCandidate = Ntp->PFTau_p4(tau1st);
+  } //if
 
 
   //
@@ -421,8 +424,9 @@ void  LightChargedHiggs::doEvent(){
 
   if(verbose) std::cout << " jet cuts " << std::endl;
   std::vector<unsigned int> GoodJetsIdx;
-  unsigned int jet1st;
-  unsigned int jet2nd;
+  GoodJetsIdx.clear();
+  unsigned int jet1st(999);
+  unsigned int jet2nd(999);
   TLorentzVector jet1stCandidate;
   TLorentzVector jet2ndCandidate;
 
@@ -456,9 +460,13 @@ void  LightChargedHiggs::doEvent(){
     } //if jet2nd
   } //for
 
-  jet1stCandidate = Ntp->PFJet_p4(jet1st);
-  jet2ndCandidate = Ntp->PFJet_p4(jet2nd);
+  if(jet1st!=999){
+    jet1stCandidate = Ntp->PFJet_p4(jet1st);
+  } //if jet1st!=999
 
+  if(jet2nd!=999){
+    jet2ndCandidate = Ntp->PFJet_p4(jet2nd);
+  } //if jet2nd!=999
 
 
   // weight
@@ -593,7 +601,7 @@ void  LightChargedHiggs::Finish(){
   //    }
   //  }
 
-
+  std::cout << " LightCahrgedHiggs is finished " << std::endl;
   Selection::Finish();
 }
 //******* LightChargedHiggs::Finish END
