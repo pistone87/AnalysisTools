@@ -226,14 +226,12 @@ void LightChargedHiggs::Store_ExtraDist(){
   Extradist1d.push_back(&tauPt);
   Extradist1d.push_back(&tauEta);
   Extradist1d.push_back(&tauPhi);
-  Extradist1d.push_back(&tauDR);
 
   // after selection
   Extradist1d.push_back(&goodTaus);
   Extradist1d.push_back(&goodTauPt);
   Extradist1d.push_back(&goodTauEta);
   Extradist1d.push_back(&goodTauPhi);
-  Extradist1d.push_back(&goodTauDR);
 
 
   // jet observables
