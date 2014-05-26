@@ -1,3 +1,0 @@
-ID= 1 AllEvt= 153409868.000000 AllEvtErr= 12385.873213 SelEvt= 46419217.000000  SelEvtErr= 6813.164740 AllEvtnoweight= 153409868.000000 SelEvtnoweight= 46419217.000000 Eff(weight)= 0.302583 Eff(noweight)= 0.302583 Nfile= 1565
-ID= 70 AllEvt= 21675970.000000 AllEvtErr= 4655.743907 SelEvt= 7457104.000000  SelEvtErr= 2730.770043 AllEvtnoweight= 21675970.000000 SelEvtnoweight= 7457104.000000 Eff(weight)= 0.344026 Eff(noweight)= 0.344026 Nfile= 453 
-ID= 16 AllEvt= 1000000.000000 AllEvtErr= 1000.000001 SelEvt= 327815.000000  SelEvtErr= 572.551316 AllEvtnoweight= 1000000.000000 SelEvtnoweight= 327815.000000 Eff(weight)= 0.327815 Eff(noweight)= 0.327815 Nfile= 401 
