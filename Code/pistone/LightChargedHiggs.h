@@ -49,8 +49,6 @@ class LightChargedHiggs : public Selection {
     std::vector<TH1D> goodMuonPt;
     std::vector<TH1D> goodMuonEta;
 
-    double mu_pt, mu_eta, mu_relIso;
-
 
     // Tau
     // before cuts
@@ -65,9 +63,6 @@ class LightChargedHiggs : public Selection {
     std::vector<TH1D> goodTauEta;
     std::vector<TH1D> goodTauPhi;
     std::vector<TH1D> goodTauDR;
-
-    double tau_pt, tau_eta;
-
 
 
     // Jets
@@ -95,7 +90,18 @@ class LightChargedHiggs : public Selection {
     std::vector<TH1D> goodJet2ndEta;
     std::vector<TH1D> goodJet2ndMass;
 
-    double jet_pt, jet_eta;
+
+
+    // cut values
+    double mu_pt, mu_eta, mu_relIso; //muons
+    double tau_pt, tau_eta; //taus
+    double jet_pt, jet_eta, jetClean_dR; //jets
+
+    
+
+    // definitions of functions
+    bool JetCleaning(unsigned int i, int muon1st, int tau1st);
+
 
 };
 #endif

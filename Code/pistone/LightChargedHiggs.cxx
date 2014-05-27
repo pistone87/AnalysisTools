@@ -16,10 +16,11 @@ LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
   ,mu_pt(25.)
   ,mu_eta(2.1)
   ,mu_relIso(0.12)
+  ,tau_pt(20.)
+  ,tau_eta(2.4)
   ,jet_pt(20.)  //very loose pt cut; pt=35. loose, pt=45 tight
   ,jet_eta(2.5)
-  ,tau_pt(20.)
-  ,tau_eta(2.5)
+  //,jetClean_dR(0.5)
 {
 }
 //******* LightChargedHiggs::LightChargedHiggs END
@@ -430,7 +431,8 @@ void  LightChargedHiggs::doEvent(){
 
   // number of good jets, i.e. jets that pass the loose jet selection
   for(unsigned int i=0; i<Ntp->NPFJets(); i++){
-    if(Ntp->isJetID(i)
+    if(JetCleaning(i, muon1st, tau1st)
+       && Ntp->isJetID(i)
        && Ntp->PFJet_p4(i).Pt()>jet_pt
        && fabs(Ntp->PFJet_p4(i).Eta())<jet_eta
        ){
@@ -465,6 +467,7 @@ void  LightChargedHiggs::doEvent(){
   if(jet2nd!=999){
     jet2ndCandidate = Ntp->PFJet_p4(jet2nd);
   } //if jet2nd!=999
+
 
 
   // weight
@@ -606,5 +609,23 @@ void  LightChargedHiggs::Finish(){
 
 
 
+/////////////////////////////
+//                         //
+// definition of functions //
+//                         //
+/////////////////////////////
 
+//******* LightChargedHiggs::JetCleaning START
+// function of jet cleaning: in this way, the muon and tau candidates don't enter the jet selection
+bool LightChargedHiggs::JetCleaning(unsigned int i, int muon1st, int tau1st){
+  if(muon1st!=999){
+    if(Ntp->PFJet_p4(i).DeltaR(Ntp->Muon_p4(muon1st)) < jetClean_dR) return false;
+  } //if muon1st
+
+  if(tau1st!=999){  
+    if(Ntp->PFJet_p4(i).DeltaR(Ntp->PFTau_p4(tau1st)) < jetClean_dR) return false;
+  } //if tau1st
+  return true;
+}
+//******* LightChargedHiggs::JetCleaning END
 
