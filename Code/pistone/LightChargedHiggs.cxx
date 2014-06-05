@@ -47,11 +47,28 @@ void  LightChargedHiggs::Configure(){
     cut.push_back(0);
     value.push_back(0);
     pass.push_back(false);
-    if(i==TriggerOk)    cut.at(TriggerOk)=1;
-    if(i==PrimeVtx)     cut.at(PrimeVtx)=1;
-    if(i==NMu)          cut.at(NMu)=1;
-    if(i==NTau)         cut.at(NTau)=1;
-    if(i==NJets)        cut.at(NJets)=2;
+
+    //trigger
+    if(i==TriggerOk)                cut.at(TriggerOk)=1;
+
+    //primary vertex
+    if(i==PrimeVtx)                 cut.at(PrimeVtx)=1;
+
+    //muons
+    //if(i==NMu)                    cut.at(NMu)=1;
+    if(i==NTightMu)                 cut.at(NTightMu)=1;
+    if(i==NTightMuIso)              cut.at(NTightMuIso)=1;
+
+    //taus
+    if(i==NTau)                     cut.at(NTau)=1;
+    if(i==NTau3Prong)               cut.at(NTau3Prong)=1;
+    if(i==NTauClean)                cut.at(NTauClean)=1;
+    if(i==NTauMediumIso)            cut.at(NTauMediumIso)=1;
+
+    //jets
+    if(i==NJetsClean)               cut.at(NJetsClean)=2;
+    if(i==NJetsID)                  cut.at(NJetsID)=2;
+    if(i==NJets)                    cut.at(NJets)=2;
   }
 
 
@@ -90,6 +107,7 @@ void  LightChargedHiggs::Configure(){
 
 
     // NMu
+/*
     else if(i==NMu){
       title.at(i)="Number of $\\mu >=$";
       title.at(i)+=cut.at(NMu);
@@ -100,18 +118,31 @@ void  LightChargedHiggs::Configure(){
       Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NMu_",htitle,6,-0.5,5.5,hlabel,"Events"));
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NMu_",htitle,6,-0.5,5.5,hlabel,"Events"));
       }
+*/
 
-
-    // NJets
-    else if(i==NJets){
-      title.at(i)="Number of jets $>=$";
-      title.at(i)+=cut.at(NJets);
+    // NTightMu
+    else if(i==NTightMu){
+      title.at(i)="Number of tight $\\mu >=$";
+      title.at(i)+=cut.at(NTightMu);
       htitle=title.at(i);
       htitle.ReplaceAll("$","");
       htitle.ReplaceAll("\\","#");
-      hlabel="Number of jets";
-      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NJets_",htitle,11,-0.5,10.5,hlabel,"Events"));
-      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NJets_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      hlabel="Number of tight #mu (no iso)";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NTightMu_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NTightMu_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      }
+
+
+    // NTightMuIso
+    else if(i==NTightMuIso){
+      title.at(i)="Number of tight isolated $\\mu >=$";
+      title.at(i)+=cut.at(NTightMuIso);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of tight isolated #mu";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NTightMuIso_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NTightMuIso_",htitle,6,-0.5,5.5,hlabel,"Events"));
       }
 
 
@@ -127,6 +158,78 @@ void  LightChargedHiggs::Configure(){
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NTau_",htitle,6,-0.5,5.5,hlabel,"Events"));
       }
 
+    // NTau3Prong
+    else if(i==NTau3Prong){
+      title.at(i)="Number of $\\tau$-3-prong $>=$";
+      title.at(i)+=cut.at(NTau3Prong);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of #tau-3-prong";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NTau3Prong_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NTau3Prong_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      }
+
+    // NTauClean
+    else if(i==NTauClean){
+      title.at(i)="Number of $\\tau$ cleaned against $\\mu$ and $e$ $>=$";
+      title.at(i)+=cut.at(NTauClean);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of #tau (against #mu and e)";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NTauClean_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NTauClean_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      }
+
+    // NTauMediumIso
+    else if(i==NTauMediumIso){
+      title.at(i)="Number of medium isolated $\\tau >=$";
+      title.at(i)+=cut.at(NTauMediumIso);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of isolated #tau";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NTauMediumIso_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NTauMediumIso_",htitle,6,-0.5,5.5,hlabel,"Events"));
+      }
+
+
+    // NJetsClean 
+    else if(i==NJetsClean){
+      title.at(i)="Number of jets cleaned against $\\mu$ and $\\tau$ $>=$";
+      title.at(i)+=cut.at(NJetsClean);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of jets cleaned against #mu and #tau";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NJetsClean_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NJetsClean_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      }
+
+    // NJetsID
+    else if(i==NJetsID){
+      title.at(i)="Number of jets (passed ID) $>=$";
+      title.at(i)+=cut.at(NJetsID);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of jets (passed ID)";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NJetsID_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NJetsID_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      }
+
+    // NJets
+    else if(i==NJets){
+      title.at(i)="Number of jets $>=$";
+      title.at(i)+=cut.at(NJets);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of jets";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NJets_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NJets_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      }
 
   } //for i<NCuts end
 
@@ -329,12 +432,15 @@ void  LightChargedHiggs::doEvent(){
   // muonCandidate: TLorentzVector of the muon1st
 
   if(verbose) std::cout << " muon cuts " << std::endl;
+  std::vector<unsigned int> TightMuonsIdx;
+  TightMuonsIdx.clear();
   std::vector<unsigned int> GoodMuonsIdx;
   GoodMuonsIdx.clear();
   unsigned int muon1st(999);
   TLorentzVector muonCandidate;
 
   // number of good muons, i.e. muons that pass the tight muon selection
+/*
   for(unsigned int i=0; i<Ntp->NMuons(); i++){
     if(Ntp->isTightMuon(i, vertex)
        && Ntp->Muon_p4(i).Pt()>mu_pt
@@ -347,6 +453,31 @@ void  LightChargedHiggs::doEvent(){
 
   value.at(NMu)=GoodMuonsIdx.size();
   pass.at(NMu)=(value.at(NMu)>=cut.at(NMu));
+*/
+
+  // number of tight muons without requirements on the isolation
+  for(unsigned int i=0; i<Ntp->NMuons(); i++){
+    if(Ntp->isTightMuon(i, vertex)
+       && Ntp->Muon_p4(i).Pt()>mu_pt
+       && fabs(Ntp->Muon_p4(i).Eta())<mu_eta
+       ){
+      TightMuonsIdx.push_back(i);
+    } //if
+  } //for
+
+  value.at(NTightMu)=TightMuonsIdx.size();
+  pass.at(NTightMu)=(value.at(NTightMu)>=cut.at(NTightMu));
+
+  // number of tight isolated muons
+  for(unsigned int i=0; i<TightMuonsIdx.size(); i++){
+    if(Ntp->Muon_RelIso(i)<mu_relIso){
+      GoodMuonsIdx.push_back(TightMuonsIdx.at(i));
+    } //if
+  } //for
+
+  value.at(NTightMuIso)=GoodMuonsIdx.size();
+  pass.at(NTightMuIso)=(value.at(NTightMuIso)>=cut.at(NTightMuIso));
+
 
   // take the muon1st
   double tempMuPt(0);
@@ -373,12 +504,19 @@ void  LightChargedHiggs::doEvent(){
   // tauCandidate: TLorentzVector of the tau1st
 
   if(verbose) std::cout << " tau cuts " << std::endl;
+  std::vector<unsigned int> TausIdx;
+  TausIdx.clear();
+  std::vector<unsigned int> Taus3ProngIdx;
+  Taus3ProngIdx.clear();
+  std::vector<unsigned int> TausCleanIdx;
+  TausCleanIdx.clear();
   std::vector<unsigned int> GoodTausIdx;
   GoodTausIdx.clear();
   unsigned int tau1st(999);
   TLorentzVector tauCandidate;
 
   // number of good taus, i.e. taus that pass the tau selection + 3-prong requirement
+/*
   for(unsigned int i=0; i<Ntp->NPFTaus(); i++){
     if(Ntp->PFTau_p4(i).Pt()>tau_pt
        && fabs(Ntp->PFTau_p4(i).Eta())<tau_eta
@@ -394,6 +532,54 @@ void  LightChargedHiggs::doEvent(){
 
   value.at(NTau)=GoodTausIdx.size();
   pass.at(NTau)=(value.at(NTau)>=cut.at(NTau));
+*/
+
+  // number of taus with pt > 20.GeV and |eta| < 2.4
+  for(unsigned int i=0; i<Ntp->NPFTaus(); i++){
+    if(Ntp->PFTau_p4(i).Pt()>tau_pt
+       && fabs(Ntp->PFTau_p4(i).Eta())<tau_eta
+       ){
+      TausIdx.push_back(i);
+    } //if
+  } //for
+
+  value.at(NTau)=TausIdx.size();
+  pass.at(NTau)=(value.at(NTau)>=cut.at(NTau));
+
+  // number of tau-3-prong candidates
+  for(unsigned int i=0; i<TausIdx.size(); i++){
+    if(Ntp->PFTau_hpsDecayMode(i)==10   // DecayMode = 10 => 3-prong decay
+       && Ntp->PFTau_isHPSByDecayModeFinding(i)
+       ){
+      Taus3ProngIdx.push_back(TausIdx.at(i));
+    } //if
+  } //for
+
+  value.at(NTau3Prong)=Taus3ProngIdx.size();
+  pass.at(NTau3Prong)=(value.at(NTau3Prong)>=cut.at(NTau3Prong));
+
+  // number of tau cleaned against muons and electrons
+  for(unsigned int i=0; i<Taus3ProngIdx.size(); i++){
+    if(Ntp->PFTau_isHPSAgainstMuonTight(i)
+       && Ntp->PFTau_isHPSAgainstElectronsTight(i) 
+       ){
+      TausCleanIdx.push_back(Taus3ProngIdx.at(i));
+    } //if
+  } //for
+
+  value.at(NTauClean)=TausCleanIdx.size();
+  pass.at(NTauClean)=(value.at(NTauClean)>=cut.at(NTauClean));
+
+  // number of good taus
+  for(unsigned int i=0; i<TausCleanIdx.size(); i++){
+    if(Ntp->PFTau_HPSPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits(i) // it's a boolean variable
+       ){
+      GoodTausIdx.push_back(TausCleanIdx.at(i));
+    } //if
+  } //for
+
+  value.at(NTauMediumIso)=GoodTausIdx.size();
+  pass.at(NTauMediumIso)=(value.at(NTauMediumIso)>=cut.at(NTauMediumIso));
 
   // take the tau1st
   double tempTauPt(0);
@@ -422,6 +608,10 @@ void  LightChargedHiggs::doEvent(){
   // jet2ndCandidate: TLorentzVector for the jet2nd 
 
   if(verbose) std::cout << " jet cuts " << std::endl;
+  std::vector<unsigned int> JetsCleanIdx;
+  JetsCleanIdx.clear();
+  std::vector<unsigned int> JetsIDIdx;
+  JetsIDIdx.clear();
   std::vector<unsigned int> GoodJetsIdx;
   GoodJetsIdx.clear();
   unsigned int jet1st(999);
@@ -429,14 +619,32 @@ void  LightChargedHiggs::doEvent(){
   TLorentzVector jet1stCandidate;
   TLorentzVector jet2ndCandidate;
 
-  // number of good jets, i.e. jets that pass the loose jet selection
+  // number of jets cleaned against muonCandidate and tauCandidate
   for(unsigned int i=0; i<Ntp->NPFJets(); i++){
-    if(JetCleaning(i, muon1st, tau1st)
-       && Ntp->isJetID(i)
-       && Ntp->PFJet_p4(i).Pt()>jet_pt
+    if(JetCleaning(i, muon1st, tau1st)){
+      JetsCleanIdx.push_back(i);
+    } //if
+  } //for
+
+  value.at(NJetsClean)=JetsCleanIdx.size();
+  pass.at(NJetsClean)=(value.at(NJetsClean)>=cut.at(NJetsClean));
+
+  // number of jets that pass the jet id selection
+  for(unsigned int i=0; i<JetsCleanIdx.size(); i++){
+    if(Ntp->isJetID(i)){
+      JetsIDIdx.push_back(JetsCleanIdx.at(i));
+    } //if
+  } //for
+
+  value.at(NJetsID)=JetsIDIdx.size();
+  pass.at(NJetsID)=(value.at(NJetsID)>=cut.at(NJetsID));
+
+  // number of good jets, i.e. jets that pass the loose jet selection
+  for(unsigned int i=0; i<JetsIDIdx.size(); i++){
+    if(Ntp->PFJet_p4(i).Pt()>jet_pt
        && fabs(Ntp->PFJet_p4(i).Eta())<jet_eta
        ){
-      GoodJetsIdx.push_back(i);
+      GoodJetsIdx.push_back(JetsIDIdx.at(i));
     } //if
   } //for
 
@@ -484,6 +692,7 @@ void  LightChargedHiggs::doEvent(){
   // *** Add plots ***
   if(verbose) std::cout << " add plots " << std::endl;
 
+/*
   // before cuts
   if(verbose) std::cout << " add plots before cuts " << std::endl;
 
@@ -528,7 +737,7 @@ void  LightChargedHiggs::doEvent(){
       jet2ndMass.at(t).Fill(jet2ndCandidate.M(),w);
 
   } //if PrimeVtx, TriggerOk, NMu, NTau
-
+*/
 
 
   // after the FULL selection

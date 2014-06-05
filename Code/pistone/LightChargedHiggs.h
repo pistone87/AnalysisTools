@@ -16,8 +16,15 @@ class LightChargedHiggs : public Selection {
 
     enum cuts {TriggerOk=0,
                 PrimeVtx,
-                NMu,
+                //NMu,
+		NTightMu,
+		NTightMuIso,
                 NTau,
+      		NTau3Prong,
+		NTauClean,
+		NTauMediumIso,
+ 		NJetsClean,
+		NJetsID,
                 NJets,
 	            NCuts};
 
