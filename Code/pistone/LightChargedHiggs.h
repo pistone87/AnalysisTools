@@ -56,20 +56,20 @@ class LightChargedHiggs : public Selection {
     std::vector<TH1D> goodMuonPt;
     std::vector<TH1D> goodMuonEta;
 
+    // transverse mass(mu, MET)
+    std::vector<TH1D> transMass;
 
     // Tau
     // before cuts
     std::vector<TH1D> tauPt;
     std::vector<TH1D> tauEta;
     std::vector<TH1D> tauPhi;
-    std::vector<TH1D> tauDR;
 
     // after selection
     std::vector<TH1D> goodTaus;
     std::vector<TH1D> goodTauPt;
     std::vector<TH1D> goodTauEta;
     std::vector<TH1D> goodTauPhi;
-    std::vector<TH1D> goodTauDR;
 
 
     // Jets

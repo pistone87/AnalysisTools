@@ -258,6 +258,9 @@ void  LightChargedHiggs::Configure(){
   goodMuonPt=HConfig.GetTH1D(Name+"_goodMuonPt","goodMuonPt",40,0.,250.,"p_{T}^{#mu} / GeV");
   goodMuonEta=HConfig.GetTH1D(Name+"_goodMuonEta","goodMuonEta",20,-3.0,3.0,"#eta_{#mu}");
 
+  // transverse mass mt of muon and missing transverse energy
+  transMass=HConfig.GetTH1D(Name+"_transMass","transMass",40,0.,250.,"m_{T}(#mu, MET) / GeV");
+
 
   // taus
   // before cuts
@@ -298,6 +301,8 @@ void  LightChargedHiggs::Configure(){
   goodJet2ndMass=HConfig.GetTH1D(Name+"_goodJet2ndMass","goodJet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
 
 
+  
+
   Selection::ConfigureHistograms();
   HConfig.GetHistoInfo(types,CrossSectionandAcceptance,legend,colour);
 }
@@ -324,7 +329,10 @@ void LightChargedHiggs::Store_ExtraDist(){
   Extradist1d.push_back(&goodMuonPt);
   Extradist1d.push_back(&goodMuonEta);
   
-  
+  //transverse mass(mu, MET)
+  Extradist1d.push_back(&transMass);
+ 
+ 
   // tau observables
   // before cuts
   Extradist1d.push_back(&tauPt);
@@ -349,8 +357,6 @@ void LightChargedHiggs::Store_ExtraDist(){
   Extradist1d.push_back(&jet2ndPt);
   Extradist1d.push_back(&jet2ndEta);
   Extradist1d.push_back(&jet2ndMass);
-
-
 
   // after selection
   Extradist1d.push_back(&goodJets);
@@ -765,6 +771,15 @@ void  LightChargedHiggs::doEvent(){
     goodMuons.at(t).Fill(GoodMuonsIdx.size(),w);
     goodMuonPt.at(t).Fill(muonCandidate.Pt(),w);
     goodMuonEta.at(t).Fill(muonCandidate.Eta(),w);
+
+    // Transverse mass of muon and MET
+    double met(0.), deltaPhiMuMet(0.);
+    double Mt(0.);
+    met = Ntp->MET_CorrT0pcTxy_et();
+    deltaPhiMuMet = muonCandidate.Phi() - Ntp->MET_CorrT0pcTxy_phi();
+    Mt = sqrt( 2 * muonCandidate.Pt() * met * (1 - cos(deltaPhiMuMet)) );
+    
+    transMass.at(t).Fill(Mt,w);
 
     // Taus
     // goodTaus: plot of number of taus that pass the tau selection (3-prong candidates) in the events that pass the full selection
