@@ -439,11 +439,7 @@ void  LightChargedHiggs::doEvent(){
 
   if(verbose) std::cout << " muon cuts " << std::endl;
   std::vector<unsigned int> TightMuonsIdx;
-  TightMuonsIdx.clear();
   std::vector<unsigned int> GoodMuonsIdx;
-  GoodMuonsIdx.clear();
-  unsigned int muon1st(999);
-  TLorentzVector muonCandidate;
 
   // number of good muons, i.e. muons that pass the tight muon selection
 /*
@@ -476,8 +472,9 @@ void  LightChargedHiggs::doEvent(){
 
   // number of tight isolated muons
   for(unsigned int i=0; i<TightMuonsIdx.size(); i++){
-    if(Ntp->Muon_RelIso(i)<mu_relIso){
-      GoodMuonsIdx.push_back(TightMuonsIdx.at(i));
+    unsigned int j = TightMuonsIdx.at(i);
+    if(Ntp->Muon_RelIso(j)<mu_relIso){
+      GoodMuonsIdx.push_back(j);
     } //if
   } //for
 
@@ -486,12 +483,15 @@ void  LightChargedHiggs::doEvent(){
 
 
   // take the muon1st
+  unsigned int muon1st(999);
+  TLorentzVector muonCandidate;
   double tempMuPt(0);
   double tempMu1stPt(0);
   for(unsigned int i=0; i<GoodMuonsIdx.size(); i++){
-    tempMuPt = Ntp->Muon_p4(GoodMuonsIdx.at(i)).Pt();
+    unsigned int j = GoodMuonsIdx.at(i);
+    tempMuPt = Ntp->Muon_p4(j).Pt();
     if(tempMuPt > tempMu1stPt){
-      muon1st = GoodMuonsIdx.at(i);
+      muon1st = j;
       tempMu1stPt = tempMuPt;
     } //if
   } //for
@@ -511,15 +511,9 @@ void  LightChargedHiggs::doEvent(){
 
   if(verbose) std::cout << " tau cuts " << std::endl;
   std::vector<unsigned int> TausIdx;
-  TausIdx.clear();
   std::vector<unsigned int> Taus3ProngIdx;
-  Taus3ProngIdx.clear();
   std::vector<unsigned int> TausCleanIdx;
-  TausCleanIdx.clear();
   std::vector<unsigned int> GoodTausIdx;
-  GoodTausIdx.clear();
-  unsigned int tau1st(999);
-  TLorentzVector tauCandidate;
 
   // number of good taus, i.e. taus that pass the tau selection + 3-prong requirement
 /*
@@ -554,10 +548,11 @@ void  LightChargedHiggs::doEvent(){
 
   // number of tau-3-prong candidates
   for(unsigned int i=0; i<TausIdx.size(); i++){
-    if(Ntp->PFTau_hpsDecayMode(i)==10   // DecayMode = 10 => 3-prong decay
-       && Ntp->PFTau_isHPSByDecayModeFinding(i)
+    unsigned int j = TausIdx.at(i);
+    if(Ntp->PFTau_hpsDecayMode(j)==10   // DecayMode = 10 => 3-prong decay
+       && Ntp->PFTau_isHPSByDecayModeFinding(j)
        ){
-      Taus3ProngIdx.push_back(TausIdx.at(i));
+      Taus3ProngIdx.push_back(j);
     } //if
   } //for
 
@@ -566,10 +561,11 @@ void  LightChargedHiggs::doEvent(){
 
   // number of tau cleaned against muons and electrons
   for(unsigned int i=0; i<Taus3ProngIdx.size(); i++){
-    if(Ntp->PFTau_isHPSAgainstMuonTight(i)
-       && Ntp->PFTau_isHPSAgainstElectronsTight(i) 
+    unsigned int j = Taus3ProngIdx.at(i);
+    if(Ntp->PFTau_isHPSAgainstMuonTight(j)
+       && Ntp->PFTau_isHPSAgainstElectronsTight(j) 
        ){
-      TausCleanIdx.push_back(Taus3ProngIdx.at(i));
+      TausCleanIdx.push_back(j);
     } //if
   } //for
 
@@ -578,9 +574,10 @@ void  LightChargedHiggs::doEvent(){
 
   // number of good taus
   for(unsigned int i=0; i<TausCleanIdx.size(); i++){
-    if(Ntp->PFTau_HPSPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits(i) // it's a boolean variable
+    unsigned int j = TausCleanIdx.at(i);
+    if(Ntp->PFTau_HPSPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits(j) // it's a boolean variable
        ){
-      GoodTausIdx.push_back(TausCleanIdx.at(i));
+      GoodTausIdx.push_back(j);
     } //if
   } //for
 
@@ -588,12 +585,15 @@ void  LightChargedHiggs::doEvent(){
   pass.at(NTauMediumIso)=(value.at(NTauMediumIso)>=cut.at(NTauMediumIso));
 
   // take the tau1st
+  unsigned int tau1st(999);
+  TLorentzVector tauCandidate;
   double tempTauPt(0);
   double tempTau1stPt(0);
   for(unsigned int i=0; i<GoodTausIdx.size(); i++){
-    tempTauPt = Ntp->PFTau_p4(GoodTausIdx.at(i)).Pt();
+    unsigned int j = GoodTausIdx.at(i);
+    tempTauPt = Ntp->PFTau_p4(j).Pt();
     if(tempTauPt > tempTau1stPt){
-      tau1st = GoodTausIdx.at(i);
+      tau1st = j;
       tempTau1stPt = tempTauPt;
     } //if
   } //for
@@ -615,15 +615,8 @@ void  LightChargedHiggs::doEvent(){
 
   if(verbose) std::cout << " jet cuts " << std::endl;
   std::vector<unsigned int> JetsCleanIdx;
-  JetsCleanIdx.clear();
   std::vector<unsigned int> JetsIDIdx;
-  JetsIDIdx.clear();
   std::vector<unsigned int> GoodJetsIdx;
-  GoodJetsIdx.clear();
-  unsigned int jet1st(999);
-  unsigned int jet2nd(999);
-  TLorentzVector jet1stCandidate;
-  TLorentzVector jet2ndCandidate;
 
   // number of jets cleaned against muonCandidate and tauCandidate
   for(unsigned int i=0; i<Ntp->NPFJets(); i++){
@@ -637,8 +630,9 @@ void  LightChargedHiggs::doEvent(){
 
   // number of jets that pass the jet id selection
   for(unsigned int i=0; i<JetsCleanIdx.size(); i++){
-    if(Ntp->isJetID(i)){
-      JetsIDIdx.push_back(JetsCleanIdx.at(i));
+    unsigned int j = JetsCleanIdx.at(i);
+    if(Ntp->isJetID(j)){
+      JetsIDIdx.push_back(j);
     } //if
   } //for
 
@@ -647,10 +641,11 @@ void  LightChargedHiggs::doEvent(){
 
   // number of good jets, i.e. jets that pass the loose jet selection
   for(unsigned int i=0; i<JetsIDIdx.size(); i++){
-    if(Ntp->PFJet_p4(i).Pt()>jet_pt
-       && fabs(Ntp->PFJet_p4(i).Eta())<jet_eta
+    unsigned int j = JetsIDIdx.at(i);
+    if(Ntp->PFJet_p4(j).Pt()>jet_pt
+       && fabs(Ntp->PFJet_p4(j).Eta())<jet_eta
        ){
-      GoodJetsIdx.push_back(JetsIDIdx.at(i));
+      GoodJetsIdx.push_back(j);
     } //if
   } //for
 
@@ -658,13 +653,18 @@ void  LightChargedHiggs::doEvent(){
   pass.at(NJets)=(value.at(NJets)>=cut.at(NJets));
 
   // take the jet1st and jet2nd
+  unsigned int jet1st(999);
+  unsigned int jet2nd(999);
+  TLorentzVector jet1stCandidate;
+  TLorentzVector jet2ndCandidate;
   double tempJetPt(0);
   double tempJet1stPt(0);
   double tempJet2ndPt(0);
   for(unsigned int i=0; i<GoodJetsIdx.size(); i++){
-    tempJetPt = Ntp->PFJet_p4(GoodJetsIdx.at(i)).Pt();
+    unsigned int j = GoodJetsIdx.at(i);
+    tempJetPt = Ntp->PFJet_p4(j).Pt();
     if(tempJetPt > tempJet1stPt){
-      jet1st = GoodJetsIdx.at(i);
+      jet1st = j;
       tempJet1stPt = tempJetPt;
     } //if jet1st
 
