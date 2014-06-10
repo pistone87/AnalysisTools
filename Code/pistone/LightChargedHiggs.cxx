@@ -20,7 +20,7 @@ LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
   ,tau_eta(2.4)
   ,jet_pt(20.)  //very loose pt cut; pt=35. loose, pt=45 tight
   ,jet_eta(2.5)
-  //,jetClean_dR(0.5)
+  ,jetClean_dR(0.5)
 {
 }
 //******* LightChargedHiggs::LightChargedHiggs END
