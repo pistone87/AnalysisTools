@@ -21,6 +21,7 @@ LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
   ,jet_pt(20.)  //very loose pt cut; pt=35. loose, pt=45 tight
   ,jet_eta(2.5)
   ,jetClean_dR(0.5)
+  ,bjetDiscr(0.679) //medium WP, https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5
 {
 }
 //******* LightChargedHiggs::LightChargedHiggs END
@@ -69,6 +70,7 @@ void  LightChargedHiggs::Configure(){
     if(i==NJetsClean)               cut.at(NJetsClean)=2;
     if(i==NJetsID)                  cut.at(NJetsID)=2;
     if(i==NJets)                    cut.at(NJets)=2;
+    if(i==NBJets)                   cut.at(NBJets)=2;
   }
 
 
@@ -231,6 +233,17 @@ void  LightChargedHiggs::Configure(){
       Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NJets_",htitle,11,-0.5,10.5,hlabel,"Events"));
       }
 
+    // NBJets
+    else if(i==NBJets){
+      title.at(i)="Number of b-jets $>=$";
+      title.at(i)+=cut.at(NBJets);
+      htitle=title.at(i);
+      htitle.ReplaceAll("$","");
+      htitle.ReplaceAll("\\","#");
+      hlabel="Number of b-jets";
+      Nminus1.push_back(HConfig.GetTH1D(Name+c+"_Nminus1_NBJets_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      Nminus0.push_back(HConfig.GetTH1D(Name+c+"_Nminus0_NBJets_",htitle,11,-0.5,10.5,hlabel,"Events"));
+      }
   } //for i<NCuts end
 
  
@@ -288,7 +301,7 @@ void  LightChargedHiggs::Configure(){
   jet2ndMass=HConfig.GetTH1D(Name+"_jet2ndMass","jet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
 
   // after selection
-  goodJets=HConfig.GetTH1D(Name+"_goodJets","goodJets",6,-0.5,5.5,"Number of loose jets");
+  goodJets=HConfig.GetTH1D(Name+"_goodJets","goodJets",11,-0.5,10.5,"Number of loose jets");
 
   // jet1st
   goodJet1stPt=HConfig.GetTH1D(Name+"_goodJet1stPt","goodJet1stPt",40,0.,250.,"p_{T}^{1st,jet} / GeV");
@@ -616,6 +629,7 @@ void  LightChargedHiggs::doEvent(){
   if(verbose) std::cout << " jet cuts " << std::endl;
   std::vector<unsigned int> JetsCleanIdx;
   std::vector<unsigned int> JetsIDIdx;
+  std::vector<unsigned int> JetsIdx;
   std::vector<unsigned int> GoodJetsIdx;
 
   // number of jets cleaned against muonCandidate and tauCandidate
@@ -639,18 +653,31 @@ void  LightChargedHiggs::doEvent(){
   value.at(NJetsID)=JetsIDIdx.size();
   pass.at(NJetsID)=(value.at(NJetsID)>=cut.at(NJetsID));
 
-  // number of good jets, i.e. jets that pass the loose jet selection
+  // number of jets that pass the cuts on pt and eta (loose jet selection)
   for(unsigned int i=0; i<JetsIDIdx.size(); i++){
     unsigned int j = JetsIDIdx.at(i);
     if(Ntp->PFJet_p4(j).Pt()>jet_pt
        && fabs(Ntp->PFJet_p4(j).Eta())<jet_eta
        ){
+      JetsIdx.push_back(j);
+    } //if
+  } //for
+
+  value.at(NJets)=JetsIdx.size();
+  pass.at(NJets)=(value.at(NJets)>=cut.at(NJets));
+
+  // number of good jets, i.e. jets that pass the loose jet selection AND the b-tagging
+  for(unsigned int i=0; i<JetsIdx.size(); i++){
+    unsigned int j = JetsIdx.at(i);
+    if(Ntp->PFJet_bDiscriminator(j) > bjetDiscr){
       GoodJetsIdx.push_back(j);
     } //if
   } //for
 
-  value.at(NJets)=GoodJetsIdx.size();
-  pass.at(NJets)=(value.at(NJets)>=cut.at(NJets));
+  value.at(NBJets)=GoodJetsIdx.size();
+  pass.at(NBJets)=(value.at(NBJets)>=cut.at(NBJets));
+
+
 
   // take the jet1st and jet2nd
   unsigned int jet1st(999);

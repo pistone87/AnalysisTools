@@ -17,16 +17,17 @@ class LightChargedHiggs : public Selection {
     enum cuts {TriggerOk=0,
                 PrimeVtx,
                 //NMu,
-		NTightMu,
-		NTightMuIso,
+                NTightMu,
+                NTightMuIso,
                 NTau,
-      		NTau3Prong,
-		NTauClean,
-		NTauMediumIso,
- 		NJetsClean,
-		NJetsID,
+                NTau3Prong,
+                NTauClean,
+                NTauMediumIso,
+                NJetsClean,
+                NJetsID,
                 NJets,
-	            NCuts};
+                NBJets,
+                NCuts};
 
 
  protected:
@@ -102,7 +103,7 @@ class LightChargedHiggs : public Selection {
     // cut values
     double mu_pt, mu_eta, mu_relIso; //muons
     double tau_pt, tau_eta; //taus
-    double jet_pt, jet_eta, jetClean_dR; //jets
+    double jet_pt, jet_eta, jetClean_dR, bjetDiscr; //jets
 
     
 
