@@ -49,8 +49,8 @@ class LightChargedHiggs : public Selection {
 
     // Muons
     // before cuts
-    std::vector<TH1D> muonPt;
-    std::vector<TH1D> muonEta;
+    //std::vector<TH1D> muonPt;
+    //std::vector<TH1D> muonEta;
 
     // after selection
     std::vector<TH1D> goodMuons;
@@ -62,9 +62,9 @@ class LightChargedHiggs : public Selection {
 
     // Tau
     // before cuts
-    std::vector<TH1D> tauPt;
-    std::vector<TH1D> tauEta;
-    std::vector<TH1D> tauPhi;
+    //std::vector<TH1D> tauPt;
+    //std::vector<TH1D> tauEta;
+    //std::vector<TH1D> tauPhi;
 
     // after selection
     std::vector<TH1D> goodTaus;
@@ -76,14 +76,14 @@ class LightChargedHiggs : public Selection {
     // Jets
     // before cuts
     // jet1st
-    std::vector<TH1D> jet1stPt;
-    std::vector<TH1D> jet1stEta;
-    std::vector<TH1D> jet1stMass;
+    //std::vector<TH1D> jet1stPt;
+    //std::vector<TH1D> jet1stEta;
+    //std::vector<TH1D> jet1stMass;
 
     // jet2nd
-    std::vector<TH1D> jet2ndPt;
-    std::vector<TH1D> jet2ndEta;
-    std::vector<TH1D> jet2ndMass;
+    //std::vector<TH1D> jet2ndPt;
+    //std::vector<TH1D> jet2ndEta;
+    //std::vector<TH1D> jet2ndMass;
 
     // after selection
     std::vector<TH1D> goodJets;
@@ -98,6 +98,9 @@ class LightChargedHiggs : public Selection {
     std::vector<TH1D> goodJet2ndEta;
     std::vector<TH1D> goodJet2ndMass;
 
+    // MET
+    std::vector<TH1D> METEt;
+    std::vector<TH1D> METPhi;
 
 
     // cut values

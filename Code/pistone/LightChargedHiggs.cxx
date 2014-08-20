@@ -9,6 +9,8 @@
 
 double pi = M_PI;
 
+int ptNbins = 25;
+int etaNbins = 20;
 
 //******* LightChargedHiggs::LightChargedHiggs START
 LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
@@ -263,56 +265,60 @@ void  LightChargedHiggs::Configure(){
 
   // muons
   // before cuts
-  muonPt=HConfig.GetTH1D(Name+"_muonPt","muonPt",40,0.,250.,"p_{T}^{#mu} / GeV");
-  muonEta=HConfig.GetTH1D(Name+"_muonEta","muonEta",20,-3.0,3.0,"#eta_{#mu}");
+  //muonPt=HConfig.GetTH1D(Name+"_muonPt","muonPt",40,0.,250.,"p_{T}^{#mu} / GeV");
+  //muonEta=HConfig.GetTH1D(Name+"_muonEta","muonEta",20,-3.0,3.0,"#eta_{#mu}");
 
   // after selection
-  goodMuons=HConfig.GetTH1D(Name+"_goodMuons","goodMuons",6,-0.5,5.5,"Number of tight muons");
-  goodMuonPt=HConfig.GetTH1D(Name+"_goodMuonPt","goodMuonPt",40,0.,250.,"p_{T}^{#mu} / GeV");
-  goodMuonEta=HConfig.GetTH1D(Name+"_goodMuonEta","goodMuonEta",20,-3.0,3.0,"#eta_{#mu}");
+  goodMuons=HConfig.GetTH1D(Name+"_goodMuons_","goodMuons",6,-0.5,5.5,"Number of tight muons");
+  goodMuonPt=HConfig.GetTH1D(Name+"_goodMuonPt_","goodMuonPt",25,0.,250.,"p_{T}^{#mu} / GeV");
+  goodMuonEta=HConfig.GetTH1D(Name+"_goodMuonEta_","goodMuonEta",20,-3.0,3.0,"#eta_{#mu}");
 
   // transverse mass mt of muon and missing transverse energy
-  transMass=HConfig.GetTH1D(Name+"_transMass","transMass",40,0.,250.,"m_{T}(#mu, MET) / GeV");
+  transMass=HConfig.GetTH1D(Name+"_transMass_","transMass",40,0.,250.,"m_{T}(#mu, MET) / GeV");
 
 
   // taus
   // before cuts
-  tauPt=HConfig.GetTH1D(Name+"_tauPt","tauPt",40,0.,250.,"p_{T}^{#tau} / GeV");
-  tauEta=HConfig.GetTH1D(Name+"_tauEta","tauEta",20,-3.0,3.0,"#eta_{#tau}");
-  tauPhi=HConfig.GetTH1D(Name+"_tauPhi","tauPhi",20,-pi,pi,"#phi_{#tau}"); 
+  //tauPt=HConfig.GetTH1D(Name+"_tauPt","tauPt",40,0.,250.,"p_{T}^{#tau} / GeV");
+  //tauEta=HConfig.GetTH1D(Name+"_tauEta","tauEta",20,-3.0,3.0,"#eta_{#tau}");
+  //tauPhi=HConfig.GetTH1D(Name+"_tauPhi","tauPhi",20,-pi,pi,"#phi_{#tau}"); 
 
   // after selection
-  goodTaus=HConfig.GetTH1D(Name+"_goodTaus","goodTaus",6,-0.5,5.5,"Number of taus (3-prong)");
-  goodTauPt=HConfig.GetTH1D(Name+"_goodTauPt","goodTauPt",40,0.,250.,"p_{T}^{#tau} / GeV");
-  goodTauEta=HConfig.GetTH1D(Name+"_goodTauEta","goodTauEta",20,-3.0,3.0,"#eta_{#tau}");
-  goodTauPhi=HConfig.GetTH1D(Name+"_goodTauPhi","goodTauPhi",20,-pi,pi,"#phi_{#tau}");
+  goodTaus=HConfig.GetTH1D(Name+"_goodTaus_","goodTaus",6,-0.5,5.5,"Number of taus (3-prong)");
+  goodTauPt=HConfig.GetTH1D(Name+"_goodTauPt_","goodTauPt",25,0.,250.,"p_{T}^{#tau} / GeV");
+  goodTauEta=HConfig.GetTH1D(Name+"_goodTauEta_","goodTauEta",20,-3.0,3.0,"#eta_{#tau}");
+  goodTauPhi=HConfig.GetTH1D(Name+"_goodTauPhi_","goodTauPhi",20,-pi,pi,"#phi_{#tau}");
 
 
   // jets
   // before cuts
   // jet1st
-  jet1stPt=HConfig.GetTH1D(Name+"_jet1stPt","jet1stPt",40,0.,250.,"p_{T}^{1st,jet} / GeV");
-  jet1stEta=HConfig.GetTH1D(Name+"_jet1stEta","jet1stEta",20,-3.0,3.0,"#eta_{1st,jet}");
-  jet1stMass=HConfig.GetTH1D(Name+"_jet1stMass","jet1stMass",40,0.,120.,"m_{1st,jet} / GeV");
+  //jet1stPt=HConfig.GetTH1D(Name+"_jet1stPt","jet1stPt",40,0.,250.,"p_{T}^{1st,jet} / GeV");
+  //jet1stEta=HConfig.GetTH1D(Name+"_jet1stEta","jet1stEta",20,-3.0,3.0,"#eta_{1st,jet}");
+  //jet1stMass=HConfig.GetTH1D(Name+"_jet1stMass","jet1stMass",40,0.,120.,"m_{1st,jet} / GeV");
 
   // jet2nd
-  jet2ndPt=HConfig.GetTH1D(Name+"_jet2ndPt","jet2ndPt",40,0.,250.,"p_{T}^{2nd,jet} / GeV");
-  jet2ndEta=HConfig.GetTH1D(Name+"_jet2ndEta","jet2ndEta",20,-3.0,3.0,"#eta_{2nd,jet}");
-  jet2ndMass=HConfig.GetTH1D(Name+"_jet2ndMass","jet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
+  //jet2ndPt=HConfig.GetTH1D(Name+"_jet2ndPt","jet2ndPt",40,0.,250.,"p_{T}^{2nd,jet} / GeV");
+  //jet2ndEta=HConfig.GetTH1D(Name+"_jet2ndEta","jet2ndEta",20,-3.0,3.0,"#eta_{2nd,jet}");
+  //jet2ndMass=HConfig.GetTH1D(Name+"_jet2ndMass","jet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
 
   // after selection
-  goodJets=HConfig.GetTH1D(Name+"_goodJets","goodJets",11,-0.5,10.5,"Number of loose jets");
+  goodJets=HConfig.GetTH1D(Name+"_goodJets_","goodJets",11,-0.5,10.5,"Number of loose jets");
 
   // jet1st
-  goodJet1stPt=HConfig.GetTH1D(Name+"_goodJet1stPt","goodJet1stPt",40,0.,250.,"p_{T}^{1st,jet} / GeV");
-  goodJet1stEta=HConfig.GetTH1D(Name+"_goodJet1stEta","goodJet1stEta",20,-3.0,3.0,"#eta_{1st,jet}");
-  goodJet1stMass=HConfig.GetTH1D(Name+"_goodJet1stMass","goodJet1stMass",40,0.,120.,"m_{1st,jet} / GeV");
+  goodJet1stPt=HConfig.GetTH1D(Name+"_goodJet1stPt_","goodJet1stPt",25,0.,250.,"p_{T}^{1st,jet} / GeV");
+  goodJet1stEta=HConfig.GetTH1D(Name+"_goodJet1stEta_","goodJet1stEta",20,-3.0,3.0,"#eta_{1st,jet}");
+  goodJet1stMass=HConfig.GetTH1D(Name+"_goodJet1stMass_","goodJet1stMass",40,0.,120.,"m_{1st,jet} / GeV");
 
   // jet2nd
-  goodJet2ndPt=HConfig.GetTH1D(Name+"_goodJet2ndPt","goodJet2ndPt",40,0.,250.,"p_{T}^{2nd,jet} / GeV");
-  goodJet2ndEta=HConfig.GetTH1D(Name+"_goodJet2ndEta","goodJet2ndEta",20,-3.0,3.0,"#eta_{2nd,jet}");
-  goodJet2ndMass=HConfig.GetTH1D(Name+"_goodJet2ndMass","goodJet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
+  goodJet2ndPt=HConfig.GetTH1D(Name+"_goodJet2ndPt_","goodJet2ndPt",25,0.,250.,"p_{T}^{2nd,jet} / GeV");
+  goodJet2ndEta=HConfig.GetTH1D(Name+"_goodJet2ndEta_","goodJet2ndEta",20,-3.0,3.0,"#eta_{2nd,jet}");
+  goodJet2ndMass=HConfig.GetTH1D(Name+"_goodJet2ndMass_","goodJet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
 
+
+  // MET
+  METEt=HConfig.GetTH1D(Name+"_METEt","METEt_",40,0.,250.,"MET / GeV");
+  METPhi=HConfig.GetTH1D(Name+"_METPhi","METPhi_",20,-pi,pi,"#phi_{MET} / GeV");
 
   
 
@@ -334,8 +340,8 @@ void LightChargedHiggs::Store_ExtraDist(){
 
   // muon observables
   // before cuts
-  Extradist1d.push_back(&muonPt);  
-  Extradist1d.push_back(&muonEta);
+  //Extradist1d.push_back(&muonPt);  
+  //Extradist1d.push_back(&muonEta);
 
   // after selection
   Extradist1d.push_back(&goodMuons);
@@ -348,9 +354,9 @@ void LightChargedHiggs::Store_ExtraDist(){
  
   // tau observables
   // before cuts
-  Extradist1d.push_back(&tauPt);
-  Extradist1d.push_back(&tauEta);
-  Extradist1d.push_back(&tauPhi);
+  //Extradist1d.push_back(&tauPt);
+  //Extradist1d.push_back(&tauEta);
+  //Extradist1d.push_back(&tauPhi);
 
   // after selection
   Extradist1d.push_back(&goodTaus);
@@ -362,14 +368,14 @@ void LightChargedHiggs::Store_ExtraDist(){
   // jet observables
   // before cuts
   // jet1st
-  Extradist1d.push_back(&jet1stPt);
-  Extradist1d.push_back(&jet1stEta);
-  Extradist1d.push_back(&jet1stMass);
+  //Extradist1d.push_back(&jet1stPt);
+  //Extradist1d.push_back(&jet1stEta);
+  //Extradist1d.push_back(&jet1stMass);
 
   // jet2nd
-  Extradist1d.push_back(&jet2ndPt);
-  Extradist1d.push_back(&jet2ndEta);
-  Extradist1d.push_back(&jet2ndMass);
+  //Extradist1d.push_back(&jet2ndPt);
+  //Extradist1d.push_back(&jet2ndEta);
+  //Extradist1d.push_back(&jet2ndMass);
 
   // after selection
   Extradist1d.push_back(&goodJets);
@@ -383,6 +389,11 @@ void LightChargedHiggs::Store_ExtraDist(){
   Extradist1d.push_back(&goodJet2ndPt);
   Extradist1d.push_back(&goodJet2ndEta);
   Extradist1d.push_back(&goodJet2ndMass);
+
+
+  // MET observables
+  Extradist1d.push_back(&METEt);
+  Extradist1d.push_back(&METPhi);
 
 
 }
@@ -832,6 +843,14 @@ void  LightChargedHiggs::doEvent(){
     goodJet2ndPt.at(t).Fill(jet2ndCandidate.Pt(),w);
     goodJet2ndEta.at(t).Fill(jet2ndCandidate.Eta(),w);
     goodJet2ndMass.at(t).Fill(jet2ndCandidate.M(),w);
+
+    
+    // MET
+    double metPhi(0.);
+    metPhi = Ntp->MET_CorrT0pcTxy_phi();
+    METEt.at(t).Fill(met,w);
+    METPhi.at(t).Fill(metPhi,w);
+
 
   } //if(status)
 
