@@ -245,8 +245,8 @@ if( $ARGV[0] eq "--TauNtuple"){
     system(sprintf("echo \"git cms-addpkg ElectroWeakAnalysis/Utilities \" >> Install_TauNtuple_$CMSSWRel-$time"));
 
 	# Ntuple code
-    system(sprintf("echo \"git clone https://github.com/inugent/TauDataFormat TauDataFormat; cd TauDataFormat; git checkout; cd ../; \" >> Install_TauNtuple_$CMSSWRel-$time"));
-    system(sprintf("echo \"git clone https://github.com/inugent/SkimProduction SkimProduction; cd SkimProduction; git checkout; cd ../; \" >> Install_TauNtuple_$CMSSWRel-$time"));
+    system(sprintf("echo \"git clone https://github.com/anehrkor/TauDataFormat TauDataFormat; cd TauDataFormat; git checkout; cd ../; \" >> Install_TauNtuple_$CMSSWRel-$time"));
+    system(sprintf("echo \"git clone https://github.com/anehrkor/SkimProduction SkimProduction; cd SkimProduction; git checkout; cd ../; \" >> Install_TauNtuple_$CMSSWRel-$time"));
     system(sprintf("echo \"cp SkimProduction/CRAB/*.root data/ \" >> Install_TauNtuple_$CMSSWRel-$time"));
     # JEC uncertainties. Make sure to have the most up-to-date ones.
     system(sprintf("echo \"cp SkimProduction/CRAB/JECuncertaintyData.txt data/ \" >> Install_TauNtuple_$CMSSWRel-$time"));
