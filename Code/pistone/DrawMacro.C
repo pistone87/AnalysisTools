@@ -1,194 +1,232 @@
+#include <iostream>
+#include <stdexcept>   // throw exception
 #include <stdio.h>
+#include <string>   //string, tostring
 
 #include <TCanvas.h>
 #include <TFile.h>
 #include <TH1.h>
 #include <TLegend.h>
-
+#include <THStack.h>
 
 using namespace std;
 
 
+// ***** classes & structures & typedef *****
+
+/// struct to save name, label, and color info of an histogram of one dataset
+struct plotAtt{
+
+public:
+    string Name;
+    string Label;
+    int Color;
+
+    // constructor
+    plotAtt(string name="empty", string label="empty", int color=0){
+        Name = name;
+        Label = label;
+        Color = color;
+    }
+
+    // ohter methods
+    void Set(string newname, string newlabel, int newcolor){
+        Name = newname;
+        Label = newlabel;
+        Color = newcolor;
+    }
+
+};
+
+
+
+/// class to save info of plotAtt of all the datasets
+class allPlotAtt : public vector<plotAtt>{
+
+private:
+
+public:
+    plotAtt plotAttributes;
+
+    // constructor
+    allPlotAtt(){
+
+        FILE *f;
+        f = fopen("../InputData/HistoM80.txt", "r");
+        if(f == NULL){
+            cerr << "opening file: FAILED" << endl;
+            throw runtime_error("missing input file");
+        }
+        
+        char start[35], name[35], label[35];
+        int id;
+        float xsec;
+        unsigned int color;
+        while(fscanf(f, "%s %i %f %s %s %u", start, &id, &xsec, name, label, &color) != EOF){
+            plotAttributes.Set(name, label, color);
+            this->push_back(plotAttributes);
+            //cout<< "*****" << start <<" "<<id<<" "<<xsec<<" "<< name <<" "<< label <<" "<< color<<endl;
+        }
+    
+        fclose(f);            
+    }
+   
+ 
+};
+
+/** this is the list of plots I want to do;
+The strings are the names of the histrograms created in LightChargedHiggs.cxx
+*/
+const char* list[] = {"goodMuons_", "goodMuonPt_", "goodMuonEta_", "transMass_", "goodTaus_", "goodTauPt_", "goodTauEta_", "goodTauPhi_", "goodJets_", "goodJet1stPt_", "goodJet1stEta_", "goodJet1stMass_", "goodJet2ndPt_", "goodJet2ndEta_", "goodJet2ndMass_", "METEt", "METPhi"};
+
+/// class to have a list of variables to plot
+class varToPlot : public vector<string>{
+
+private:
+
+
+public:
+
+    // constructo
+    varToPlot() : vector<string>(list, list + sizeof(list) / sizeof(char*)) {}
+ 
+};
+
 
 
 // ***** drawPlots *****
-// function to draw plots for each cut (cuts added manually)
-// cutN is just a label for the saved canvas
-void drawPlots(string cutN){
+void drawPlots(){
 
-  TFile* f;
-  f = new TFile("output.root", "READ");
+    string prefix = "lightchargedhiggs_default_";
 
-  TH1D* h_goodmuons;
-  TH1D* h_pt;
-  TH1D* h_eta;
+    cout << "Opening the root file" << endl;
+    TFile* f;
+    f = new TFile(("../../LOCAL_COMBINED_"+prefix+"LumiScaled.root").c_str(), "READ");
+    if(!f){
+        cerr << "opening file: FAILED" << endl;
+        throw runtime_error("missing input file");
+    }
 
-  h_goodmuons = (TH1D*) f->Get("lightchargedhiggs_default_goodmuonsHplusBWB_M80");
-  h_pt = (TH1D*) f->Get("lightchargedhiggs_default_muonPtHplusBWB_M80");
-  h_eta = (TH1D*) f->Get("lightchargedhiggs_default_muonEtaHplusBWB_M80");
+    THStack hs;
 
-  TCanvas* c = new TCanvas("c", "c", 1);
-  c->cd();
+    cout << "Getting the histrogram" << endl;
+    TH1D *h1, *h2;
 
-  gPad->SetMargin(0.15, 0.1, 0.15, 0.1);
+    h1 = (TH1D*) f->Get("lightchargedhiggs_default_METEtHplusBWB_M80"); 
+    if(!h1){
+        cerr << "getting histogram: FAILED" << endl;
+        throw runtime_error("missing histogram");
+    }   
 
-  h_goodmuons->SetMarkerSize(0.8);
-  h_goodmuons->SetLineColor(kBlack);
-  h_goodmuons->Draw("hist");
-  c->SaveAs(("~/Desktop/img/goodmuonsPlot"+cutN+".png").c_str());
-  c->SaveAs(("~/Desktop/img/goodmuonsPlot"+cutN+".pdf").c_str());
-  
-  h_pt->SetMarkerSize(0.8);
-  h_pt->Draw();
-  c->SaveAs(("~/Desktop/img/ptPlot"+cutN+".png").c_str());
-  c->SaveAs(("~/Desktop/img/ptPlot"+cutN+".pdf").c_str());
- 
-  h_eta->SetMarkerSize(0.8);
-  h_eta->Draw();
-  c->SaveAs(("~/Desktop/img/etaPlot"+cutN+".png").c_str());
-  c->SaveAs(("~/Desktop/img/etaPlot"+cutN+".pdf").c_str());
-  
-  c->Close();
+    h2 = (TH1D*) f->Get("lightchargedhiggs_default_METEtMC_tbarW"); 
+    if(!h2){
+        cerr << "getting histogram: FAILED" << endl;
+        throw runtime_error("missing histogram");
+    }   
+
+    hs.Add(h1);
+    hs.Add(h2);
+    
+    TCanvas* c = new TCanvas("c", "c", 1);
+    c->cd();
+
+    gPad->SetMargin(0.15, 0.1, 0.15, 0.1);
+
+    hs.Draw("hist");
+
+    c->SaveAs("./img/plot.eps");
+
+    c->Close();
+    f->Close();
 
 }
 // ----- drawPlots -----
 
 
 
-// ***** drawPlots_sig *****
-// function to draw plots only for signal events
-void drawPlots_sig(){
-  
-  TFile* f;
-  f = new TFile("LOCAL_COMBINED_lightchargedhiggs_default.root", "READ");
+int main(){
 
-  TH1D* h_goodmuons;
-  TH1D* h_pt;
-  TH1D* h_eta;
+    // constants
+    string prefix = "lightchargedhiggs_default_";
+    
+    
+    // variables declaration
+    allPlotAtt alldatasets;
 
-  h_goodmuons = (TH1D*) f->Get("lightchargedhiggs_default_goodmuonsHplusBWB_M80");
-  h_pt = (TH1D*) f->Get("lightchargedhiggs_default_muonPtHplusBWB_M80");
-  h_eta = (TH1D*) f->Get("lightchargedhiggs_default_muonEtaHplusBWB_M80");
+    varToPlot mylist;
 
-  TCanvas* c = new TCanvas("c", "c", 1);
-  c->cd();
+    // histograms declaration
+    THStack hs_bkg;
+    TH1D* h_data;
+    TH1D* h_sig;
 
-  gPad->SetMargin(0.15, 0.1, 0.15, 0.1);
+    // canvas
+    TCanvas *c = new TCanvas("c", "c", 1);
+    
+
+    // Open the root file with histograms
+    TFile *rootfile;
+    rootfile = new TFile(("../../LOCAL_COMBINED_"+prefix+"LumiScaled.root").c_str(), "READ");
+    if(!rootfile){
+        cerr << "opening file: FAILED" << endl;
+        throw runtime_error("missing input rootfile");
+    }
 
 
-  // ** number of good muons **
-  h_goodmuons->SetLineColor(kBlack);
-  h_goodmuons->Draw("hist");
-  c->SaveAs("~/Desktop/img/goodmuonsPlot_sig.png");
-  c->SaveAs("~/Desktop/img/goodmuonsPlot_sig.pdf");
+    for(unsigned int i=0; i<1; ++i){
 
+        string vartmp = mylist.at(i);
 
-  // ** muon pt distribution **  
-  h_pt->SetMarkerSize(0.8);
-  h_pt->Draw();
-  c->SaveAs("~/Desktop/img/ptPlot_sig.png");
-  c->SaveAs("~/Desktop/img/ptPlot_sig.pdf");
+        for(unsigned int j=0; j<alldatasets.size(); ++j){
+            
+            TH1D* htmp; // temporary histogram
+            string nametmp = alldatasets.at(j).Name;
+            string labeltmp = alldatasets.at(j).Label;
+            int colortmp = alldatasets.at(j).Color;
+
+            //cout << nametmp << endl;
+            //cout << prefix+vartmp+nametmp <<endl;
+
+            htmp = (TH1D*) rootfile->Get((prefix+vartmp+nametmp).c_str());
+            if(!htmp){
+                cerr << "getting histogram: FAILED" << endl;
+                throw runtime_error("missing histogram");
+            }       
+
+            if(nametmp == "Data"){
+                cout << "set: "<< nametmp << " doing Data" <<endl;
+                h_data = (TH1D*) htmp->Clone();
+                h_data->SetMarkerColor(colortmp);
+            } // if data
+
+            else if(nametmp == "HplusBWB_M80"){
+                cout << "set: "<< nametmp << " doing H+" <<endl;
+                h_sig = (TH1D*) htmp->Clone();
+                h_sig->SetLineColor(1);
+                h_sig->SetFillColor(colortmp);
+            } // if signal
+
+            else{
+                cout << "set: "<< nametmp << " doing bkg" <<endl;
+                htmp->SetLineColor(1);
+                htmp->SetFillColor(colortmp);
+                hs_bkg.Add(htmp);
+            } // if bkg
+
  
+        } // loop over all the datasets
 
-  // ** muon eta distribution **
-  h_eta->SetMarkerSize(0.8);
-  h_eta->Draw();
-  c->SaveAs("~/Desktop/img/etaPlot_sig.png");
-  c->SaveAs("~/Desktop/img/etaPlot_sig.pdf");
-  
-  c->Close();
-  
-}
-// ----- drawPlots_sig -----
+        c->cd();
+        
+        //gPad->SetMargin(0.15,0.1,0.15,0.1);
+        
+        hs_bkg.Draw("hist");
+        h_sig->Draw("histsame");
+        h_data->Draw("EPsame");
+        
+        c->SaveAs(("./img/"+vartmp+".eps").c_str());
 
+    } // loop over mylist
 
-
-// ***** drawPlots_sig_bkg *****
-// function to draw plots for signal  and bkg events
-void drawPlots_sig_bkg(){
-
-  TFile* f;
-  f = new TFile("LOCAL_COMBINED_lightchargedhiggs_default.root", "READ");
-
-  //histo sig
-  TH1D* h_goodmuons;
-  TH1D* h_pt;
-  TH1D* h_eta;
-
-  //histo bkg
-  TH1D* h_goodmuons_ttbar;
-  TH1D* h_pt_ttbar;
-  TH1D* h_eta_ttbar;
-
-  h_goodmuons = (TH1D*) f->Get("lightchargedhiggs_default_goodmuonsHplusBWB_M80");
-  h_pt = (TH1D*) f->Get("lightchargedhiggs_default_muonPtHplusBWB_M80");
-  h_eta = (TH1D*) f->Get("lightchargedhiggs_default_muonEtaHplusBWB_M80");
-
-  h_goodmuons_ttbar = (TH1D*) f->Get("lightchargedhiggs_default_goodmuonsttbar");
-  h_pt_ttbar = (TH1D*) f->Get("lightchargedhiggs_default_muonPtttbar");
-  h_eta_ttbar = (TH1D*) f->Get("lightchargedhiggs_default_muonEtattbar");
-
-  TCanvas* c = new TCanvas("c", "c", 1);
-  c->cd();
-
-  gPad->SetMargin(0.15, 0.1, 0.15, 0.1);
-
-
-  TLegend* leg = new TLegend(0.7, 0.75, 0.85, 0.85);
-  leg->SetTextSize(0.030);
-  leg->SetFillColor(kWhite);
-  leg->SetLineColor(kWhite);
-
-  // ** number of good muons **
-  leg->AddEntry(h_goodmuons_ttbar, "t#bar{t} MC", "F");
-  leg->AddEntry(h_goodmuons, "H^{+}bWb MC", "L");
-  h_goodmuons_ttbar->SetTitle("H^{+}bWb (m_{H^{+}} = 80 GeV) and t#bar{t}");
-  h_goodmuons_ttbar->SetLineColor(kGreen-2);
-  h_goodmuons_ttbar->SetFillColor(kGreen-2);
-  h_goodmuons_ttbar->Draw("hist");
-  h_goodmuons->SetLineColor(kBlack);
-  h_goodmuons->Draw("histsame");
-  leg->Draw("same");
-  c->SaveAs("~/Desktop/img/goodmuonsPlot_sig_bkg.png");
-  c->SaveAs("~/Desktop/img/goodmuonsPlot_sig_bkg.pdf");
-  
-  c->Clear();
-  leg->Clear();
-
-  // ** muon pt distribution **
-  leg->AddEntry(h_pt_ttbar, "t#bar{t} MC", "F");
-  leg->AddEntry(h_pt, "H^{+}bWb MC", "P");
-  h_pt_ttbar->SetTitle("H^{+}bWb (m_{H^{+}} = 80 GeV) and t#bar{t}");
-  h_pt_ttbar->SetLineColor(kGreen-2);
-  h_pt_ttbar->SetFillColor(kGreen-2);
-  h_pt_ttbar->Draw("hist");
-  h_pt->SetMarkerSize(0.8);
-  h_pt->SetMarkerColor(kBlack);
-  h_pt->Draw("same");
-  leg->Draw("same");
-  c->SaveAs("~/Desktop/img/ptPlot_sig_bkg.png");
-  c->SaveAs("~/Desktop/img/ptPlot_sig_bkg.pdf");
- 
-  c->Clear();
-  leg->Clear();
-
-  // ** muon eta distribution **
-  leg->AddEntry(h_eta_ttbar, "t#bar{t} MC", "F");
-  leg->AddEntry(h_eta, "H^{+}bWb MC", "P");
-  h_eta_ttbar->SetTitle("H^{+}bWb (m_{H^{+}} = 80 GeV) and t#bar{t}");
-  h_eta_ttbar->SetLineColor(kGreen-2);
-  h_eta_ttbar->SetFillColor(kGreen-2);
-  h_eta_ttbar->Draw("hist");
-  h_eta->SetMarkerSize(0.8);
-  h_eta->SetMarkerColor(kBlack);
-  h_eta->Draw("same");
-  leg->Draw("same");
-  c->SaveAs("~/Desktop/img/etaPlot_sig_bkg.png");
-  c->SaveAs("~/Desktop/img/etaPlot_sig_bkg.pdf");
-  
-  c->Close();
 
 }
-// ----- drawPlots_sig_bkg -----
-
-
