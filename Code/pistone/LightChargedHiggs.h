@@ -6,6 +6,8 @@
 #include "Selection.h"
 #include "TString.h"
 
+using namespace std;
+
 class LightChargedHiggs : public Selection {
 
  public:
@@ -42,65 +44,65 @@ class LightChargedHiggs : public Selection {
     //
 
     // vertices
-    std::vector<TH1D> NVtx;
-    std::vector<TH1D> NGoodVtx;
-    std::vector<TH1D> NTrackperVtx;
+    vector<TH1D> NVtx;
+    vector<TH1D> NGoodVtx;
+    vector<TH1D> NTrackperVtx;
 
 
     // Muons
     // before cuts
-    //std::vector<TH1D> muonPt;
-    //std::vector<TH1D> muonEta;
+    //vector<TH1D> muonPt;
+    //vector<TH1D> muonEta;
 
     // after selection
-    std::vector<TH1D> goodMuons;
-    std::vector<TH1D> goodMuonPt;
-    std::vector<TH1D> goodMuonEta;
+    vector<TH1D> goodMuons;
+    vector<TH1D> goodMuonPt;
+    vector<TH1D> goodMuonEta;
 
     // transverse mass(mu, MET)
-    std::vector<TH1D> transMass;
+    vector<TH1D> transMass;
 
     // Tau
     // before cuts
-    //std::vector<TH1D> tauPt;
-    //std::vector<TH1D> tauEta;
-    //std::vector<TH1D> tauPhi;
+    //vector<TH1D> tauPt;
+    //vector<TH1D> tauEta;
+    //vector<TH1D> tauPhi;
 
     // after selection
-    std::vector<TH1D> goodTaus;
-    std::vector<TH1D> goodTauPt;
-    std::vector<TH1D> goodTauEta;
-    std::vector<TH1D> goodTauPhi;
+    vector<TH1D> goodTaus;
+    vector<TH1D> goodTauPt;
+    vector<TH1D> goodTauEta;
+    vector<TH1D> goodTauPhi;
 
 
     // Jets
     // before cuts
     // jet1st
-    //std::vector<TH1D> jet1stPt;
-    //std::vector<TH1D> jet1stEta;
-    //std::vector<TH1D> jet1stMass;
+    //vector<TH1D> jet1stPt;
+    //vector<TH1D> jet1stEta;
+    //vector<TH1D> jet1stMass;
 
     // jet2nd
-    //std::vector<TH1D> jet2ndPt;
-    //std::vector<TH1D> jet2ndEta;
-    //std::vector<TH1D> jet2ndMass;
+    //vector<TH1D> jet2ndPt;
+    //vector<TH1D> jet2ndEta;
+    //vector<TH1D> jet2ndMass;
 
     // after selection
-    std::vector<TH1D> goodJets;
+    vector<TH1D> goodJets;
 
     // jet1st
-    std::vector<TH1D> goodJet1stPt;
-    std::vector<TH1D> goodJet1stEta;
-    std::vector<TH1D> goodJet1stMass;
+    vector<TH1D> goodJet1stPt;
+    vector<TH1D> goodJet1stEta;
+    vector<TH1D> goodJet1stMass;
 
     // jet2nd
-    std::vector<TH1D> goodJet2ndPt;
-    std::vector<TH1D> goodJet2ndEta;
-    std::vector<TH1D> goodJet2ndMass;
+    vector<TH1D> goodJet2ndPt;
+    vector<TH1D> goodJet2ndEta;
+    vector<TH1D> goodJet2ndMass;
 
     // MET
-    std::vector<TH1D> METEt;
-    std::vector<TH1D> METPhi;
+    vector<TH1D> METEt;
+    vector<TH1D> METPhi;
 
 
     // cut values

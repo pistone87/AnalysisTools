@@ -7,6 +7,8 @@
 #include "HistoConfig.h"
 #include "TLorentzVector.h"
 
+using namespace std;
+
 double pi = M_PI;
 
 int ptNbins = 25;
@@ -33,11 +35,11 @@ LightChargedHiggs::LightChargedHiggs(TString Name_, TString id_):
 //******* LightChargedHiggs::~LightChargedHiggs START
 LightChargedHiggs::~LightChargedHiggs(){
   for(int j=0; j<Npassed.size(); j++){
-    std::cout << "LightChargedHiggs::~LightChargedHiggs Selection Summary before: " 
+    cout << "LightChargedHiggs::~LightChargedHiggs Selection Summary before: " 
       << Npassed.at(j).GetBinContent(1)     << " +/- " << Npassed.at(j).GetBinError(1)     << " after: "
-      << Npassed.at(j).GetBinContent(NCuts) << " +/- " << Npassed.at(j).GetBinError(NCuts) << std::endl;
+      << Npassed.at(j).GetBinContent(NCuts) << " +/- " << Npassed.at(j).GetBinError(NCuts) << endl;
   }
-  std::cout << "LightChargedHiggs::~LightChargedHiggs()" << std::endl;
+  cout << "LightChargedHiggs::~LightChargedHiggs()" << endl;
 }
 //******* LightChargedHiggs::~LightChargedHiggs END
 
@@ -83,7 +85,7 @@ void  LightChargedHiggs::Configure(){
   for(unsigned int i=0; i<NCuts; i++){
     title.push_back("");
     distindx.push_back(false);
-    dist.push_back(std::vector<float>());
+    dist.push_back(vector<float>());
     TString c="_Cut_";
     c+=i;
   
@@ -269,12 +271,12 @@ void  LightChargedHiggs::Configure(){
   //muonEta=HConfig.GetTH1D(Name+"_muonEta","muonEta",20,-3.0,3.0,"#eta_{#mu}");
 
   // after selection
-  goodMuons=HConfig.GetTH1D(Name+"_goodMuons_","goodMuons",6,-0.5,5.5,"Number of tight muons");
-  goodMuonPt=HConfig.GetTH1D(Name+"_goodMuonPt_","goodMuonPt",25,0.,250.,"p_{T}^{#mu} / GeV");
-  goodMuonEta=HConfig.GetTH1D(Name+"_goodMuonEta_","goodMuonEta",20,-3.0,3.0,"#eta_{#mu}");
+  goodMuons=HConfig.GetTH1D(Name+"_goodMuons","goodMuons",6,-0.5,5.5,"Number of tight muons");
+  goodMuonPt=HConfig.GetTH1D(Name+"_goodMuonPt","goodMuonPt",25,0.,250.,"p_{T}^{#mu} / GeV");
+  goodMuonEta=HConfig.GetTH1D(Name+"_goodMuonEta","goodMuonEta",20,-3.0,3.0,"#eta_{#mu}");
 
   // transverse mass mt of muon and missing transverse energy
-  transMass=HConfig.GetTH1D(Name+"_transMass_","transMass",40,0.,250.,"m_{T}(#mu, MET) / GeV");
+  transMass=HConfig.GetTH1D(Name+"_transMass","transMass",40,0.,250.,"m_{T}(#mu, MET) / GeV");
 
 
   // taus
@@ -284,10 +286,10 @@ void  LightChargedHiggs::Configure(){
   //tauPhi=HConfig.GetTH1D(Name+"_tauPhi","tauPhi",20,-pi,pi,"#phi_{#tau}"); 
 
   // after selection
-  goodTaus=HConfig.GetTH1D(Name+"_goodTaus_","goodTaus",6,-0.5,5.5,"Number of taus (3-prong)");
-  goodTauPt=HConfig.GetTH1D(Name+"_goodTauPt_","goodTauPt",25,0.,250.,"p_{T}^{#tau} / GeV");
-  goodTauEta=HConfig.GetTH1D(Name+"_goodTauEta_","goodTauEta",20,-3.0,3.0,"#eta_{#tau}");
-  goodTauPhi=HConfig.GetTH1D(Name+"_goodTauPhi_","goodTauPhi",20,-pi,pi,"#phi_{#tau}");
+  goodTaus=HConfig.GetTH1D(Name+"_goodTaus","goodTaus",6,-0.5,5.5,"Number of taus (3-prong)");
+  goodTauPt=HConfig.GetTH1D(Name+"_goodTauPt","goodTauPt",25,0.,250.,"p_{T}^{#tau} / GeV");
+  goodTauEta=HConfig.GetTH1D(Name+"_goodTauEta","goodTauEta",20,-3.0,3.0,"#eta_{#tau}");
+  goodTauPhi=HConfig.GetTH1D(Name+"_goodTauPhi","goodTauPhi",20,-pi,pi,"#phi_{#tau}");
 
 
   // jets
@@ -303,22 +305,22 @@ void  LightChargedHiggs::Configure(){
   //jet2ndMass=HConfig.GetTH1D(Name+"_jet2ndMass","jet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
 
   // after selection
-  goodJets=HConfig.GetTH1D(Name+"_goodJets_","goodJets",11,-0.5,10.5,"Number of loose jets");
+  goodJets=HConfig.GetTH1D(Name+"_goodJets","goodJets",11,-0.5,10.5,"Number of loose jets");
 
   // jet1st
-  goodJet1stPt=HConfig.GetTH1D(Name+"_goodJet1stPt_","goodJet1stPt",25,0.,250.,"p_{T}^{1st,jet} / GeV");
-  goodJet1stEta=HConfig.GetTH1D(Name+"_goodJet1stEta_","goodJet1stEta",20,-3.0,3.0,"#eta_{1st,jet}");
-  goodJet1stMass=HConfig.GetTH1D(Name+"_goodJet1stMass_","goodJet1stMass",40,0.,120.,"m_{1st,jet} / GeV");
+  goodJet1stPt=HConfig.GetTH1D(Name+"_goodJet1stPt","goodJet1stPt",25,0.,250.,"p_{T}^{1st,jet} / GeV");
+  goodJet1stEta=HConfig.GetTH1D(Name+"_goodJet1stEta","goodJet1stEta",20,-3.0,3.0,"#eta_{1st,jet}");
+  goodJet1stMass=HConfig.GetTH1D(Name+"_goodJet1stMass","goodJet1stMass",40,0.,120.,"m_{1st,jet} / GeV");
 
   // jet2nd
-  goodJet2ndPt=HConfig.GetTH1D(Name+"_goodJet2ndPt_","goodJet2ndPt",25,0.,250.,"p_{T}^{2nd,jet} / GeV");
-  goodJet2ndEta=HConfig.GetTH1D(Name+"_goodJet2ndEta_","goodJet2ndEta",20,-3.0,3.0,"#eta_{2nd,jet}");
-  goodJet2ndMass=HConfig.GetTH1D(Name+"_goodJet2ndMass_","goodJet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
+  goodJet2ndPt=HConfig.GetTH1D(Name+"_goodJet2ndPt","goodJet2ndPt",25,0.,250.,"p_{T}^{2nd,jet} / GeV");
+  goodJet2ndEta=HConfig.GetTH1D(Name+"_goodJet2ndEta","goodJet2ndEta",20,-3.0,3.0,"#eta_{2nd,jet}");
+  goodJet2ndMass=HConfig.GetTH1D(Name+"_goodJet2ndMass","goodJet2ndMass",40,0.,120.,"m_{2nd,jet} / GeV");
 
 
   // MET
-  METEt=HConfig.GetTH1D(Name+"_METEt","METEt_",40,0.,250.,"MET / GeV");
-  METPhi=HConfig.GetTH1D(Name+"_METPhi","METPhi_",20,-pi,pi,"#phi_{MET} / GeV");
+  METEt=HConfig.GetTH1D(Name+"_METEt","METEt",40,0.,250.,"MET / GeV");
+  METPhi=HConfig.GetTH1D(Name+"_METPhi","METPhi",20,-pi,pi,"#phi_{MET} / GeV");
 
   
 
@@ -403,11 +405,11 @@ void LightChargedHiggs::Store_ExtraDist(){
 
 //******* LightChargedHiggs::doEvent START
 void  LightChargedHiggs::doEvent(){
-  if(verbose) std::cout << " LightChargedHiggs::doEvent() START " << std::endl;
+  if(verbose) cout << " LightChargedHiggs::doEvent() START " << endl;
 
   unsigned int t;
   int id(Ntp->GetMCID());
-  if(!HConfig.GetHisto(Ntp->isData(), id, t)){ std::cout << " failed to find id " <<std::endl; return; }
+  if(!HConfig.GetHisto(Ntp->isData(), id, t)){ cout << " failed to find id " <<endl; return; }
   
 
 
@@ -422,7 +424,7 @@ void  LightChargedHiggs::doEvent(){
   // number of good vertices
   //
 
-  if(verbose) std::cout << " vertex selection " << std::endl;
+  if(verbose) cout << " vertex selection " << endl;
   unsigned int nGoodVtx=0;
   int vertex = -1;
   for(unsigned int i=0; i<Ntp->NVtx(); i++){
@@ -431,7 +433,7 @@ void  LightChargedHiggs::doEvent(){
       nGoodVtx++;
     }
   }
-  if(verbose) std::cout << " selected vertex: " << vertex << std::endl;
+  if(verbose) cout << " selected vertex: " << vertex << endl;
   value.at(PrimeVtx)=nGoodVtx;
   pass.at(PrimeVtx)=(value.at(PrimeVtx)>=cut.at(PrimeVtx));
   
@@ -444,7 +446,7 @@ void  LightChargedHiggs::doEvent(){
   // HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v
   // HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v 
 
-  if(verbose) std::cout << " trigger " << std::endl;
+  if(verbose) cout << " trigger " << endl;
 
   value.at(TriggerOk)=0;
   if(Ntp->TriggerAccept("eta2p1_LooseIsoPFTau")){  
@@ -461,9 +463,9 @@ void  LightChargedHiggs::doEvent(){
   // muon1st: index of the muon with the highest pt
   // muonCandidate: TLorentzVector of the muon1st
 
-  if(verbose) std::cout << " muon cuts " << std::endl;
-  std::vector<unsigned int> TightMuonsIdx;
-  std::vector<unsigned int> GoodMuonsIdx;
+  if(verbose) cout << " muon cuts " << endl;
+  vector<unsigned int> TightMuonsIdx;
+  vector<unsigned int> GoodMuonsIdx;
 
   // number of good muons, i.e. muons that pass the tight muon selection
 /*
@@ -533,11 +535,11 @@ void  LightChargedHiggs::doEvent(){
   // tau1st: index of the tau with the highest pt
   // tauCandidate: TLorentzVector of the tau1st
 
-  if(verbose) std::cout << " tau cuts " << std::endl;
-  std::vector<unsigned int> TausIdx;
-  std::vector<unsigned int> Taus3ProngIdx;
-  std::vector<unsigned int> TausCleanIdx;
-  std::vector<unsigned int> GoodTausIdx;
+  if(verbose) cout << " tau cuts " << endl;
+  vector<unsigned int> TausIdx;
+  vector<unsigned int> Taus3ProngIdx;
+  vector<unsigned int> TausCleanIdx;
+  vector<unsigned int> GoodTausIdx;
 
   // number of good taus, i.e. taus that pass the tau selection + 3-prong requirement
 /*
@@ -637,11 +639,11 @@ void  LightChargedHiggs::doEvent(){
   // jet1stCandidate: TLorentzVector for the jet1st
   // jet2ndCandidate: TLorentzVector for the jet2nd 
 
-  if(verbose) std::cout << " jet cuts " << std::endl;
-  std::vector<unsigned int> JetsCleanIdx;
-  std::vector<unsigned int> JetsIDIdx;
-  std::vector<unsigned int> JetsIdx;
-  std::vector<unsigned int> GoodJetsIdx;
+  if(verbose) cout << " jet cuts " << endl;
+  vector<unsigned int> JetsCleanIdx;
+  vector<unsigned int> JetsIDIdx;
+  vector<unsigned int> JetsIdx;
+  vector<unsigned int> GoodJetsIdx;
 
   // number of jets cleaned against muonCandidate and tauCandidate
   for(unsigned int i=0; i<Ntp->NPFJets(); i++){
@@ -723,7 +725,7 @@ void  LightChargedHiggs::doEvent(){
 
 
   // weight
-  if(verbose) std::cout << " do weights " << std::endl;
+  if(verbose) cout << " do weights " << endl;
   double wobs=1;
   double w=1;
   if(!Ntp->isData()){w = Ntp->PUWeight();}
@@ -734,11 +736,11 @@ void  LightChargedHiggs::doEvent(){
   ///////////////////////////////////////////////////////////
 
   // *** Add plots ***
-  if(verbose) std::cout << " add plots " << std::endl;
+  if(verbose) cout << " add plots " << endl;
 
 /*
   // before cuts
-  if(verbose) std::cout << " add plots before cuts " << std::endl;
+  if(verbose) cout << " add plots before cuts " << endl;
 
   // Muons
   if(pass.at(PrimeVtx)
@@ -785,10 +787,10 @@ void  LightChargedHiggs::doEvent(){
 
 
   // after the FULL selection
-  if(verbose) std::cout << " add plots after the full selection " << std::endl;
+  if(verbose) cout << " add plots after the full selection " << endl;
 
   bool status=AnalysisCuts(t,w,wobs); //true only if FULL selection passed
-  if(verbose) std::cout << " status: " << status << std::endl;
+  if(verbose) cout << " status: " << status << endl;
 
   if(status){
 
@@ -854,7 +856,7 @@ void  LightChargedHiggs::doEvent(){
 
   } //if(status)
 
-  if(verbose) std::cout << " LightChargedHiggs::doEvent() END " << std::endl;
+  if(verbose) cout << " LightChargedHiggs::doEvent() END " << endl;
 }
 //******* LightChargedHiggs::doEvent END
 
@@ -867,12 +869,12 @@ void  LightChargedHiggs::Finish(){
   //  for(unsigned int i=0; i<Nminus1.size(); i++){
   //    for(unsigned int j=0; j<Nminus1.at(i).size(); j++){
       
-  //      std::cout << "***************" << Nminus1.at(i).at(j).GetName() << "  " << Nminus1.at(i).at(j).GetEntries() << " " << Nminus1.at(i).at(j).GetLineColor() << " " << Nminus1.at(i).at(j).GetMarkerColor() << std::endl;
+  //      cout << "***************" << Nminus1.at(i).at(j).GetName() << "  " << Nminus1.at(i).at(j).GetEntries() << " " << Nminus1.at(i).at(j).GetLineColor() << " " << Nminus1.at(i).at(j).GetMarkerColor() << endl;
 
   //    }
   //  }
 
-  std::cout << " LightCahrgedHiggs is finished " << std::endl;
+  cout << " LightCahrgedHiggs is finished " << endl;
   Selection::Finish();
 }
 //******* LightChargedHiggs::Finish END
