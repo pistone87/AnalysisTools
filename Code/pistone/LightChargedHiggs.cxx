@@ -276,7 +276,7 @@ void  LightChargedHiggs::Configure(){
   goodMuonEta=HConfig.GetTH1D(Name+"_goodMuonEta","goodMuonEta",20,-3.0,3.0,"#eta_{#mu}");
 
   // transverse mass mt of muon and missing transverse energy
-  transMass=HConfig.GetTH1D(Name+"_transMass","transMass",40,0.,250.,"m_{T}(#mu, MET) / GeV");
+  transMass=HConfig.GetTH1D(Name+"_transMass","transMass",25,0.,250.,"m_{T}(#mu, MET) / GeV");
 
 
   // taus
@@ -319,7 +319,7 @@ void  LightChargedHiggs::Configure(){
 
 
   // MET
-  METEt=HConfig.GetTH1D(Name+"_METEt","METEt",40,0.,250.,"MET / GeV");
+  METEt=HConfig.GetTH1D(Name+"_METEt","METEt",25,0.,250.,"MET / GeV");
   METPhi=HConfig.GetTH1D(Name+"_METPhi","METPhi",20,-pi,pi,"#phi_{MET} / GeV");
 
   
