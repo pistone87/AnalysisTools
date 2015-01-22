@@ -5,6 +5,7 @@
 #include "SkimConfig.h"
 #include <iostream>
 #include "TauDataFormat/TauNtuple/interface/DataMCType.h"
+#include "SVfitProvider.h"
 
 HToTaumuTauh::HToTaumuTauh(TString Name_, TString id_):
   Selection(Name_,id_),
@@ -1204,7 +1205,20 @@ void  HToTaumuTauh::doEvent(){
 	  MuTauDPt   .at(t).Fill( Ntp->Muon_p4(selMuon).Pt() - Ntp->PFTau_p4(selTau).Pt(), w );
 	  MuTauRelDPt.at(t).Fill( (Ntp->Muon_p4(selMuon).Pt() - Ntp->PFTau_p4(selTau).Pt()) / Ntp->Muon_p4(selMuon).Pt() , w);
 	  MuPtVsTauPt.at(t).Fill( Ntp->Muon_p4(selMuon).Pt(), Ntp->PFTau_p4(selTau).Pt(), w );
+
+	  // Mu-Tau Mass
 	  visibleMass.at(t).Fill( (Ntp->Muon_p4(selMuon)+Ntp->PFTau_p4(selTau)).M(), w);
+	  // SVFit
+	  std::cout << "        RUN SVFIT" << std::endl;
+	  objects::MET met(Ntp, "CorrMVAMuTau");
+	  SVfitProvider svfit(Ntp, met, "Mu", selMuon, "Tau", selTau);
+	  svfit.run();
+	  double diTauMass = svfit.result()->mass();
+	  double diTauMassErr = svfit.result()->massUncert();
+	  double diTauPt = svfit.result()->pt();
+	  double diTauPtErr = svfit.result()->ptUncert();
+
+	  std::cout << "   m = " << diTauMass << " +/- " << diTauMassErr << ", pT = " << diTauPt << " +/- " << diTauPtErr << std::endl;
 
 	  // lepton charge
 	  MuCharge.at(t).Fill( Ntp->Muon_Charge(selMuon), w);

@@ -135,6 +135,12 @@ class Ntuple_Controller{
   bool                                fitStatus;
   bool                                isInit;
 
+  // muon correction related objects
+  rochcor2012*   rmcor;
+  std::vector<TLorentzVector> Muon_corrected_p4;
+  void           CorrectMuonP4();
+  bool           Muon_isCorrected;
+
  public:
   // Constructor
   Ntuple_Controller(std::vector<TString> RootFiles);
@@ -331,11 +337,6 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
   bool           isSelectedMuon(unsigned int i, unsigned int j, double impact_xy, double impact_z, TString corr = "default");
   bool			 isLooseMuon(unsigned int i);
   float          Muon_RelIso(unsigned int i, TString corr = "default");
-  rochcor2012*   rmcor;
-  std::vector<TLorentzVector> Muon_corrected_p4;
-  void           CorrectMuonP4();
-  bool           Muon_isCorrected;
-
 
   //Base Tau Information (PF)
    unsigned int      NPFTaus(){return Ntp->PFTau_p4->size();}
