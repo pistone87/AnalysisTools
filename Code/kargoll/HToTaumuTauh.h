@@ -237,6 +237,9 @@ class HToTaumuTauh : public Selection {
 
   std::vector<TH1D> visibleMass;
 
+  std::vector<TH1D> shape_VisM;
+  std::vector<TH1D> shape_SVfitM;
+
   unsigned verbose;
 
   // cut values

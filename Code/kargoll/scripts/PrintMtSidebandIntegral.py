@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import ROOT
+execfile('loadPyRoot.py')
 import argparse
 
 parser = argparse.ArgumentParser(description='Obtain integral of mT sideband region for individual categories, to be used for WJet BG estimation.')

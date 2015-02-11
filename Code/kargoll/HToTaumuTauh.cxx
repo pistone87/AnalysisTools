@@ -497,6 +497,9 @@ void  HToTaumuTauh::Setup(){
 
   visibleMass = HConfig.GetTH1D(Name+"_visibleMass","visibleMass",100,0.,200.,"m_{vis}(#tau_{h},#mu)/GeV");
 
+  shape_VisM = HConfig.GetTH1D(Name+"_shape_VisM","shape_VisM",400,0.,400.,"m_{vis}(#tau_{h},#mu)/GeV");
+  shape_SVfitM = HConfig.GetTH1D(Name+"_shape_SVfitM","shape_SVfitM",400,0.,400.,"m_{SVfit}(#tau_{h},#mu)/GeV");
+
   // configure category
   if (categoryFlag == "VBFTight")	configure_VBFTight();
   else if (categoryFlag == "VBFLoose")	configure_VBFLoose();
@@ -660,6 +663,9 @@ void  HToTaumuTauh::Store_ExtraDist(){
  Extradist1d.push_back(&HiggsGenPt);
 
  Extradist1d.push_back(&visibleMass);
+
+ Extradist1d.push_back(&shape_VisM);
+ Extradist1d.push_back(&shape_SVfitM);
 }
 
 void  HToTaumuTauh::doEvent(){
@@ -1359,6 +1365,12 @@ void  HToTaumuTauh::doEvent(){
 		  BJet1Eta.at(t).Fill( Ntp->PFJet_p4(selectedBJets.at(0)).Eta(), w);
 		  BJet1Phi.at(t).Fill( Ntp->PFJet_p4(selectedBJets.at(0)).Phi(), w);
 	  }
+  }
+
+  //////// plots filled after full selection for datacard creation
+  if(status){
+	  shape_VisM.at(t).Fill((Ntp->Muon_p4(selMuon)+Ntp->PFTau_p4(selTau)).M(), w);
+	  //shape_SVfitM.at(t).Fill(svfitmass, w);
   }
 }
 
