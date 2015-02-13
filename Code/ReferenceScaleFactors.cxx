@@ -1495,7 +1495,7 @@ double ReferenceScaleFactors::HiggsPtWeight_M125(TLorentzVector vect, TString sh
 	else if (shift == "up")		hist = HiggsPtWeightM125Up;
 	else {printf("ERROR: shift of type %s not known for Higgs pT weights.\n", shift.Data()); return -999;}
 	// check Higgs mass
-	if( fabs(vect.M() - 125.0) > 3.0 ) printf("WARNING: Using Higgs pT weights valid vor m(H)=125, but event has m(H)=%f\n", vect.M());
+	//if( fabs(vect.M() - 125.0) > 3.0 ) printf("WARNING: Using Higgs pT weights valid vor m(H)=125, but event has m(H)=%f\n", vect.M());
 
 	// read weight from histogram
 	return hist->GetBinContent(hist->FindFixBin(vect.Pt()));

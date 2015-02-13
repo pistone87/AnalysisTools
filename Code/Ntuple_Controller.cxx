@@ -243,16 +243,21 @@ int64_t Ntuple_Controller::GetMCID(){
 
 	// hack for Higgs mass splitting
 	// Higgs mass is added to the MCId, such that the structure is JJJJJJAAABB (with JJJJJJ = JakID, AAA = mass, BB = DataMCType)
-	if(DataMCTypeFromTupel == DataMCType::H_tautau_ggF || DataMCTypeFromTupel == DataMCType::H_tautau_VBF || DataMCTypeFromTupel == DataMCType::H_tautau_WHZHTTH){
-	  int mass = getMassFromFileName();
+	if( (DataMCTypeFromTupel % 100) == DataMCType::H_tautau_ggF ||
+		(DataMCTypeFromTupel % 100) == DataMCType::H_tautau_VBF ||
+		(DataMCTypeFromTupel % 100) == DataMCType::H_tautau_WHZHTTH){
+	  int mass = getHiggsMass();
 	  if (mass > 999)	std::cout << "ERROR: Read mass with more than 3 digits from file." << std::endl;
 	  if (mass > 0)		DataMCTypeFromTupel += mass*100;
+	  // strip off JAK-Id from DataMCType
+	  if (HistoC.hasID(DataMCTypeFromTupel % 100000)) {
+	  		dmcType = DataMCTypeFromTupel % 100000;
+	  	}
 	}
-
-	// strip off JAK-Id from DataMCType
-	if (DataMCTypeFromTupel > 100000) {
-		if (HistoC.hasID(Ntp->DataMC_Type % 100000)) {
-			dmcType = Ntp->DataMC_Type % 100000;
+	else {
+		// strip off JAK-Id from DataMCType
+		if (HistoC.hasID(DataMCTypeFromTupel % 100)) {
+			dmcType = DataMCTypeFromTupel % 100;
 		}
 	}
 
@@ -266,11 +271,25 @@ int Ntuple_Controller::GetStrippedMCID(){
 
 int Ntuple_Controller::getMassFromFileName(){
 	TString file = Get_File_Name();
+	std::cout << file << std::endl;
 	// loop over possible masses
 	for (int m = 100; m < 200; m = m+5){
 		if ( file.Contains("M-" + TString::Itoa(m, 10) + "_") ) return m;
 	}
 	// mass not found in filename
+	return -1;
+}
+
+int Ntuple_Controller::getHiggsMass(){
+	for (unsigned int i = 0; i < NMCSignalParticles(); i++) {
+		if (abs(MCSignalParticle_pdgid(i)) == PDGInfo::Higgs0) {
+			for (int m = 100; m < 200; m = m+5){
+				if (fabs(MCSignalParticle_p4(i).M() - m) < 1 ) {
+					return m;
+				}
+			}
+		}
+	}
 	return -1;
 }
 

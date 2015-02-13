@@ -196,6 +196,7 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
   // Event Variables
   int64_t GetMCID();
   int GetStrippedMCID();
+  int getHiggsMass();
   unsigned int RunNumber(){return Ntp->Event_RunNumber;}
   unsigned int EventNumber(){ return Ntp->Event_EventNumber;}
   int BunchCrossing(){ return Ntp->Event_bunchCrossing;}
