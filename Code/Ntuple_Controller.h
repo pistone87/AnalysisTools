@@ -194,7 +194,7 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
 
   // Physics Variable Get Functions
   // Event Variables
-  int GetMCID();
+  int64_t GetMCID();
   int GetStrippedMCID();
   unsigned int RunNumber(){return Ntp->Event_RunNumber;}
   unsigned int EventNumber(){ return Ntp->Event_EventNumber;}

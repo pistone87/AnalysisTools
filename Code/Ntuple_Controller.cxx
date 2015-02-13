@@ -219,9 +219,16 @@ void Ntuple_Controller::doMET(){
 
 
 //Physics get Functions
-int Ntuple_Controller::GetMCID(){
+int64_t Ntuple_Controller::GetMCID(){
+	int64_t DataMCTypeFromTupel = Ntp->DataMC_Type;
+
+	// move JAK Id information 3 digits to the left
+	int64_t jakid = DataMCTypeFromTupel - (DataMCTypeFromTupel%100);
+	jakid *= 1000;
+	DataMCTypeFromTupel = jakid + (DataMCTypeFromTupel%100);
+
 	// specific to Vladimir's analysis
-	if ((Ntp->DataMC_Type) == DataMCType::DY_ll_Signal && HistoC.hasID(DataMCType::DY_ll_Signal)) {
+	if (DataMCTypeFromTupel == DataMCType::DY_ll_Signal && HistoC.hasID(DataMCType::DY_ll_Signal)) {
 		for (unsigned int i = 0; i < NMCSignalParticles(); i++) {
 			if (abs(MCSignalParticle_pdgid(i)) == PDGInfo::Z0) {
 				if (fabs(MCSignalParticle_p4(i).M() - PDG_Var::Z_mass()) < 3 * PDG_Var::Z_width()) {
@@ -229,30 +236,30 @@ int Ntuple_Controller::GetMCID(){
 				}
 			}
 		}
-		return Ntp->DataMC_Type;
+		return DataMCTypeFromTupel;
 	}
 
 	int dmcType = -999;
 
-	// strip off JAK-Id from DataMCType
-	if (Ntp->DataMC_Type > 100) {
-		if (HistoC.hasID(Ntp->DataMC_Type % 100)) {
-			dmcType = Ntp->DataMC_Type % 100;
-		}
+	// hack for Higgs mass splitting
+	// Higgs mass is added to the MCId, such that the structure is JJJJJJAAABB (with JJJJJJ = JakID, AAA = mass, BB = DataMCType)
+	if(DataMCTypeFromTupel == DataMCType::H_tautau_ggF || DataMCTypeFromTupel == DataMCType::H_tautau_VBF || DataMCTypeFromTupel == DataMCType::H_tautau_WHZHTTH){
+	  int mass = getMassFromFileName();
+	  if (mass > 999)	std::cout << "ERROR: Read mass with more than 3 digits from file." << std::endl;
+	  if (mass > 0)		DataMCTypeFromTupel += mass*100;
 	}
 
-	// hack for Higgs mass splitting
-	// Higgs mass is added to the MCId, such that the structure is AAABB (with AAA = mass, BB = DataMCType)
-	if(Ntp->DataMC_Type == DataMCType::H_tautau_ggF || Ntp->DataMC_Type == DataMCType::H_tautau_VBF || Ntp->DataMC_Type == DataMCType::H_tautau_WHZHTTH){
-	  int mass = getMassFromFileName();
-	  if (mass > 0){
-		  dmcType += mass*100;
-	  }
+	// strip off JAK-Id from DataMCType
+	if (DataMCTypeFromTupel > 100000) {
+		if (HistoC.hasID(Ntp->DataMC_Type % 100000)) {
+			dmcType = Ntp->DataMC_Type % 100000;
+		}
 	}
 
 	return dmcType;
 }
 
+// return DataMCType without mass information
 int Ntuple_Controller::GetStrippedMCID(){
 	return GetMCID() % 100;
 }
@@ -362,7 +369,7 @@ void Ntuple_Controller::CorrectMuonP4(){
 			TLorentzVector mup4 = Muon_p4(i,"");
 			int runopt = 0; // 0: no run-dependece
 			float qter = 1.0; // 1.0: don't care about muon momentum uncertainty
-			if(!isData() && GetMCID()!=DataMCType::DY_emu_embedded && GetMCID()!=DataMCType::DY_mutau_embedded){
+			if(!isData() && GetStrippedMCID()!=DataMCType::DY_emu_embedded && GetStrippedMCID()!=DataMCType::DY_mutau_embedded){
 				rmcor->momcor_mc(mup4,Muon_Charge(i),runopt,qter);
 			}else{
 				rmcor->momcor_data(mup4,Muon_Charge(i),runopt,qter);
@@ -402,7 +409,7 @@ TLorentzVector Ntuple_Controller::Muon_p4(unsigned int i, TString corr){
 			std::cout << "No muon corrections applied" << std::endl;
 		}
 	}
-	if(!isData() && GetMCID()!=DataMCType::DY_emu_embedded && GetMCID()!=DataMCType::DY_mutau_embedded){
+	if(!isData() && GetStrippedMCID()!=DataMCType::DY_emu_embedded && GetStrippedMCID()!=DataMCType::DY_mutau_embedded){
 		if(corr.Contains("scale")){
 			if(!corr.Contains("down")) vec.SetPerp(vec.Perp()*1.002);
 			else vec.SetPerp(vec.Perp()*0.998);
@@ -476,7 +483,7 @@ bool Ntuple_Controller::isSelectedMuon(unsigned int i, unsigned int j, double im
 
 TLorentzVector Ntuple_Controller::Electron_p4(unsigned int i, TString corr){
 	TLorentzVector vec = TLorentzVector(Ntp->Electron_p4->at(i).at(1),Ntp->Electron_p4->at(i).at(2),Ntp->Electron_p4->at(i).at(3),Ntp->Electron_p4->at(i).at(0));
-	if(!isData() && GetMCID()!=DataMCType::DY_emu_embedded && GetMCID()!=DataMCType::DY_mutau_embedded){
+	if(!isData() && GetStrippedMCID()!=DataMCType::DY_emu_embedded && GetStrippedMCID()!=DataMCType::DY_mutau_embedded){
 		if (corr == "default") corr = elecCorrection;
 		if(corr.Contains("scale") && Electron_RegEnergy(i)!=0){
 			if(!corr.Contains("down")) vec.SetPerp(vec.Perp() * (1+Electron_RegEnergyError(i)/Electron_RegEnergy(i)));
@@ -782,7 +789,7 @@ bool Ntuple_Controller::isJetID(unsigned int i, TString corr){
 
 // https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECL2ResidualTimeStability#2012Rereco
 double Ntuple_Controller::rundependentJetPtCorrection(double jeteta, int runnumber){
-	if(!isData() && GetMCID()!=DataMCType::DY_emu_embedded && GetMCID()!=DataMCType::DY_mutau_embedded){
+	if(!isData() && GetStrippedMCID()!=DataMCType::DY_emu_embedded && GetStrippedMCID()!=DataMCType::DY_mutau_embedded){
 		return 1.;
 	}
 	const double corrs[5] = {0.0, -0.454e-6, -0.952e-6, 1.378e-6, 0.0};
@@ -800,7 +807,7 @@ double Ntuple_Controller::rundependentJetPtCorrection(double jeteta, int runnumb
 double Ntuple_Controller::JERCorrection(TLorentzVector jet, double dr, TString corr){
 	double sf = jet.Pt();
 	if (corr == "default") corr = jetCorrection;
-	if(isData() || GetMCID()==DataMCType::DY_emu_embedded || GetMCID()==DataMCType::DY_mutau_embedded
+	if(isData() || GetStrippedMCID()==DataMCType::DY_emu_embedded || GetStrippedMCID()==DataMCType::DY_mutau_embedded
 			|| jet.Pt()<=10
 			|| PFJet_matchGenJet(jet,dr)==TLorentzVector(0.,0.,0.,0.)
 			){
@@ -963,7 +970,7 @@ double Ntuple_Controller::TauSpinerGet(int SpinType){
 TLorentzVector Ntuple_Controller::PFTau_p4(unsigned int i, TString corr){
 	TLorentzVector vec = TLorentzVector(Ntp->PFTau_p4->at(i).at(1),Ntp->PFTau_p4->at(i).at(2),Ntp->PFTau_p4->at(i).at(3),Ntp->PFTau_p4->at(i).at(0));
 	if (corr == "default") corr = tauCorrection;
-	if(!isData() || GetMCID() == DataMCType::DY_mutau_embedded){
+	if(!isData() || GetStrippedMCID() == DataMCType::DY_mutau_embedded){
 		if(corr.Contains("scalecorr")){
 			if(PFTau_hpsDecayMode(i)>0 && PFTau_hpsDecayMode(i)<5){
 				vec *= 1.025+0.001*min(max(vec.Pt()-45.,0.),10.);
