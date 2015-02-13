@@ -97,8 +97,9 @@ class Ntuple_Controller{
   void doMET();
   unsigned int ObjEvent;
 
-  // helper function for MC decay tree drawer
+  // helper functions for internal calculations
   void printMCDecayChain(unsigned int par, unsigned int level = 0, bool printStatus = false, bool printPt = false, bool printEtaPhi = false, bool printQCD = false);
+  int getMassFromFileName();
 
   // Object Variables
   std::vector<TLorentzVector> electrons_default;
@@ -194,6 +195,7 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
   // Physics Variable Get Functions
   // Event Variables
   int GetMCID();
+  int GetStrippedMCID();
   unsigned int RunNumber(){return Ntp->Event_RunNumber;}
   unsigned int EventNumber(){ return Ntp->Event_EventNumber;}
   int BunchCrossing(){ return Ntp->Event_bunchCrossing;}

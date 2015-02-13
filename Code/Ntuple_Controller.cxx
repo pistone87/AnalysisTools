@@ -220,34 +220,51 @@ void Ntuple_Controller::doMET(){
 
 //Physics get Functions
 int Ntuple_Controller::GetMCID(){
-  if((Ntp->DataMC_Type)==DataMCType::DY_ll_Signal && HistoC.hasID(DataMCType::DY_ll_Signal)){
-    for(unsigned int i=0;i<NMCSignalParticles();i++){
-      if(abs(MCSignalParticle_pdgid(i))==PDGInfo::Z0){
-	if(fabs(MCSignalParticle_p4(i).M()-PDG_Var::Z_mass())<3*PDG_Var::Z_width()){
-	  return DataMCType::Signal;
+	// specific to Vladimir's analysis
+	if ((Ntp->DataMC_Type) == DataMCType::DY_ll_Signal && HistoC.hasID(DataMCType::DY_ll_Signal)) {
+		for (unsigned int i = 0; i < NMCSignalParticles(); i++) {
+			if (abs(MCSignalParticle_pdgid(i)) == PDGInfo::Z0) {
+				if (fabs(MCSignalParticle_p4(i).M() - PDG_Var::Z_mass()) < 3 * PDG_Var::Z_width()) {
+					return DataMCType::Signal;
+				}
+			}
+		}
+		return Ntp->DataMC_Type;
 	}
-      }
-    }
-    return Ntp->DataMC_Type;
-  }
-  if(Ntp->DataMC_Type>100){
-    if(HistoC.hasID(Ntp->DataMC_Type%100)){
-      return Ntp->DataMC_Type%100;
-    }
-  }
 
-  // hack for Higgs production mechanisms
-  if(Ntp->DataMC_Type == DataMCType::H_tautau){
-	  if (Get_File_Name().Contains("GluGlu",TString::kIgnoreCase) && HistoC.hasID(DataMCType::H_tautau_ggF)){
-		  return DataMCType::H_tautau_ggF;
-	  }
-	  else if (Get_File_Name().Contains("VBF",TString::kIgnoreCase) && HistoC.hasID(DataMCType::H_tautau_VBF)){
-		  return DataMCType::H_tautau_VBF;
-	  }
-  }
+	int dmcType = -999;
 
-  if(HConfig.hasID(Ntp->DataMC_Type))return Ntp->DataMC_Type;  
-  return -999;
+	// strip off JAK-Id from DataMCType
+	if (Ntp->DataMC_Type > 100) {
+		if (HistoC.hasID(Ntp->DataMC_Type % 100)) {
+			dmcType = Ntp->DataMC_Type % 100;
+		}
+	}
+
+	// hack for Higgs mass splitting
+	// Higgs mass is added to the MCId, such that the structure is AAABB (with AAA = mass, BB = DataMCType)
+	if(Ntp->DataMC_Type == DataMCType::H_tautau_ggF || Ntp->DataMC_Type == DataMCType::H_tautau_VBF || Ntp->DataMC_Type == DataMCType::H_tautau_WHZHTTH){
+	  int mass = getMassFromFileName();
+	  if (mass > 0){
+		  dmcType += mass*100;
+	  }
+	}
+
+	return dmcType;
+}
+
+int Ntuple_Controller::GetStrippedMCID(){
+	return GetMCID() % 100;
+}
+
+int Ntuple_Controller::getMassFromFileName(){
+	TString file = Get_File_Name();
+	// loop over possible masses
+	for (int m = 100; m < 200; m = m+5){
+		if ( file.Contains("M-" + TString::Itoa(m, 10) + "_") ) return m;
+	}
+	// mass not found in filename
+	return -1;
 }
 
 TMatrixF Ntuple_Controller::Vtx_Cov(unsigned int i){

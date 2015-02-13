@@ -685,6 +685,7 @@ void  HToTaumuTauh::doEvent(){
   setStatusBooleans(true);
 
   int id(Ntp->GetMCID());
+  int idStripped(Ntp->GetStrippedMCID());
   //std::cout << "ID before = " << id << std::endl;
   if(!HConfig.GetHisto(Ntp->isData(),id,t)){ std::cout << "failed to find id" <<std::endl; return;}
   
@@ -695,7 +696,7 @@ void  HToTaumuTauh::doEvent(){
 
   // set object corrections at beginning of each event to avoid segfaults
   // and to allow for using different corrections in different analyses
-  bool isSignal = ((id >= 10 && id <= 13) || (id >= 30 && id <= 35)) ? true : false;
+  bool isSignal = ((idStripped >= 10 && idStripped <= 13) || (idStripped >= 30 && idStripped <= 35)) ? true : false;
   if (isSignal) Ntp->SetTauCorrections(correctTaus);
   else			Ntp->SetTauCorrections("");
   Ntp->SetMuonCorrections(correctMuons);
@@ -730,7 +731,7 @@ void  HToTaumuTauh::doEvent(){
   }
   pass.at(TriggerOk) = (value.at(TriggerOk) >= cut.at(TriggerOk));
   // disable trigger for embedding
-  if (Ntp->GetMCID() == DataMCType::DY_mutau_embedded) pass.at(TriggerOk) = true;
+  if (idStripped == DataMCType::DY_mutau_embedded) pass.at(TriggerOk) = true;
   
   // Muon cuts
   if (verbose) std::cout << "	Cut: Muon ID" << std::endl;
@@ -951,7 +952,7 @@ void  HToTaumuTauh::doEvent(){
 
   // QCD background method
   bool isQCDShapeEvent = false;
-  if (qcdShapeFromData && Ntp->isData() && Ntp->GetMCID()!=DataMCType::DY_mutau_embedded){
+  if (qcdShapeFromData && Ntp->isData() && idStripped!=DataMCType::DY_mutau_embedded){
 	  if (verbose) std::cout << "	QCD shape" << std::endl;
 	  // use anti-iso muons and SS for QCD shape
 	  if( !passedMu && hasAntiIsoMuon && !pass.at(OppCharge)){
@@ -1046,7 +1047,7 @@ void  HToTaumuTauh::doEvent(){
 	  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorkingSummer2013#B_tag_scale_factors
   }
   // embedding weights (see Tau Meeting 05.01.2015, slide 29)
-  if(Ntp->GetMCID() == DataMCType::DY_mutau_embedded){
+  if(idStripped == DataMCType::DY_mutau_embedded){
 	  // embedding weights
 	  w *= Ntp->Embedding_TauSpinnerWeight();
 	  w *= Ntp->Embedding_MinVisPtFilter();
@@ -1062,7 +1063,7 @@ void  HToTaumuTauh::doEvent(){
   // Higgs pT reweighting
   double higgs_GenPtWeight = -999;
   double higgs_GenPt = -999;
-  if (id >= DataMCType::H_tautau && id <= DataMCType::H_tautau_WHZHTTH) {
+  if (idStripped >= DataMCType::H_tautau && idStripped <= DataMCType::H_tautau_WHZHTTH) {
   	  for (unsigned i_gen = 0; i_gen < Ntp->NMCParticles(); i_gen++) {
   	  	  if (Ntp->MCParticle_pdgid(i_gen) == PDGInfo::Higgs0) {
   	  		  TLorentzVector genH_p4 = Ntp->MCParticle_p4(i_gen);
@@ -1078,7 +1079,7 @@ void  HToTaumuTauh::doEvent(){
 
   // remove some cuts for smoother WJet shape
   if (verbose) std::cout << "	WJet shape" << std::endl;
-  isWJetMC = (Ntp->GetMCID() >= DataMCType::W_lnu) && (Ntp->GetMCID() <= DataMCType::W_taunu);
+  isWJetMC = (idStripped >= DataMCType::W_lnu) && (idStripped <= DataMCType::W_taunu);
   bool isWJetShapeEvent =  (wJetsBGSource == "Data") && isWJetMC; // overwrite pass-vector with relaxed categories (for WJets shape) only if wanted
   if (isWJetShapeEvent) {
 	  // disable OS requirement for WJets shape in VBFLoose, VBFTight and 1JetBoost categories
@@ -1274,14 +1275,14 @@ void  HToTaumuTauh::doEvent(){
 	  }
 
 	  // plot embedding weights
-	  if (Ntp->GetMCID() == DataMCType::DY_mutau_embedded){
+	  if (idStripped == DataMCType::DY_mutau_embedded){
 		  embeddingWeight_TauSpinner.at(t).Fill(Ntp->Embedding_TauSpinnerWeight()); // no weight applied
 		  embeddingWeight_SelEffWeight.at(t).Fill(Ntp->Embedding_SelEffWeight()); // no weight applied
 		  embeddingWeight_MinVisPtFilter.at(t).Fill(Ntp->Embedding_MinVisPtFilter()); // no weight applied
 	  }
 
 	  // plot Higgs pT weight
-	  if (id >= DataMCType::H_tautau && id <= DataMCType::H_tautau_WHZHTTH) {
+	  if (idStripped >= DataMCType::H_tautau && idStripped <= DataMCType::H_tautau_WHZHTTH) {
 		  HiggsGenPtWeight.at(t).Fill(higgs_GenPtWeight); // no weight applied
 		  HiggsGenPt.at(t).Fill(higgs_GenPt, w);
 	  }
@@ -1294,7 +1295,7 @@ void  HToTaumuTauh::doEvent(){
 	  JetsInvM.at(t).Fill(selMjj , w);
 
 	  // QCD shape region
-	  if(Ntp->GetMCID() == DataMCType::QCD){
+	  if(isQCDShapeEvent){
 		  double mvis = (Ntp->Muon_p4(selMuon) + Ntp->PFTau_p4(selTau)).M();
 		  CatInclusiveQcdShapeRegion.at(t).Fill(mvis, w);
 		  if(passed_ZeroJetLow) Cat0JetLowQcdShapeRegion.at(t).Fill(mvis, w);
@@ -1513,7 +1514,7 @@ void HToTaumuTauh::Finish() {
 bool HToTaumuTauh::selectMuon_Id(unsigned i, unsigned vertex){
 	if(	Ntp->isSelectedMuon(i,vertex,cMu_dxy,cMu_dz) &&
 		Ntp->Muon_RelIso(i) < cMu_relIso &&
-		(Ntp->GetMCID() == DataMCType::DY_mutau_embedded || // no trigger matching for embedding
+		(Ntp->GetStrippedMCID() == DataMCType::DY_mutau_embedded || // no trigger matching for embedding
 				Ntp->matchTrigger(Ntp->Muon_p4(i),cTriggerNames,"muon") < cMu_dRHltMatch)
 		){
 		return true;
@@ -1612,7 +1613,7 @@ bool HToTaumuTauh::selectPFTau_Id(unsigned i, std::vector<int> muonCollection){
 	  }
 	}
 	// trigger matching
-	if (Ntp->GetMCID() != DataMCType::DY_mutau_embedded){
+	if (Ntp->GetStrippedMCID() != DataMCType::DY_mutau_embedded){
 		if (Ntp->matchTrigger(Ntp->PFTau_p4(i),cTriggerNames,"tau") > cTau_dRHltMatch) {
 			return false;
 		}
