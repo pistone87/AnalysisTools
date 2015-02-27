@@ -72,6 +72,17 @@ bool SkimConfig::Load(TString Name_)
     float noweight;
     float noweight_sel;
     line >> tmp >> id >> tmp >> nevents >> tmp >> neventserr >> tmp >> nevents_sel >> tmp >> neventserr_sel >> tmp >> noweight >> tmp >> noweight_sel;
+
+    // adapt for masses in DataMCType:
+    // in case a DataMCType of length 8 (i.e. without mass digits) is given,
+    // 3 zeroes are added for the mass digits
+    if( id >= 100000 && id < 1000000000){
+		// shift DataMCType 3 digits to the left
+		int64_t jakid = id - (id%100);
+		jakid *= 1000;
+		id = jakid + (id%100);
+    }
+
     SkimIDs.push_back(id);
     NEvents.push_back(nevents);
     NEventsErr.push_back(neventserr);

@@ -516,7 +516,9 @@ void  HToTaumuTauh::Setup(){
 	  configure_NoCategory();
   }
 
-  RSF = new ReferenceScaleFactors(runtype, false, false, true);
+  if (mode == ANALYSIS) { // only apply scale factors on analysis level, not for combine
+	  RSF = new ReferenceScaleFactors(runtype, false, false, true);
+  }
 }
 
 void HToTaumuTauh::Configure(){
@@ -686,7 +688,7 @@ void  HToTaumuTauh::doEvent(){
   // set all analysis status booleans to false
   setStatusBooleans(true);
 
-  int id(Ntp->GetMCID());
+  int64_t id(Ntp->GetMCID());
   int idStripped(Ntp->GetStrippedMCID());
   //std::cout << "ID before = " << id << std::endl;
   if(!HConfig.GetHisto(Ntp->isData(),id,t)){ std::cout << "failed to find id" <<std::endl; return;}
