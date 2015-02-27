@@ -494,6 +494,7 @@ void  HToTaumuTauh::Setup(){
   embeddingWeight_SelEffWeight = HConfig.GetTH1D(Name+"_embeddingWeight_SelEffWeight","embeddingWeight_SelEffWeight",50,0.,3.,"emb. SelEffWeight");
   HiggsGenPtWeight = HConfig.GetTH1D(Name+"_higgsPtWeight","higgsPtWeight",50,0.3,1.3,"higgsPtWeight");
   HiggsGenPt = HConfig.GetTH1D(Name+"_higgsGenPt","higgsGenPt",10,0.,200.,"p_{T}(H_{gen})/GeV");
+  HiggsMassFromMCID  = HConfig.GetTH1D(Name+"_HiggsMassFromMCID","HiggsMassFromMCID",40,82.5,182.5,"m_{MCID}(H)/GeV");
 
   visibleMass = HConfig.GetTH1D(Name+"_visibleMass","visibleMass",100,0.,200.,"m_{vis}(#tau_{h},#mu)/GeV");
 
@@ -661,6 +662,7 @@ void  HToTaumuTauh::Store_ExtraDist(){
  Extradist1d.push_back(&embeddingWeight_SelEffWeight);
  Extradist1d.push_back(&HiggsGenPtWeight);
  Extradist1d.push_back(&HiggsGenPt);
+ Extradist1d.push_back(&HiggsMassFromMCID);
 
  Extradist1d.push_back(&visibleMass);
 
@@ -1067,7 +1069,7 @@ void  HToTaumuTauh::doEvent(){
   	  for (unsigned i_gen = 0; i_gen < Ntp->NMCParticles(); i_gen++) {
   	  	  if (Ntp->MCParticle_pdgid(i_gen) == PDGInfo::Higgs0) {
   	  		  TLorentzVector genH_p4 = Ntp->MCParticle_p4(i_gen);
-  	  		  higgs_GenPtWeight = RSF->HiggsPtWeight_M125(genH_p4);
+  	  		  higgs_GenPtWeight = RSF->HiggsPtWeight(genH_p4, Ntp->getHiggsMass());
   	  		  higgs_GenPt = genH_p4.Pt();
   	  		  w *= higgs_GenPtWeight;
   	  	  }
@@ -1285,6 +1287,7 @@ void  HToTaumuTauh::doEvent(){
 	  if (idStripped >= DataMCType::H_tautau && idStripped <= DataMCType::H_tautau_WHZHTTH) {
 		  HiggsGenPtWeight.at(t).Fill(higgs_GenPtWeight); // no weight applied
 		  HiggsGenPt.at(t).Fill(higgs_GenPt, w);
+		  HiggsMassFromMCID.at(t).Fill(Ntp->getHiggsMass());
 	  }
 
 	  // variables for categorization
