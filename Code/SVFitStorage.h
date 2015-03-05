@@ -21,8 +21,9 @@ class SVFitStorage : public DataStorage {
 
   void LoadTree();
   void SaveTree();
-  void SaveEvent(Int_t RunNumber,Int_t EventNumber,SVFitObject svfit);
-  const SVFitObject& GetEvent(Int_t RunNumber,Int_t EventNumber);
+  void SaveEvent(Int_t RunNumber, Int_t LumiNumber, Int_t EventNumber, SVFitObject svfit);
+  // obtain SVFitObject from Tree. Make sure to test validity of object
+  const SVFitObject& GetEvent(Int_t RunNumber, Int_t LumiNumber, Int_t EventNumber);
   
  private:
   TFile *infile_, *outfile_;
@@ -30,10 +31,12 @@ class SVFitStorage : public DataStorage {
   TTreeIndex *index_;
   
   UInt_t RunNumber_;
+  UInt_t LumiNumber_;
   UInt_t EventNumber_;
   SVFitObject svfit_; 
 
   TBranch *b_RunNumber_;
+  TBranch *b_LumiNumber_;
   TBranch *b_EventNumber_;
   TBranch *b_svfit_;
 

@@ -3,13 +3,15 @@
 
 class SVFitObject{
  public:
-  SVFitObject(){};
+  SVFitObject();
   virtual ~SVFitObject(){};
   
   void Set_a(double a_){a=a_;}
   double Get_a(){return a;}
 
 private:
+  bool isValid_;
+
   double a;
 
 };
