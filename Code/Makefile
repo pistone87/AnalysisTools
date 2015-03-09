@@ -48,6 +48,8 @@ TARGETS       =	Ntuple_Controller \
 		TauSpinerInterface \
 		ReferenceScaleFactors \
 		rochcor2012jan22 \
+		SVfitProvider \
+		Objects \
 		DataStorage \
 		SVFitStorage
 
@@ -66,6 +68,11 @@ ifdef USE_TauSpinner
 				-I./TauSpiner/lhapdf/include/ \
 				-I./TauSpiner/pythia8/176/include/
 	DEFS += -DUSE_TauSpinner=1
+endif
+
+ifdef USE_SVfit
+	SHAREDLIBFLAGS += -L./CommonUtils/lib -lSVfit
+	DEFS += -DUSE_SVfit=1
 endif
 
 ifdef USE_cherepanov
@@ -173,7 +180,15 @@ sharedlib:
 			cd $$subdir && $(MAKE) -f Makefile.standalone $(TAUSPINERFLAG) && cd ../ && pwd; \
 		else \
 			echo without flag ; \
-			cd $$subdir echo $(CXXFLAGS) && $(MAKE) -f Makefile.standalone CXXFLAGS+='$(CXXFLAGS)' && cd ../ && pwd; \
+			cd $$subdir echo $(CXXFLAGS) && $(MAKE) -f Makefile.standalone CXXFLAGS+='$(CXXFLAGS)' ; \
+			pwd; \
+			if [ $$subdir == "CommonUtils/" ]; then \
+				echo $(USE_SVfit); \
+				if [ $(USE_SVfit) -eq 1 ]; then \
+					$(MAKE) -f Makefile.SVfitStandalone CXXFLAGS+='$(CXXFLAGS)' ; \
+				fi \
+			fi \
+			&& cd ../ && pwd; \
 		fi \
 	done
 	$(install)
