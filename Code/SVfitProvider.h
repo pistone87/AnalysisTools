@@ -14,14 +14,21 @@
 #include "Ntuple_Controller.h"
 #include "Objects.h"
 #include "TauAnalysis/SVfitStandalone/interface/SVfitStandaloneAlgorithm.h"
+#include "DataFormats/SVFitObject.h"
 
 class SVfitProvider {
 public:
 	SVfitProvider(Ntuple_Controller* const Ntp, objects::MET& met, TString typeLep1, int idxLep1, TString typeLep2, int idxLep2, int verbosity = 1);
 	virtual ~SVfitProvider();
 
+	// run SVfit algorithm and create  SVfitObject
+	SVFitObject runAndMakeObject();
+
 	// execute SVfit
 	void run();
+
+	// create SVfitObject
+	SVFitObject makeObject(const SVfitStandaloneAlgorithm*, TString fitMethod);
 
 	// conversions
 	static svFitStandalone::LorentzVector convert_p4Vect(const TLorentzVector& in);

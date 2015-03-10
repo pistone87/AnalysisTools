@@ -1210,13 +1210,13 @@ void  HToTaumuTauh::doEvent(){
 	  visibleMass.at(t).Fill( (Ntp->Muon_p4(selMuon)+Ntp->PFTau_p4(selTau)).M(), w);
 	  // SVFit
 	  std::cout << "        RUN SVFIT" << std::endl;
-	  objects::MET met(Ntp, "CorrMVAMuTau");
-	  SVfitProvider svfit(Ntp, met, "Mu", selMuon, "Tau", selTau);
-	  svfit.run();
-	  double diTauMass = svfit.result()->mass();
-	  double diTauMassErr = svfit.result()->massUncert();
-	  double diTauPt = svfit.result()->pt();
-	  double diTauPtErr = svfit.result()->ptUncert();
+
+	  // get SVFit result from cache
+	  SVFitObject svfObj = getSVFitResult();
+	  double diTauMass = svfObj.get_mass();
+	  double diTauMassErr = svfObj.get_massUncert();
+	  double diTauPt = svfObj.get_pt();
+	  double diTauPtErr = svfObj.get_ptUncert();
 
 	  std::cout << "   m = " << diTauMass << " +/- " << diTauMassErr << ", pT = " << diTauPt << " +/- " << diTauPtErr << std::endl;
 
@@ -2471,4 +2471,23 @@ void HToTaumuTauh::setStatusBooleans(bool resetAll){
 	passedObjectsFailDiMuonVeto = passedObjects && !pass.at(DiMuonVeto);
 
 	return;
+}
+
+// obtain, or create and store, SVFit results from/on dCache
+SVFitObject HToTaumuTauh::getSVFitResult() {
+	// get SVFit result from cache
+	SVFitObject svfObj = svfitstorage.GetEvent(Ntp->RunNumber(), Ntp->LuminosityBlock(), Ntp->EventNumber());
+	// if obtained object is not valid, create and store it
+	if (!svfObj.isValid()) {
+		objects::MET met(Ntp, "CorrMVAMuTau");
+		SVfitProvider svfProv(Ntp, met, "Mu", selMuon, "Tau", selTau);
+		svfObj = svfProv.runAndMakeObject();
+		if (svfObj.isValid()) {
+			// store only if object is valid
+			svfitstorage.SaveEvent(Ntp->RunNumber(), Ntp->LuminosityBlock(), Ntp->EventNumber(), svfObj);
+		} else {
+			std::cout << "ERROR: Unable to create a valid SVFit object." << std::endl;
+		}
+	}
+	return svfObj;
 }

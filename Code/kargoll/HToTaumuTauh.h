@@ -8,6 +8,8 @@
 
 #include "Selection.h"
 #include "ReferenceScaleFactors.h"
+#include "../DataFormats/SVFitObject.h"
+#include "SVFitStorage.h"
 
 class TLorentzVector;
 class TVector3;
@@ -285,6 +287,9 @@ class HToTaumuTauh : public Selection {
   // instance of reference scale factor class
   ReferenceScaleFactors* RSF;
 
+  // instance of SVFitStorage class
+  SVFitStorage svfitstorage;
+
   // booleans for different analysis stages
   void setStatusBooleans(bool resetAll = false);
   bool passedVertex;
@@ -338,6 +343,8 @@ class HToTaumuTauh : public Selection {
   bool selectBJet(unsigned i, int selectedMuon, int selectedTau);
 
   bool selectPFJet_Relaxed(unsigned i, int selectedMuon, int selectedTau);
+
+  SVFitObject getSVFitResult();
 
   // categories
   std::vector<float> cut_VBFTight, cut_VBFLoose;
