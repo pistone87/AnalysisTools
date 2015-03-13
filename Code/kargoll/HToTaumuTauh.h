@@ -236,8 +236,12 @@ class HToTaumuTauh : public Selection {
   std::vector<TH1D> embeddingWeight_SelEffWeight;
   std::vector<TH1D> HiggsGenPtWeight;
   std::vector<TH1D> HiggsGenPt;
+  std::vector<TH1D> HiggsMassFromMCID;
 
   std::vector<TH1D> visibleMass;
+
+  std::vector<TH1D> shape_VisM;
+  std::vector<TH1D> shape_SVfitM;
 
   unsigned verbose;
 
