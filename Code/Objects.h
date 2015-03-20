@@ -12,6 +12,7 @@
 
 #include "Math/Vector3D.h"
 #include "TMatrixD.h"
+#include "TString.h"
 #include "Ntuple_Controller.h"
 
 namespace objects {
@@ -23,6 +24,8 @@ public:
 	MET();
 	MET(Ntuple_Controller* const Ntp, TString met_type);
 	virtual ~MET();
+
+	void Init(Ntuple_Controller* const Ntp);
 
 	float et() const {return et_;}
 	void set_et(float et) {et_ = et;}
@@ -54,6 +57,9 @@ public:
 	TMatrixD significanceMatrix() const;
 	Vector3D met3D() const;
 
+	const TString& metType() const {return metType_;}
+	void set_metType(const TString& metType) {metType_ = metType;}
+
 private:
 	float et_;
 	float phi_;
@@ -65,6 +71,8 @@ private:
 	float significanceYY_;
 
 	bool hasSignificance_;
+
+	TString metType_;
 };
 
 } /* namespace objects */

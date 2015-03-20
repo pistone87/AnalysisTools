@@ -18,9 +18,15 @@ class SVFitObject{
 	friend class SVfitProvider;
 
  public:
-	// default constructor (invalid)
-	SVFitObject();
+	// default constructor, creates an invalid object
+	SVFitObject(): valid_(false) {};
 	virtual ~SVFitObject() {};
+
+	// There is no proper constructor for this class here on purpose,
+	// in order to keep this data container class independent from other
+	// code. Otherwise CINT has problems with that.
+	// To creat an object from SVfitStandaloneAlgorithm object, have a look at
+	// SVfitProvider::makeObject(const SVfitStandaloneAlgorithm*, TString fitMethod)
 
 	// validity MUST be checked before using
 	bool isValid() const {return valid_;}
@@ -54,7 +60,17 @@ class SVFitObject{
 	const std::vector<SVFitObject::LorentzVector>& get_fittedTauLeptons() const {return fittedTauLeptons_;}
 	const SVFitObject::Vector& get_measuredMET() const {return measuredMET_;}
 	const std::vector<SVFitObject::LorentzVector>& get_measuredTauLeptons() const {return measuredTauLeptons_;}
-  
+
+	// definition of setup used to create SVFit mass
+	const TString& get_elecCorr() const {return elecCorr_;}
+	const TString& get_muonCorr() const {return muonCorr_;}
+	const TString& get_tauCorr() const {return tauCorr_;}
+	const TString& get_metType() const {return metType_;}
+	bool get_addLogM() const {return addLogM_;}
+	int get_maxObjFunctionCalls() const {return maxObjFunctionCalls_;}
+	int get_metPower() const {return metPower_;}
+
+
 private:
 	// Validity of SVfit object
 	bool valid_;
@@ -89,6 +105,15 @@ private:
 	Vector fittedMET_;
 	// return spacial vector of the measured MET
 	Vector measuredMET_;
+
+	// information on the setup used to produce SVFit mass
+	TString tauCorr_;
+	TString muonCorr_;
+	TString elecCorr_;
+	TString metType_;
+	bool addLogM_;
+	int maxObjFunctionCalls_;
+	int metPower_;
 
 };
 

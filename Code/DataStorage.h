@@ -9,10 +9,15 @@ class DataStorage {
   DataStorage();
   virtual ~DataStorage();
 
-  int  GetFile(TString InFile, TString key);
+  int  GetFile(TString key);
   void StoreFile(TString File, TString savedFile);
+
+  TString timeStamp(bool Date = true, bool Time = true);
 
  private:
   TString mydir;
+
+ protected:
+  TString inputFileName;
 };
 #endif

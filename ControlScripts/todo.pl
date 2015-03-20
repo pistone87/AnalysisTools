@@ -348,7 +348,8 @@ if( $ARGV[0] eq "--Local" ){
 
     # Generate Combine Input
     system(sprintf("cp $InputFile $OutputDir/workdir$set/Input.txt "));
-    system(sprintf("$dir/subs '{SET}' COMBINE $OutputDir/workdir$set/Input.txt "));
+    system(sprintf("cd $OutputDir/workdir$set; $dir/subs '{SET}' COMBINE Input.txt; cd $dir "));
+    system(sprintf("cd $OutputDir/workdir$set; $dir/subs '{FileDir}' NotAvailable Input.txt; cd $dir "));
     system(sprintf("echo \"Mode: RECONSTRUCT\" >> $OutputDir/workdir$set/Input.txt"));
     system(sprintf("echo \"RunType: LOCAL\" >> $OutputDir/workdir$set/Input.txt"));
 
@@ -418,7 +419,8 @@ if( $ARGV[0] eq "--Local" ){
 
 			# Setup Input.txt
 			system(sprintf("cp   $InputFile $OutputDir/workdir$set/Set_$B/Input.txt ")); 
-			system(sprintf("$dir/subs '{SET}' Set_$B $OutputDir/workdir$set/Set_$B/Input.txt "));
+			system(sprintf("cd $OutputDir/workdir$set/Set_$B; $dir/subs '{SET}' Set_$B Input.txt; cd $dir "));
+			system(sprintf("cd $OutputDir/workdir$set/Set_$B; $dir/subs '{FileDir}' $InputDir/$subdir Input.txt; cd $dir ")); 
 			system(sprintf("echo \"Mode: ANALYSIS\" >> $OutputDir/workdir$set/Set_$B/Input.txt")); 
 			system(sprintf("echo \"RunType: LOCAL\" >> $OutputDir/workdir$set/Set_$B/Input.txt"));
 
@@ -519,7 +521,8 @@ if( $ARGV[0] eq "--DCache" ){
 
     # Generate Combine Input
     system(sprintf("cp $InputFile $OutputDir/workdir$set/Input.txt "));
-    system(sprintf("$dir/subs '{SET}' COMBINE $OutputDir/workdir$set/Input.txt "));
+    system(sprintf("cd $OutputDir/workdir$set/; $dir/subs '{SET}' COMBINE Input.txt; cd $dir"));
+    system(sprintf("cd $OutputDir/workdir$set/; $dir/subs '{FileDir}' COMBINE Input.txt; cd $dir"));
     system(sprintf("echo \"Mode: RECONSTRUCT\" >> $OutputDir/workdir$set/Input.txt"));
     system(sprintf("echo \"RunType: LOCAL\" >> $OutputDir/workdir$set/Input.txt"));
 
@@ -616,7 +619,8 @@ if( $ARGV[0] eq "--DCache" ){
 			system(sprintf("echo \"cd $OutputDir/workdir$set/Set_$B/ \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh")) ;
 			# Setup Input.txt
 			system(sprintf("cp   $InputFile $OutputDir/workdir$set/Set_$B/Input.txt ")); 
-			system(sprintf("$dir/subs '{SET}' Set_$B $OutputDir/workdir$set/Set_$B/Input.txt "));
+			system(sprintf("cd $OutputDir/workdir$set/Set_$B; $dir/subs '{SET}' Set_$B Input.txt; cd $dir "));
+			system(sprintf("cd $OutputDir/workdir$set/Set_$B; $dir/subs '{FileDir}' $DS Input.txt; cd $dir "));
 			system(sprintf("echo \"Mode: ANALYSIS\" >> $OutputDir/workdir$set/Set_$B/Input.txt")); 
 			system(sprintf("echo \"RunType: LOCAL\" >> $OutputDir/workdir$set/Set_$B/Input.txt"));
 			
@@ -743,7 +747,8 @@ if( $ARGV[0] eq "--GRID" ){
 
     # Generate Combine Input
     system(sprintf("cp $InputFile $OutputDir/workdir$set/Input.txt "));
-    system(sprintf("$dir/subs '{SET}' COMBINE $OutputDir/workdir$set/Input.txt "));
+    system(sprintf("cd $OutputDir/workdir$set; subs '{SET}' COMBINE $OutputDir/workdir$set/Input.txt; cd $dir "));
+    system(sprintf("cd $OutputDir/workdir$set; subs '{FileDir}' COMBINE $OutputDir/workdir$set/Input.txt; cd $dir "));
     system(sprintf("echo \"Mode: RECONSTRUCT\" >> $OutputDir/workdir$set/Input.txt"));
     system(sprintf("echo \"RunType: LOCAL\" >> $OutputDir/workdir$set/Input.txt"));
 
@@ -912,11 +917,13 @@ if( $ARGV[0] eq "--GRID" ){
 
 			# Setup Input.txt
 			system(sprintf("cp   $InputFile $OutputDir/workdir$set/Set_$B/Input.txt ")); 
-			system(sprintf("$dir/subs '{SET}' Set_$B $OutputDir/workdir$set/Set_$B/Input.txt "));
+			system(sprintf("cd  $OutputDir/workdir$set/Set_$B; $dir/subs '{SET}' Set_$B Input.txt; cd $dir "));
+			system(sprintf("cd  $OutputDir/workdir$set/Set_$B; $dir/subs '{FileDir}' $DS Input.txt; cd $dir "));
 			system(sprintf("echo \"Mode: ANALYSIS\" >> $OutputDir/workdir$set/Set_$B/Input.txt")); 
 			system(sprintf("echo \"RunType: LOCAL\" >> $OutputDir/workdir$set/Set_$B/Input.txt"));
 			system(sprintf("cp   $InputFile $OutputDir/workdir$set/Set_$B/Inputgrid.txt "));
-			system(sprintf("$dir/subs '{SET}' Set_$B $OutputDir/workdir$set/Set_$B/Inputgrid.txt "));
+			system(sprintf("cd  $OutputDir/workdir$set/Set_$B; $dir/subs '{SET}' Set_$B Inputgrid.txt; cd $dir "));
+			system(sprintf("cd  $OutputDir/workdir$set/Set_$B; $dir/subs '{FileDir}' $DS Inputgrid.txt; cd $dir "));
                         system(sprintf("echo \"Mode: ANALYSIS\" >> $OutputDir/workdir$set/Set_$B/Inputgrid.txt"));
                         system(sprintf("echo \"RunType: GRID\" >> $OutputDir/workdir$set/Set_$B/Inputgrid.txt"));
 

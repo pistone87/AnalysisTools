@@ -89,6 +89,15 @@ SVFitObject SVfitProvider::makeObject(const SVfitStandaloneAlgorithm* svfitAlgo,
 	obj.fittedMET_ = svfitAlgo->fittedMET();
 	obj.measuredMET_ = svfitAlgo->measuredMET();
 
+	obj.tauCorr_ = ntp_->GetTauCorrections();
+	obj.muonCorr_= ntp_->GetMuonCorrections();
+	obj.elecCorr_= ntp_->GetElecCorrections();
+	obj.metType_ = inputMet_.metType();
+	obj.addLogM_ = addLogM_;
+	obj.maxObjFunctionCalls_ = maxObjFunctionCalls_;
+	obj.metPower_ = metPower_;
+
+
 	// check if SVfit gives a valid solution
 	// Have to use const_cast here, as isValidSolution() is a non-const getter function. Please cry quietly.
 	if ( const_cast<SVfitStandaloneAlgorithm*>(svfitAlgo) ->isValidSolution() )
