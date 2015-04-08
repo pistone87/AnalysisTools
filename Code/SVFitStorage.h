@@ -35,7 +35,7 @@ class SVFitStorage : public DataStorage {
   TFile *outfile_;
   TTree *outtree_;
   TChain *intree_;
-  TChainIndex *index_;
+  TTreeIndex *index_;
   
   TString treeName_;
 

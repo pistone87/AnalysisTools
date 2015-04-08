@@ -82,8 +82,6 @@ void SVFitStorage::LoadTree(){
 			name += ".root";
 			intree_->Add(name);
 		}
-		//intree_->GetEntries();
-		//intree_ = (TTree*) chain;
 		if (intree_->LoadTree(0) < 0)
 			Logger(Logger::Error) << "Input TChain was not loaded correctly." << std::endl;
 
@@ -93,10 +91,11 @@ void SVFitStorage::LoadTree(){
 		intree_->SetBranchAddress("EventNumber", &EventNumber_, &b_EventNumber_);
 		intree_->SetBranchAddress("svfit", &svfit_, &b_svfit_);
 
+		// Create and set index
 		Logger(Logger::Debug) << "Building the index ..." << std::endl;
-		int a = intree_->BuildIndex("(RunNumber<<13) + LumiNumber", "EventNumber"); // works only for run<262144 and lumi<4096 (true in 2012)
-		Logger(Logger::Debug) << "BuildIndex done with return value " << a << std::endl;
-		index_ = (TChainIndex*) intree_->GetTreeIndex();
+		index_ = new TTreeIndex(intree_,"(RunNumber<<13) + LumiNumber", "EventNumber");
+		intree_->SetTreeIndex(index_);
+
 		gDirectory = gdirectory_save;
 		gDirectory->cd();
 
