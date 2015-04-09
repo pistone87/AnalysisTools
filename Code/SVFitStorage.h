@@ -31,6 +31,7 @@ class SVFitStorage : public DataStorage {
 
  private:
   void LoadTree();
+  bool isTreeInFile(TString fileName);
 
   TFile *outfile_;
   TTree *outtree_;
