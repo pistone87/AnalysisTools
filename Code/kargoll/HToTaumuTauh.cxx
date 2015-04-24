@@ -116,6 +116,7 @@ HToTaumuTauh::~HToTaumuTauh(){
 	if (mode == ANALYSIS) {
 		delete RSF;
 	}
+
 	delete clock;
 
 	Logger(Logger::Info) << "HToTaumuTauh::~HToTaumuTauh() done" << std::endl;
@@ -1279,10 +1280,10 @@ void  HToTaumuTauh::doEvent(){
 	  TLorentzVector tauP4Up 	= 1.03 * Ntp->PFTau_p4(selTau);
 	  TLorentzVector tauP4Down	= 0.97 * Ntp->PFTau_p4(selTau);
 	  clock->Start("SVFitTauESUp");
-	  SVFitObject *svfObjTauESUp = Ntp->getSVFitResult(svfitstorTauESUp, "CorrMVAMuTau", selMuon, selTau, "TauESUp", 1., 1.03);
+	  SVFitObject *svfObjTauESUp = Ntp->getSVFitResult(svfitstorTauESUp, "CorrMVAMuTau", selMuon, selTau, 2000, "TauESUp", 1., 1.03);
 	  clock->Stop("SVFitTauESUp");
 	  clock->Start("SVFitTauESDown");
-	  SVFitObject *svfObjTauESDown = Ntp->getSVFitResult(svfitstorTauESDown, "CorrMVAMuTau", selMuon, selTau, "TauESDown", 1., 0.97);
+	  SVFitObject *svfObjTauESDown = Ntp->getSVFitResult(svfitstorTauESDown, "CorrMVAMuTau", selMuon, selTau, 2000, "TauESDown", 1., 0.97);
 	  clock->Stop("SVFitTauESDown");
 
 	  double visMass_tauESUp	= (Ntp->Muon_p4(selMuon) + tauP4Up).M();
@@ -1585,11 +1586,9 @@ void HToTaumuTauh::Finish() {
 		}
 	}
 
-
 	// call GetHistoInfo here (instead of in Configure function), otherwise the SetCrossSection calls are not reflected
 	HConfig.GetHistoInfo(types, CrossSectionandAcceptance, legend, colour);
 	Selection::Finish();
-
 }
 
 

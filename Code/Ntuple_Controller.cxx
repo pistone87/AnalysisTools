@@ -1525,7 +1525,7 @@ std::vector<int> Ntuple_Controller::sortDefaultObjectsByPt(TString objectType){
 
 // obtain, or create and store, SVFit results from/on dCache
 #ifdef USE_SVfit
-SVFitObject* Ntuple_Controller::getSVFitResult(SVFitStorage& svFitStor, TString metType, unsigned muIdx, unsigned tauIdx, TString suffix /* ="" */, double scaleMu /* =1 */, double scaleTau /* =1 */) {
+SVFitObject* Ntuple_Controller::getSVFitResult(SVFitStorage& svFitStor, TString metType, unsigned muIdx, unsigned tauIdx, unsigned rerunEvery /* = 5000 */, TString suffix /* ="" */, double scaleMu /* =1 */, double scaleTau /* =1 */) {
 	 // configure svfitstorage on first call
 	if ( !svFitStor.isConfigured() ) svFitStor.Configure(GetInputDatasetName(), suffix);
 	// get SVFit result from cache
@@ -1543,8 +1543,8 @@ SVFitObject* Ntuple_Controller::getSVFitResult(SVFitStorage& svFitStor, TString 
 		}
 	}
 	else{
-		// calculate every 2000th event and compare with what is stored
-		if( (EventNumber() % 2000) == 123){
+		// calculate every N'th event and compare with what is stored
+		if( (EventNumber() % rerunEvery) == 123){
 			objects::MET met(this, metType);
 			SVfitProvider svfProv(this, met, "Mu", muIdx, "Tau", tauIdx);
 			SVFitObject newSvfObj = svfProv.runAndMakeObject();
