@@ -1554,7 +1554,8 @@ SVFitObject* Ntuple_Controller::getSVFitResult(SVFitStorage& svFitStor, TString 
 			else {
 				Logger(Logger::Warning) << "Recalculation of SVFit object gave DIFFERENT result!!" <<
 				"\n\told: mass = " << svfObj->get_mass() << " +/- " << svfObj->get_massUncert() << ", pt = " << svfObj->get_pt() << " +/- " << svfObj->get_ptUncert() <<
-				"\n\tnew: mass = " << newSvfObj.get_mass() << " +/- " << newSvfObj.get_massUncert() << ", pt = " << newSvfObj.get_pt() << " +/- " << newSvfObj.get_ptUncert()<< std::endl;
+				"\n\tnew: mass = " << newSvfObj.get_mass() << " +/- " << newSvfObj.get_massUncert() << ", pt = " << newSvfObj.get_pt() << " +/- " << newSvfObj.get_ptUncert() <<
+				"\n\tSmall discrepancies could be caused by fitting details. It's up to you whether to ignore them." << std::endl;
 			}
 		}
 	}
