@@ -85,8 +85,11 @@ ifdef USE_inugent
 endif
 
 ifdef USE_kargoll
-	TARGETS += HToTaumuTauh HToTaumuTauhSkim HToTaumuTauhBackgrounds MuTauSync OneJetBoost OneJetHigh OneJetLow VBFLoose VBFTight ZeroJetHigh ZeroJetLow Inclusive MCDecayChain
-	TARGETS += ZeroJetLow3Prong
+	TARGETS += HToTaumuTauh Category
+	#TARGETS += HToTaumuTauhBackgroundsInclusive
+	TARGETS += OneJetBoost OneJetHigh OneJetLow VBFLoose VBFTight ZeroJetHigh ZeroJetLow Inclusive
+	#TARGETS += HToTaumuTauhSkim MuTauSync MCDecayChain
+	#TARGETS += ZeroJetLow3Prong
 	DEFS += -DUSE_kargoll=1
 endif 
 

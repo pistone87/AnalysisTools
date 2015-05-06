@@ -49,7 +49,7 @@ void  ZeroJetLow3Prong::Configure(){
 void ZeroJetLow3Prong::Setup(){
 	Logger(Logger::Verbose) << std::endl;
 	// Setup Cut Values
-	// start from CatCut3, as 1&2 are already in use by ZeroJetLow catetgory
+	// start from CatCut3, as 1&2 are already in use by ZeroJetLow category
 	for(unsigned i = CatCut3; i< NCuts; i++){
 	  if(i==CatCut3)	cut.at(CatCut3)	= 10; // decay mode finding
 	  if(i==CatCut4)	cut.at(CatCut4)	= 3.0; // SV significance
@@ -154,7 +154,8 @@ void ZeroJetLow3Prong::Store_ExtraDist(){
 
 void ZeroJetLow3Prong::doEvent(){
 	Logger(Logger::Verbose) << std::endl;
-	HToTaumuTauh::doEvent();
+	HToTaumuTauh::doEvent(false); // run HToTaumuTauh::doEvent without filling framework plots
+
 	// todo: split analysis part from plotting part in HToTaumuTauh
 
 	Logger(Logger::Debug) << "Cut: Tau decay mode" << std::endl;

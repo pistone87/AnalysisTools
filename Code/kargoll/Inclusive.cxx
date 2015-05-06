@@ -9,20 +9,11 @@
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 
 Inclusive::Inclusive(TString Name_, TString id_):
-	HToTaumuTauh(Name_,id_)
+	Category(Name_,id_)
 {
 	Logger(Logger::Info) << "Setting up the class Inclusive" << std::endl;
 	// run Inclusive category
 	categoryFlag = "Inclusive";
-
-	// run Categories using embedding
-	useEmbedding = true;
-
-	// run Categories using data-driven WJets BG
-	wJetsBGSource = "Data";
-
-	// run Categories using data-driven QCD BG
-	qcdShapeFromData = true;
 }
 
 Inclusive::~Inclusive() {
@@ -33,4 +24,3 @@ Inclusive::~Inclusive() {
 	  }
 	  Logger(Logger::Info) << "Done." << std::endl;
 }
-
