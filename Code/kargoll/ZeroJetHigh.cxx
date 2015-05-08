@@ -9,7 +9,7 @@
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 
 ZeroJetHigh::ZeroJetHigh(TString Name_, TString id_):
-	HToTaumuTauh(Name_,id_)
+	Category(Name_,id_)
 {
 	Logger(Logger::Info) << "Setting up the class ZeroJetHigh" << std::endl;
 	// run ZeroJetHigh category
@@ -27,34 +27,34 @@ ZeroJetHigh::~ZeroJetHigh() {
 
 void ZeroJetHigh::categoryConfiguration(){
 	// set cut values to be the cut values of this category
-	cut.at(ZeroJetHigh_NJet)	= 0;
-	cut.at(ZeroJetHigh_TauPt)	= cCat_splitTauPt;
+	cut.at(NJet)	= 0;
+	cut.at(TauPt)	= cCat_splitTauPt;
 
 	// set histograms of category cuts
 	TString hlabel;
 	TString htitle;
 	TString c;
 
-	title.at(ZeroJetHigh_NJet)="Number Jets $<=$";
-	title.at(ZeroJetHigh_NJet)+=cut.at(ZeroJetHigh_NJet);
-	htitle=title.at(ZeroJetHigh_NJet);
+	title.at(NJet)="Number Jets $<=$";
+	title.at(NJet)+=cut.at(NJet);
+	htitle=title.at(NJet);
 	htitle.ReplaceAll("$","");
 	htitle.ReplaceAll("\\","#");
 	hlabel="Number of Jets";
-	c="_Cut_";c+=ZeroJetHigh_NJet;
-	Nminus1.at(ZeroJetHigh_NJet) = HConfig.GetTH1D(Name+c+"_Nminus1_ZeroJetHigh_NJet_",htitle,11,-0.5,10.5,hlabel,"Events");
-	Nminus0.at(ZeroJetHigh_NJet) = HConfig.GetTH1D(Name+c+"_Nminus0_ZeroJetHigh_NJet_",htitle,11,-0.5,10.5,hlabel,"Events");
+	c="_Cut_";c+=NJet;
+	Nminus1.at(NJet) = HConfig.GetTH1D(Name+c+"_Nminus1_NJet_",htitle,11,-0.5,10.5,hlabel,"Events");
+	Nminus0.at(NJet) = HConfig.GetTH1D(Name+c+"_Nminus0_NJet_",htitle,11,-0.5,10.5,hlabel,"Events");
 
-	title.at(ZeroJetHigh_TauPt)="$p_{T}(\\tau_{h}) >=$";
-	title.at(ZeroJetHigh_TauPt)+=cut.at(ZeroJetHigh_TauPt);
-	title.at(ZeroJetHigh_TauPt)+=" GeV";
-	htitle=title.at(ZeroJetHigh_TauPt);
+	title.at(TauPt)="$p_{T}(\\tau_{h}) >=$";
+	title.at(TauPt)+=cut.at(TauPt);
+	title.at(TauPt)+=" GeV";
+	htitle=title.at(TauPt);
 	htitle.ReplaceAll("$","");
 	htitle.ReplaceAll("\\","#");
 	hlabel="p_{T}(\\tau_{h})/GeV";
-	c="_Cut_";c+=ZeroJetHigh_TauPt;
-	Nminus1.at(ZeroJetHigh_TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_ZeroJetHigh_TauPt_",htitle,50,0.,200.,hlabel,"Events");
-	Nminus0.at(ZeroJetHigh_TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_ZeroJetHigh_TauPt_",htitle,50,0.,200.,hlabel,"Events");
+	c="_Cut_";c+=TauPt;
+	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,50,0.,200.,hlabel,"Events");
+	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,50,0.,200.,hlabel,"Events");
 }
 
 bool ZeroJetHigh::categorySelection(){
@@ -62,22 +62,22 @@ bool ZeroJetHigh::categorySelection(){
 	std::vector<float> value_ZeroJetHigh(NCuts,-10);
 	std::vector<float> pass_ZeroJetHigh(NCuts,false);
 
-	value_ZeroJetHigh.at(ZeroJetHigh_NJet) = nJets_;
-	pass_ZeroJetHigh.at(ZeroJetHigh_NJet) = ( value_ZeroJetHigh.at(ZeroJetHigh_NJet) <= cut.at(ZeroJetHigh_NJet) );
+	value_ZeroJetHigh.at(NJet) = nJets_;
+	pass_ZeroJetHigh.at(NJet) = ( value_ZeroJetHigh.at(NJet) <= cut.at(NJet) );
 
 	if (selTau == -1){
 		// TauPt cut is set to true for nice N-0 and N-1 plots
-		value_ZeroJetHigh.at(ZeroJetHigh_TauPt) = -10.;
-		pass_ZeroJetHigh.at(ZeroJetHigh_TauPt) = true;
+		value_ZeroJetHigh.at(TauPt) = -10.;
+		pass_ZeroJetHigh.at(TauPt) = true;
 		// whole category is failing selection, to avoid NCat > 1
 		categoryPass = false;
 	}
 	else{
-		value_ZeroJetHigh.at(ZeroJetHigh_TauPt) = tauPt_;
-		pass_ZeroJetHigh.at(ZeroJetHigh_TauPt) = ( value_ZeroJetHigh.at(ZeroJetHigh_TauPt) >= cut.at(ZeroJetHigh_TauPt) );
+		value_ZeroJetHigh.at(TauPt) = tauPt_;
+		pass_ZeroJetHigh.at(TauPt) = ( value_ZeroJetHigh.at(TauPt) >= cut.at(TauPt) );
 	}
 
 	// migrate into main analysis if this is chosen category
-	categoryPass = migrateCategoryIntoMain("ZeroJetHigh",value_ZeroJetHigh, pass_ZeroJetHigh,ZeroJetHigh_NCuts) && categoryPass;
+	categoryPass = migrateCategoryIntoMain("ZeroJetHigh",value_ZeroJetHigh, pass_ZeroJetHigh,NCuts) && categoryPass;
 	return categoryPass;
 }

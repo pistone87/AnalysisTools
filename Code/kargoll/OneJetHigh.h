@@ -17,11 +17,11 @@ public:
 
 	// enumerator for the cuts in this category
 	enum cuts_OneJetHigh {
-		OneJetHigh_NJet = CatCut1,
-		OneJetHigh_NotVbf,
-		OneJetHigh_TauPt,
-		OneJetHigh_HiggsPt,
-		OneJetHigh_NCuts
+		NJet = CatCut1,
+		NotVbf,
+		TauPt,
+		HiggsPt,
+		NCuts
 	};
 
 protected:

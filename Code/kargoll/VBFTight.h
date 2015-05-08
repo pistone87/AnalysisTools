@@ -17,12 +17,12 @@ public:
 
 	// enumerator for the cuts in this category
 	enum cuts_VBFTight {
-		VbfTight_NJet	= CatCut1,
-		VbfTight_DeltaEta,
-		VbfTight_NJetRapGap,
-		VbfTight_JetInvM,
-		VbfTight_HiggsPt,
-		VbfTight_NCuts
+		NJet	= CatCut1,
+		DeltaEta,
+		NJetRapGap,
+		JetInvM,
+		HiggsPt,
+		NCuts
 	};
 
 protected:

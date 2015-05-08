@@ -9,6 +9,7 @@
 #define VBFLOOSE_H_
 
 #include "Category.h"
+#include "HToTaumuTauh.h"
 
 class VBFLoose: public Category {
 public:
@@ -17,12 +18,12 @@ public:
 
 	// enumerator for the cuts in this category
 	enum cuts_VBFLoose {
-		VbfLoose_NJet	= CatCut1,
-		VbfLoose_DeltaEta,
-		VbfLoose_NJetRapGap,
-		VbfLoose_JetInvM,
-		VbfLoose_NotVbfTight,
-		VbfLoose_NCuts
+		NJet	= HToTaumuTauh::CatCut1,
+		DeltaEta,
+		NJetRapGap,
+		JetInvM,
+		NotVbfTight,
+		NCuts
 	};
 
 protected:

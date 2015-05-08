@@ -16,11 +16,11 @@ public:
 	virtual ~OneJetBoost();
 
 	enum cuts_OneJetBoost {
-		OneJetBoost_NJet = HToTaumuTauh::CatCut1,
-		OneJetBoost_NotVbf,
-		OneJetBoost_TauPt,
-		OneJetBoost_HiggsPt,
-		OneJetBoost_NCuts
+		NJet = HToTaumuTauh::CatCut1,
+		NotVbf,
+		TauPt,
+		HiggsPt,
+		NCuts
 	};
 
 

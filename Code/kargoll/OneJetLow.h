@@ -17,10 +17,10 @@ public:
 
 	// enumerator for the cuts in this category
 	enum cuts_OneJetLow {
-		OneJetLow_NJet = CatCut1,
-		OneJetLow_NotVbf,
-		OneJetLow_TauPt,
-		OneJetLow_NCuts
+		NJet = CatCut1,
+		NotVbf,
+		TauPt,
+		NCuts
 	};
 
 protected:

@@ -7,6 +7,10 @@
 #include "TauDataFormat/TauNtuple/interface/DataMCType.h"
 #include "SVfitProvider.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
+#include "VBFLooseStandalone.h"
+#include "VBFTightStandalone.h"
+#include "RelaxedVBFLoose.h"
+#include "RelaxedVBFTight.h"
 
 HToTaumuTauh::HToTaumuTauh(TString Name_, TString id_):
   Selection(Name_,id_),
@@ -1050,11 +1054,26 @@ void HToTaumuTauh::doSelection(bool runAnalysisCuts){
 	// re-define booleans as they might have changed for background methods
 	setStatusBooleans();
 
+	// run categories that are needed as inputs for other categories
+	VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	passedVBFTight_ = vbft.passed();
+	VBFLooseStandalone vbfl(nJets_, jetdEta_, nJetsInGap_, mjj_, !passedVBFTight_);
+	passedVBF_ = vbft.passed() || vbfl.passed();
+
 	// run relaxed categories for background methods
 	// VBFTight: full category selection for shape in WJets, relaxed in QCD
-	passed_VBFTightRelaxed = helperCategory_VBFTightRelaxed(isQCDShapeEvent, nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	RelaxedVBFTight rvbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	passed_VBFTightRelaxed = rvbft.passed();
+	if (isQCDShapeEvent){
+		overwriteWithRelaxed<RelaxedVBFTight>(rvbft);
+	}
+
 	// VBFLoose: relaxed category selection for shape in both WJets and QCD
-	passed_VBFLooseRelaxed = helperCategory_VBFLooseRelaxed(isWJetShapeEvent || isQCDShapeEvent, nJets_, jetdEta_, nJetsInGap_, mjj_);
+	RelaxedVBFLoose rvbfl(nJets_, jetdEta_, nJetsInGap_, mjj_);
+	passed_VBFLooseRelaxed = rvbfl.passed();
+	if (isWJetShapeEvent || isQCDShapeEvent){
+		overwriteWithRelaxed<RelaxedVBFLoose>(rvbfl);
+	}
 
 	if (runAnalysisCuts)	status = AnalysisCuts(t,w,wobs);	// fill plots for framework
 	else					status = Passed();					// make sure plots are filled somewhere else (e.g. in a derived class)
@@ -1692,80 +1711,18 @@ bool HToTaumuTauh::migrateCategoryIntoMain(TString thisCategory, std::vector<flo
 	return catPassed;
 }
 
-// helper category definitions for background methods
-bool HToTaumuTauh::helperCategory_VBFLooseRelaxed(bool useRelaxedForPlots, unsigned NJets, double DEta, int NJetsInGap, double Mjj){
-	std::vector<float> value_VBFLooseRelaxed;
-	std::vector<float> pass_VBFLooseRelaxed;
+// overwrite category selection with relaxed category selection
+// to be used for WJets and QCD shapes
+template <typename T>
+void HToTaumuTauh::overwriteWithRelaxed(T cat){
+	std::vector<float> categoryValueVector = cat.get_eventValues();
+	std::vector<bool> categoryPassVector = cat.get_passCut();
 
-	// cut implementation
-	for(int i=0; i<NCuts;i++){
-	value_VBFLooseRelaxed.push_back(-10.);
-	pass_VBFLooseRelaxed.push_back(false);
+	for (unsigned i_cut = CatCut1; i_cut < CatCut1 + cat.get_nCuts(); i_cut++) {
+		value.at(i_cut) = categoryValueVector.at(i_cut);
+		pass.at(i_cut) = categoryPassVector.at(i_cut);
 	}
-
-	value_VBFLooseRelaxed.at(VbfLoose_NJet) = NJets;
-	pass_VBFLooseRelaxed.at(VbfLoose_NJet) = (value_VBFLooseRelaxed.at(VbfLoose_NJet) >= cut_VBFLooseRelaxed.at(VbfLoose_NJet));
-
-	if(pass_VBFLooseRelaxed.at(VbfLoose_NJet)){
-		value_VBFLooseRelaxed.at(VbfLoose_DeltaEta) = DEta;
-		pass_VBFLooseRelaxed.at(VbfLoose_DeltaEta) = (fabs(value_VBFLooseRelaxed.at(VbfLoose_DeltaEta)) > cut_VBFLooseRelaxed.at(VbfLoose_DeltaEta));
-
-		value_VBFLooseRelaxed.at(VbfLoose_NJetRapGap) = NJetsInGap;
-		pass_VBFLooseRelaxed.at(VbfLoose_NJetRapGap) = (value_VBFLooseRelaxed.at(VbfLoose_NJetRapGap) <= cut_VBFLooseRelaxed.at(VbfLoose_NJetRapGap));
-
-		value_VBFLooseRelaxed.at(VbfLoose_JetInvM) = Mjj;
-		pass_VBFLooseRelaxed.at(VbfLoose_JetInvM) = (value_VBFLooseRelaxed.at(VbfLoose_JetInvM) > cut_VBFLooseRelaxed.at(VbfLoose_JetInvM));
-	}
-	else{
-		pass_VBFLooseRelaxed.at(VbfLoose_DeltaEta) = true;
-		pass_VBFLooseRelaxed.at(VbfLoose_NJetRapGap) = true;
-		pass_VBFLooseRelaxed.at(VbfLoose_JetInvM) = true;
-	}
-
-	value_VBFLooseRelaxed.at(VbfLoose_NotVbfTight) = true;
-	pass_VBFLooseRelaxed.at(VbfLoose_NotVbfTight) = true; // disabled cut
-
-	// migrate into main analysis if this is chosen category
-	TString cat = useRelaxedForPlots ? "VBFLoose" : "DoNotUseThisCategoryForPlotting";
-	return migrateCategoryIntoMain(cat,value_VBFLooseRelaxed, pass_VBFLooseRelaxed,VbfLoose_NCuts);
 }
-bool HToTaumuTauh::helperCategory_VBFTightRelaxed(bool useRelaxedForPlots, unsigned NJets, double DEta, int NJetsInGap, double Mjj, double higgsPt){
-	std::vector<float> value_VBFTightRelaxed;
-	std::vector<float> pass_VBFTightRelaxed;
-
-	// cut implementation
-	for(int i=0; i<NCuts;i++){
-	value_VBFTightRelaxed.push_back(-10.);
-	pass_VBFTightRelaxed.push_back(false);
-	}
-
-	value_VBFTightRelaxed.at(VbfTight_NJet) = NJets;
-	pass_VBFTightRelaxed.at(VbfTight_NJet) = (value_VBFTightRelaxed.at(VbfTight_NJet) >= cut_VBFTightRelaxed.at(VbfTight_NJet));
-
-	if(pass_VBFTightRelaxed.at(VbfTight_NJet)){
-		value_VBFTightRelaxed.at(VbfTight_DeltaEta) = DEta;
-		pass_VBFTightRelaxed.at(VbfTight_DeltaEta) = (fabs(value_VBFTightRelaxed.at(VbfTight_DeltaEta)) > cut_VBFTightRelaxed.at(VbfTight_DeltaEta));
-
-		value_VBFTightRelaxed.at(VbfTight_NJetRapGap) = NJetsInGap;
-		pass_VBFTightRelaxed.at(VbfTight_NJetRapGap) = (value_VBFTightRelaxed.at(VbfTight_NJetRapGap) <= cut_VBFTightRelaxed.at(VbfTight_NJetRapGap));
-
-		value_VBFTightRelaxed.at(VbfTight_JetInvM) = Mjj;
-		pass_VBFTightRelaxed.at(VbfTight_JetInvM) = (value_VBFTightRelaxed.at(VbfTight_JetInvM) > cut_VBFTightRelaxed.at(VbfTight_JetInvM));
-	}
-	else{
-		pass_VBFTightRelaxed.at(VbfTight_DeltaEta) = true;
-		pass_VBFTightRelaxed.at(VbfTight_NJetRapGap) = true;
-		pass_VBFTightRelaxed.at(VbfTight_JetInvM) = true;
-	}
-
-	value_VBFTightRelaxed.at(VbfTight_HiggsPt) = higgsPt;
-	pass_VBFTightRelaxed.at(VbfTight_HiggsPt) = (value_VBFTightRelaxed.at(VbfTight_HiggsPt) > cut_VBFTightRelaxed.at(VbfTight_HiggsPt));
-
-	// migrate into main analysis if this is chosen category
-	TString cat = useRelaxedForPlots ? "VBFTight" : "DoNotUseThisCategoryForPlotting";
-	return migrateCategoryIntoMain(cat,value_VBFTightRelaxed, pass_VBFTightRelaxed,VbfTight_NCuts);
-}
-
 
 void HToTaumuTauh::setStatusBooleans(bool resetAll){
 	if(resetAll){
@@ -1779,21 +1736,10 @@ void HToTaumuTauh::setStatusBooleans(bool resetAll){
 		// make sure all optional category cuts are true
 		for (unsigned i = CatCut1; i<NCuts; i++){
 			if (pass.at(i) != true){
-				Logger(Logger::Warning) << "pass vector not cleared properly" << std::endl;
+				// for Category cuts, default value must be set to true
 				pass.at(i) = true;
 			}
 		}
-
-		// set all category flags to false
-		passed_VBFTight		= false;
-		passed_VBFLoose		= false;
-		passed_VBF			= false;
-		passed_OneJetHigh	= false;
-		passed_OneJetLow	= false;
-		passed_OneJetBoost	= false;
-		passed_ZeroJetHigh	= false;
-		//passed_ZeroJetLow	= false;
-		//passed_NoCategory	= false;
 		passed_VBFTightRelaxed	= false;
 		passed_VBFLooseRelaxed	= false;
 	}

@@ -17,9 +17,9 @@ public:
 
 	// enumerator for the cuts in this category
 	enum cuts_ZeroJetLow {
-		ZeroJetLow_NJet = HToTaumuTauh::CatCut1,
-		ZeroJetLow_TauPt,
-		ZeroJetLow_NCuts
+		NJet = HToTaumuTauh::CatCut1,
+		TauPt,
+		NCuts
 	};
 
 protected:

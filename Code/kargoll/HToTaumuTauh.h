@@ -14,6 +14,7 @@
 
 class TLorentzVector;
 class TVector3;
+class CategoryStandalone;
 
 class HToTaumuTauh : public Selection {
 
@@ -354,9 +355,7 @@ class HToTaumuTauh : public Selection {
   bool selectPFJet_Relaxed(unsigned i, int selectedMuon, int selectedTau);
 
   bool migrateCategoryIntoMain(TString thisCategory, std::vector<float> categoryValueVector, std::vector<float> categoryPassVector, unsigned categoryNCuts);
-
-  bool helperCategory_VBFLooseRelaxed(bool useRelaxedForPlots, unsigned NJets, double DEta, int NJetsInGap, double Mjj);
-  bool helperCategory_VBFTightRelaxed(bool useRelaxedForPlots, unsigned NJets, double DEta, int NJetsInGap, double Mjj, double higgsPt);
+  template <typename T> void overwriteWithRelaxed(T cat);
 
  private:
   // everything is in protected to be accessible by derived classes
