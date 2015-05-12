@@ -33,7 +33,7 @@ SVFitStorage::SVFitStorage():
 	TString thelib= getenv ("DATAFORMATS_LIB");
 	gSystem->Load(thelib.Data());
 
-	inputFileName = "SVFitInput_temp_";
+	inputFileName = "SVFitInput_temp";
 
 	// Configure(...) MUST be called before instance of this class can be called
 }
@@ -74,14 +74,14 @@ void SVFitStorage::Configure(TString datasetName, TString suffix /* ="" */){
 
 	if (suffix_ != ""){
 		treeName_ = treeName_ + "_" + suffix_;
-		inputFileName = inputFileName + suffix_ + "_";
+		inputFileName = inputFileName + suffix_;
 	}
 
 	// Specify file name of output file
 	Parameters Par; // assumes configured in Analysis.cxx
 	TString key = "OutputFileSVFit" + suffix_ + ":";
 	Par.GetString(key, storageFileName_);
-	TString outputFileLocal = "MySVFIT" + suffix_ + ".root";
+	TString outputFileLocal = "MySVFIT" + suffix_ + TString::Itoa(instance,10) + ".root";
 	// Load output file
 	outfile_ = TFile::Open(outputFileLocal, "RECREATE");
 	if (!outfile_) {
@@ -129,9 +129,7 @@ void SVFitStorage::LoadTree(){
 		TDirectory *gdirectory_save = gDirectory;
 		int nFilesLoaded = 0;
 		for (int i = 0; i < nfiles; i++) {
-			TString name = inputFileName;
-			name += i;
-			name += ".root";
+			TString name = assemblyFileName(i);
 			if ( isTreeInFile(name) ){ // check if tree exists in file (avoids TChain error)
 				intree_->Add(name);
 				nFilesLoaded++;

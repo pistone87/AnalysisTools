@@ -10,12 +10,14 @@
 
 // only set cut values
 VBFTightStandalone::VBFTightStandalone() {
+	nCuts_ = NCuts;
+	cutValues_.resize(nCuts_);
 	setCutValues();
 }
 
 VBFTightStandalone::VBFTightStandalone(unsigned nJets, float deltaEta, unsigned nJetRapGap, float jetInvM, float higgsPt)
 {
-	nCuts_ = 5;
+	nCuts_ = NCuts;
 	cutValues_.resize(nCuts_);
 	eventValues_.resize(nCuts_);
 	passCut_.resize(nCuts_);

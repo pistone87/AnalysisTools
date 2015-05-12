@@ -26,8 +26,6 @@
 #endif
 #ifdef USE_kargoll
 #include "kargoll/HToTaumuTauh.h"
-//#include "kargoll/HToTaumuTauhSkim.h"
-//#include "kargoll/HToTaumuTauhBackgrounds.h"
 //#include "kargoll/MuTauSync.h"
 #include "kargoll/OneJetBoost.h"
 #include "kargoll/OneJetHigh.h"
@@ -38,7 +36,7 @@
 #include "kargoll/ZeroJetLow.h"
 #include "kargoll/Inclusive.h"
 //#include "kargoll/MCDecayChain.h"
-//#include "kargoll/ZeroJetLow3Prong.h"
+#include "kargoll/ZeroJetLow3Prong.h"
 #endif
 #ifdef USE_pistone
 

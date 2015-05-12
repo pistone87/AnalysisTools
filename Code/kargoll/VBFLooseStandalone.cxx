@@ -10,12 +10,14 @@
 
 // only set cut values
 VBFLooseStandalone::VBFLooseStandalone() {
+	nCuts_ = NCuts;
+	cutValues_.resize(nCuts_);
 	setCutValues();
 }
 
 VBFLooseStandalone::VBFLooseStandalone(unsigned nJets, float deltaEta, unsigned nJetRapGap, float jetInvM, bool notVBFTight)
 {
-	nCuts_ = 5;
+	nCuts_ = NCuts;
 	cutValues_.resize(nCuts_);
 	eventValues_.resize(nCuts_);
 	passCut_.resize(nCuts_);
@@ -24,7 +26,7 @@ VBFLooseStandalone::VBFLooseStandalone(unsigned nJets, float deltaEta, unsigned 
 
 	eventValues_.at(NJet)		= nJets;
 	eventValues_.at(DeltaEta)	= deltaEta;
-	eventValues_.at(NJetRapGap)= nJetRapGap;
+	eventValues_.at(NJetRapGap) = nJetRapGap;
 	eventValues_.at(JetInvM)	= jetInvM;
 	eventValues_.at(NotVbfTight)= notVBFTight;
 

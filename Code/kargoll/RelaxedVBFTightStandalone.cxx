@@ -1,20 +1,20 @@
 /*
- * RelaxedVBFLoose.cxx
+ * RelaxedVBFTightStandalone.cxx
  *
  *  Created on: May 8, 2015
  *      Author: kargoll
  */
 
-#include "RelaxedVBFLoose.h"
+#include "RelaxedVBFTightStandalone.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 
 // only set cut values
-RelaxedVBFLoose::RelaxedVBFLoose() {
+RelaxedVBFTightStandalone::RelaxedVBFTightStandalone() {
 	setCutValues();
 }
 
-RelaxedVBFLoose::RelaxedVBFLoose(unsigned nJets, float deltaEta, unsigned nJetRapGap, float jetInvM){
-	nCuts_ = 4;
+RelaxedVBFTightStandalone::RelaxedVBFTightStandalone(unsigned nJets, float deltaEta, unsigned nJetRapGap, float jetInvM, float higgsPt){
+	nCuts_ = 5;
 	cutValues_.resize(nCuts_);
 	eventValues_.resize(nCuts_);
 	passCut_.resize(nCuts_);
@@ -25,21 +25,23 @@ RelaxedVBFLoose::RelaxedVBFLoose(unsigned nJets, float deltaEta, unsigned nJetRa
 	eventValues_.at(DeltaEta)	= deltaEta;
 	eventValues_.at(NJetRapGap)	= nJetRapGap;
 	eventValues_.at(JetInvM)	= jetInvM;
+	eventValues_.at(HiggsPt)	= higgsPt;
 
 	execute();
 }
 
-RelaxedVBFLoose::~RelaxedVBFLoose() {
+RelaxedVBFTightStandalone::~RelaxedVBFTightStandalone() {
 }
 
-void RelaxedVBFLoose::setCutValues() {
+void RelaxedVBFTightStandalone::setCutValues() {
 	cutValues_.at(NJet)			= 2;
 	cutValues_.at(DeltaEta)		= 2.0;
 	cutValues_.at(NJetRapGap)	= 0;
 	cutValues_.at(JetInvM)		= 200.0;
+	cutValues_.at(HiggsPt)		= 100.0;
 }
 
-void RelaxedVBFLoose::execute(){
+void RelaxedVBFTightStandalone::execute(){
 	passCut_.at(NJet) = (eventValues_.at(NJet) >= cutValues_.at(NJet));
 
 	if(passCut_.at(NJet)){
@@ -52,4 +54,6 @@ void RelaxedVBFLoose::execute(){
 		passCut_.at(NJetRapGap) = true;
 		passCut_.at(JetInvM) = true;
 	}
+
+	passCut_.at(HiggsPt) = (eventValues_.at(HiggsPt) > cutValues_.at(HiggsPt));
 }

@@ -64,7 +64,6 @@ bool ZeroJetLow::categorySelection(){
 
 	value_ZeroJetLow.at(NJet) = nJets_;
 	pass_ZeroJetLow.at(NJet) = ( value_ZeroJetLow.at(NJet) <= cut.at(NJet) );
-	std::cout << " Event with " << nJets_ << " jets has passed cut: " << pass_ZeroJetLow.at(NJet) << std::endl;
 
 	if (selTau == -1){
 		// TauPt cut is set to true for nice N-0 and N-1 plots

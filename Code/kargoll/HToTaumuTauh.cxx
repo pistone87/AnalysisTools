@@ -9,8 +9,8 @@
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 #include "VBFLooseStandalone.h"
 #include "VBFTightStandalone.h"
-#include "RelaxedVBFLoose.h"
-#include "RelaxedVBFTight.h"
+#include "RelaxedVBFLooseStandalone.h"
+#include "RelaxedVBFTightStandalone.h"
 
 HToTaumuTauh::HToTaumuTauh(TString Name_, TString id_):
   Selection(Name_,id_),
@@ -48,6 +48,9 @@ HToTaumuTauh::HToTaumuTauh(TString Name_, TString id_):
 	correctElecs = ""; // "run" = run dependent corrections, "JER" = jet energy resolution smearing
 	correctJets = "";
 
+	// by default category is set to passed
+	catPassed = true;
+
 	// implemented categories:
 	// VBFTight, VBFLoose
 	// OneJetHigh, OneJetLow, OneJetBoost
@@ -68,30 +71,10 @@ HToTaumuTauh::HToTaumuTauh(TString Name_, TString id_):
 	// * "Data": use data driven method (make sure wJetsYieldScaleMap is filled correctly)
 	wJetsBGSource = "MC";
 
-	// this one is used to set the event yield for W+Jet
-	wJetsYieldMap.insert(std::pair<TString,double>("ZeroJetLow",  6593.05981966) );
-	wJetsYieldMap.insert(std::pair<TString,double>("ZeroJetHigh", 1128.81404765) );
-	wJetsYieldMap.insert(std::pair<TString,double>("OneJetLow",   4817.17263439) );
-	wJetsYieldMap.insert(std::pair<TString,double>("OneJetHigh",   674.57141930) );
-	wJetsYieldMap.insert(std::pair<TString,double>("OneJetBoost",  158.46545425) );
-	wJetsYieldMap.insert(std::pair<TString,double>("VBFLoose",      62.95892997) );
-	wJetsYieldMap.insert(std::pair<TString,double>("VBFTight",       4.89934663) );
-	wJetsYieldMap.insert(std::pair<TString,double>("Inclusive",  13295.55036387) );
-
 	// flag to switch data-driven QCD on/off
 	// set to "true" if running analyses (i.e. in categories)
 	// set to "false" to estimate QCD yield
 	qcdShapeFromData = false;
-
-	// these are used to set the event yield for QCD
-	qcdYieldABCDMap.insert(std::pair<TString,double>("ZeroJetLow",  16235.46236044) );
-	qcdYieldABCDMap.insert(std::pair<TString,double>("ZeroJetHigh",   465.59995267) );
-	qcdYieldABCDMap.insert(std::pair<TString,double>("OneJetLow",    4893.21983995) );
-	qcdYieldABCDMap.insert(std::pair<TString,double>("OneJetHigh",    264.47357676) );
-	qcdYieldABCDMap.insert(std::pair<TString,double>("OneJetBoost",    56.94622289) );
-	qcdYieldABCDMap.insert(std::pair<TString,double>("VBFLoose",       38.40373683) );
-	qcdYieldABCDMap.insert(std::pair<TString,double>("VBFTight",        5.74384738) );
-	qcdYieldABCDMap.insert(std::pair<TString,double>("Inclusive",   22157.13046410) );
 
 	// flag to enable efficiency method for data-driven QCD yield
 	// these numbers will only be used in the categories where they are available,
@@ -99,11 +82,6 @@ HToTaumuTauh::HToTaumuTauh(TString Name_, TString id_):
 	// (thus it is safe to set this flag globally here, no need to set it in individual categories)
 	// Attention: if flag "qcdShapeFromData" is set to "false", this flag has no effect
 	qcdUseEfficiencyMethod = true;
-
-	// these are used to set the event yield for QCD using the efficiency method
-	qcdYieldEffMap.insert(std::pair<TString,double>("OneJetBoost", 32.94421105));
-	qcdYieldEffMap.insert(std::pair<TString,double>("VBFLoose",    57.69432816));
-	qcdYieldEffMap.insert(std::pair<TString,double>("VBFTight",    1.42017411));
 
 	clock = new TBenchmark();
 }
@@ -460,6 +438,32 @@ void  HToTaumuTauh::Setup(){
   h_SVFitTimeCPU =  HConfig.GetTH1D(Name+"_SVFitTimeCPU","SVFitTimeCPU",200,0.,60.,"t_{CPU}(SVFit)/sec");
   h_SVFitStatus = HConfig.GetTH1D(Name+"_SVFitStatus", "SVFitStatus", 5, -0.5, 4.5, "Status of SVFit calculation");
 
+  // background methods
+  h_BGM_Mt = HConfig.GetTH1D(Name + "_h_BGM_Mt", "h_BGM_Mt", 125, 0., 250., "m_{T}/GeV");
+  h_BGM_MtSideband = HConfig.GetTH1D(Name + "_h_BGM_MtSideband", "h_BGM_MtSideband", 90, 70., 250., "m_{T}/GeV");
+  h_BGM_MtExtrapolation = HConfig.GetTH1D(Name + "_h_BGM_MtExtrapolation", "h_BGM_MtExtrapolation", 2, 0.5, 2.5, "m_{T} signal and sideband");
+
+  h_BGM_MtSS = HConfig.GetTH1D(Name + "_h_BGM_MtSS", "h_BGM_MtSS", 125, 0., 250., "m_{T}/GeV");
+  h_BGM_MtSidebandSS = HConfig.GetTH1D(Name + "_h_BGM_MtSidebandSS", "h_BGM_MtSidebandSS", 90, 70., 250., "m_{T}/GeV");
+  h_BGM_MtExtrapolationSS = HConfig.GetTH1D(Name + "_h_BGM_MtExtrapolationSS", "h_BGM_MtExtrapolationSS", 2, 0.5, 2.5, "m_{T} signal and sideband");
+
+  h_BGM_MtSidebandInclusive = HConfig.GetTH1D(Name + "_h_BGM_MtSidebandInclusive", "h_BGM_MtSidebandInclusive", 90, 70., 250., "m_{T}/GeV");
+  h_BGM_MtExtrapolationInclusive = HConfig.GetTH1D(Name + "_h_BGM_MtExtrapolationInclusive", "h_BGM_MtExtrapolationInclusive", 2, 0.5, 2.5, "m_{T} signal and sideband");
+  h_BGM_MtSidebandSSInclusive = HConfig.GetTH1D(Name + "_h_BGM_MtSidebandSSInclusive", "h_BGM_MtSidebandSSInclusive", 90, 70., 250., "m_{T}/GeV");
+  h_BGM_MtExtrapolationSSInclusive = HConfig.GetTH1D(Name + "_h_BGM_MtExtrapolationSSInclusive", "h_BGM_MtExtrapolationSSInclusive", 2, 0.5, 2.5, "m_{T} signal and sideband");
+
+  h_BGM_MtAntiIso = HConfig.GetTH1D(Name + "_h_BGM_MtAntiIso", "h_BGM_MtAntiIso", 100, 0., 150., "m_{T}/GeV");
+  h_BGM_MtAntiIsoSS = HConfig.GetTH1D(Name + "_h_BGM_MtAntiIsoSS", "h_BGM_MtAntiIsoSS", 100, 0., 150., "m_{T}/GeV");
+
+  h_BGM_QcdAbcd = HConfig.GetTH1D(Name+"_h_BGM_QcdAbcd","h_BGM_QcdAbcd",5,-0.5,4.5,"ABCD");
+  h_BGM_QcdAbcdInclusive = HConfig.GetTH1D(Name+"_h_BGM_QcdAbcdInclusive","h_BGM_QcdAbcdInclusive",5,-0.5,4.5,"Inclusive ABCD");
+  h_BGM_QcdOSMuIso = HConfig.GetTH1D(Name + "_h_BGM_QcdOSMuIso", "h_BGM_QcdOSMuIso", 50, 0., 1., "relIso(#mu)");
+  h_BGM_QcdOSTauIso = HConfig.GetTH1D(Name + "_h_BGM_QcdOSTauIso", "h_BGM_QcdOSTauIso", 50, 0., 20., "iso(#tau_{h})");
+  h_BGM_QcdSSMuIso = HConfig.GetTH1D(Name + "_h_BGM_QcdSSMuIso", "h_BGM_QcdSSMuIso", 50, 0., 1., "relIso(#mu)");
+  h_BGM_QcdSSTauIso = HConfig.GetTH1D(Name + "_h_BGM_QcdSSTauIso", "h_BGM_QcdSSTauIso", 50, 0., 20., "iso(#tau_{h})");
+
+  h_BGM_QcdEff  = HConfig.GetTH1D(Name + "_h_BGM_QcdEff",  "h_BGM_QcdEff",  2,-0.5,1.5, "passed category selection");
+
   if (mode == ANALYSIS) { // only apply scale factors on analysis level, not for combine
 	  RSF = new ReferenceScaleFactors(runtype, false, false, true);
   }
@@ -618,6 +622,26 @@ void  HToTaumuTauh::Store_ExtraDist(){
  Extradist1d.push_back(&h_SVFitTimeReal);
  Extradist1d.push_back(&h_SVFitTimeCPU);
  Extradist1d.push_back(&h_SVFitStatus);
+
+ Extradist1d.push_back(&h_BGM_Mt);
+ Extradist1d.push_back(&h_BGM_MtSideband);
+ Extradist1d.push_back(&h_BGM_MtExtrapolation);
+ Extradist1d.push_back(&h_BGM_MtSS);
+ Extradist1d.push_back(&h_BGM_MtSidebandSS);
+ Extradist1d.push_back(&h_BGM_MtExtrapolationSS);
+ Extradist1d.push_back(&h_BGM_MtSidebandInclusive);
+ Extradist1d.push_back(&h_BGM_MtExtrapolationInclusive);
+ Extradist1d.push_back(&h_BGM_MtSidebandSSInclusive);
+ Extradist1d.push_back(&h_BGM_MtExtrapolationSSInclusive);
+ Extradist1d.push_back(&h_BGM_MtAntiIso);
+ Extradist1d.push_back(&h_BGM_MtAntiIsoSS);
+ Extradist1d.push_back(&h_BGM_QcdAbcd);
+ Extradist1d.push_back(&h_BGM_QcdAbcdInclusive);
+ Extradist1d.push_back(&h_BGM_QcdOSMuIso);
+ Extradist1d.push_back(&h_BGM_QcdOSTauIso);
+ Extradist1d.push_back(&h_BGM_QcdSSMuIso);
+ Extradist1d.push_back(&h_BGM_QcdSSTauIso);
+ Extradist1d.push_back(&h_BGM_QcdEff);
 }
 
 void HToTaumuTauh::doEvent(){
@@ -1062,17 +1086,17 @@ void HToTaumuTauh::doSelection(bool runAnalysisCuts){
 
 	// run relaxed categories for background methods
 	// VBFTight: full category selection for shape in WJets, relaxed in QCD
-	RelaxedVBFTight rvbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	RelaxedVBFTightStandalone rvbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
 	passed_VBFTightRelaxed = rvbft.passed();
 	if (isQCDShapeEvent){
-		overwriteWithRelaxed<RelaxedVBFTight>(rvbft);
+		overwriteWithRelaxed<RelaxedVBFTightStandalone>(rvbft);
 	}
 
 	// VBFLoose: relaxed category selection for shape in both WJets and QCD
-	RelaxedVBFLoose rvbfl(nJets_, jetdEta_, nJetsInGap_, mjj_);
+	RelaxedVBFLooseStandalone rvbfl(nJets_, jetdEta_, nJetsInGap_, mjj_);
 	passed_VBFLooseRelaxed = rvbfl.passed();
 	if (isWJetShapeEvent || isQCDShapeEvent){
-		overwriteWithRelaxed<RelaxedVBFLoose>(rvbfl);
+		overwriteWithRelaxed<RelaxedVBFLooseStandalone>(rvbfl);
 	}
 
 	if (runAnalysisCuts)	status = AnalysisCuts(t,w,wobs);	// fill plots for framework
@@ -1150,7 +1174,7 @@ void HToTaumuTauh::doPlotting(){
 		// SVFit
 		clock->Start("SVFit");
 		// get SVFit result from cache
-		SVFitObject *svfObj = Ntp->getSVFitResult(svfitstorage, "CorrMVAMuTau", selMuon, selTau);
+		SVFitObject *svfObj = Ntp->getSVFitResult(svfitstorage, "CorrMVAMuTau", selMuon, selTau, 50000);
 		clock->Stop("SVFit");
 
 		// shape distributions for final fit
@@ -1355,45 +1379,178 @@ void HToTaumuTauh::doPlotting(){
 			h_BJet1Phi.at(t).Fill(Ntp->PFJet_p4(selectedBJets.at(0)).Phi(), w);
 		}
 	}
+
+	// ************************************ //
+	// ******* Background methods ********* //
+	// ************************************ //
+
+	// W+Jets Background estimation
+	if (not categoryFlag.Contains("VBF")) {
+		if (passedFullInclusiveSelNoMtNoOS && catPassed) {
+			if (pass.at(OppCharge)) {
+				h_BGM_Mt.at(t).Fill(value.at(MT), w);
+				h_BGM_MtSideband.at(t).Fill(value.at(MT), w);
+				if (isWJetMC) {
+					if (pass.at(MT))
+						h_BGM_MtExtrapolation.at(t).Fill(1, w);
+					if (value.at(MT) > 70.)
+						h_BGM_MtExtrapolation.at(t).Fill(2, w);
+				}
+			} else {
+				h_BGM_MtSS.at(t).Fill(value.at(MT), w);
+				h_BGM_MtSidebandSS.at(t).Fill(value.at(MT), w);
+				if (isWJetMC) {
+					if (pass.at(MT))
+						h_BGM_MtExtrapolationSS.at(t).Fill(1, w);
+					if (value.at(MT) > 70.)
+						h_BGM_MtExtrapolationSS.at(t).Fill(2, w);
+				}
+			}
+		}
+	}
+	else { // VBF category
+		if (passedFullInclusiveSelNoMtNoOS) {
+			if (catPassed) {
+				if (pass.at(OppCharge)) {
+					h_BGM_Mt.at(t).Fill(value.at(MT), w);
+					h_BGM_MtSideband.at(t).Fill(value.at(MT), w);
+				} else {
+					h_BGM_MtSS.at(t).Fill(value.at(MT), w);
+					h_BGM_MtSidebandSS.at(t).Fill(value.at(MT), w);
+				}
+			}
+			if ( (categoryFlag == "VBFLoose" && passed_VBFLooseRelaxed) || (categoryFlag == "VBFTight" && passed_VBFTightRelaxed) ) {
+				// VBF categories: Do not apply OS cut for mT extrapolation factor
+				h_BGM_Mt.at(t).Fill(value.at(MT), w);
+				if (isWJetMC) {
+					if (pass.at(MT))
+						h_BGM_MtExtrapolation.at(t).Fill(1, w);
+					if (value.at(MT) > 60. && value.at(MT) < 120.)
+						h_BGM_MtExtrapolation.at(t).Fill(2, w);
+				}
+			}
+		}
+	}
+	// Inclusive selection (for QCD efficiency method)
+	if (passedFullInclusiveSelNoMtNoOS) {
+		if (pass.at(OppCharge)) {
+			h_BGM_MtSidebandInclusive.at(t).Fill(value.at(MT), w);
+			if (isWJetMC) {
+				if (pass.at(MT))
+					h_BGM_MtExtrapolationInclusive.at(t).Fill(1, w);
+				if (value.at(MT) > 70.)
+					h_BGM_MtExtrapolationInclusive.at(t).Fill(2, w);
+			}
+		} else {
+			h_BGM_MtSidebandSSInclusive.at(t).Fill(value.at(MT), w);
+			if (isWJetMC) {
+				if (pass.at(MT))
+					h_BGM_MtExtrapolationSSInclusive.at(t).Fill(1, w);
+				if (value.at(MT) > 70.)
+					h_BGM_MtExtrapolationSSInclusive.at(t).Fill(2, w);
+			}
+		}
+	}
+
+	////// QCD Background estimation
+	//     OS/SS
+	//       ^
+	//    C  |  D
+	//   ---------> relIso(mu)
+	//    A  |  B
+	if (passedFullInclusiveNoTauNoMuNoCharge) {
+		// veto events with signal muon AND antiIsoMuon, as in these cases mT etc. are calculated using the signal muon
+		bool isA = pass.at(OppCharge) && passedObjects;
+		bool isB = pass.at(OppCharge) && !passedMu && hasRelaxedIsoTau && hasAntiIsoMuon;
+		bool isC = !pass.at(OppCharge) && passedObjects;
+		bool isD = !pass.at(OppCharge) && !passedMu && hasRelaxedIsoTau && hasAntiIsoMuon;
+
+		// take care of events in QCD shape region: set t back to Data temporarily
+		if (isQCDShapeEvent && hasRelaxedIsoTau){
+			if (!HConfig.GetHisto(true, DataMCType::Data, t)){
+				Logger(Logger::Error) << "failed to find id " << DataMCType::Data << std::endl;
+				return;
+			}
+			else {
+				Logger(Logger::Verbose) << "QCD-shape events are filled into ABCD plot as Data." << std::endl;
+				isA = false;
+				isD = true;
+			}
+
+		}
+
+		if (isA + isB + isC + isD > 1)
+			printf("WARNING: Event %i enters more than 1 ABCD region! (A%i, B%i, C%i, D%i)\n", Ntp->EventNumber(), isA, isB, isC, isD);
+		// save ABCD information in a 1D plot
+		int abcd(0);
+		if (isA) abcd = 1;
+		if (isB) abcd = 2;
+		if (isC) abcd = 3;
+		if (isD) abcd = 4;
+
+		if (abcd != 0) {
+			if (catPassed){
+				h_BGM_QcdAbcd.at(t).Fill(abcd, w);
+				if (pass.at(OppCharge)) {
+					h_BGM_QcdOSMuIso.at(t).Fill(Ntp->Muon_RelIso(selMuon), w);
+					h_BGM_QcdOSTauIso.at(t).Fill(Ntp->PFTau_HPSPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits(selTau), w);
+				}
+				if (!pass.at(OppCharge)) {
+					h_BGM_QcdSSMuIso.at(t).Fill(Ntp->Muon_RelIso(selMuon), w);
+					h_BGM_QcdSSTauIso.at(t).Fill(Ntp->PFTau_HPSPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits(selTau), w);
+				}
+			}
+
+			// fill plot without category selection (needed for efficiency method)
+			h_BGM_QcdAbcdInclusive.at(t).Fill(abcd, w);
+
+			// take care of events in QCD shape region: set t back to QCD
+			if (isQCDShapeEvent && hasRelaxedIsoTau){
+				if (!HConfig.GetHisto(false, DataMCType::QCD, t)){
+					Logger(Logger::Error) << "failed to find id " << DataMCType::QCD << std::endl;
+					return;
+					}
+			}
+		}
+
+		// === QCD efficiency method for VBF loose, VBF tight and 1Jet Boost categories ===
+		// VBF loose: efficiency from sideband with same sign and anti-iso muon
+		if (categoryFlag == "VBFLoose" && pass.at(NTauKin) && !pass.at(OppCharge) && !passedMu && hasAntiIsoMuon) {
+			h_BGM_QcdEff.at(t).Fill(0., w);
+			if (catPassed) h_BGM_QcdEff.at(t).Fill(1., w);
+		}
+		// VBF tight: efficiency from sideband with same sign and anti-iso muon and relaxed tau iso
+		if (categoryFlag == "VBFTight" && !pass.at(OppCharge) && !passedMu && hasRelaxedIsoTau && hasAntiIsoMuon) {
+			h_BGM_QcdEff.at(t).Fill(0., w);
+			if (catPassed) h_BGM_QcdEff.at(t).Fill(1., w);
+		}
+		// 1Jet boost: efficiency from sideband with anti-iso muon and relaxed tau iso
+		if (categoryFlag == "OneJetBoost" && pass.at(OppCharge) && !passedMu && hasRelaxedIsoTau && hasAntiIsoMuon) {
+			h_BGM_QcdEff.at(t).Fill(0., w);
+			if (catPassed) h_BGM_QcdEff.at(t).Fill(1., w);
+		}
+
+		// plot Mt in anti-iso region
+		if(!passedMu && hasRelaxedIsoTau && hasAntiIsoMuon && catPassed){
+			if(pass.at(OppCharge)){
+				if (catPassed) h_BGM_MtAntiIso.at(t).Fill(value.at(MT), w);
+			}
+			else{
+				if (catPassed) h_BGM_MtAntiIsoSS.at(t).Fill(value.at(MT), w);
+			}
+		}
+	}
 }
 
 void HToTaumuTauh::Finish() {
 	Logger(Logger::Verbose) << "Start." << std::endl;
 
-	if (wJetsBGSource == "Data") {
-		if (mode == RECONSTRUCT) { // only apply data-driven numbers on "combine" level
-			Logger(Logger::Info) << "WJet BG: Using data driven yield method." << std::endl;
+	// read in skimsummary
+	SkimConfig SC;
+	SC.ApplySkimEfficiency(types,Npassed,Npassed_noweight);
 
-			double sumSelEvts = 0;
-			for (unsigned id = 20; id < 24; id++) {
-				if (!HConfig.hasID(id))
-					continue;
-				int type = HConfig.GetType(id);
-				// check that cross-section for WJet processes is set to -1 in Histo.txt
-				double oldXSec = HConfig.GetCrossSection(id);
-				if (oldXSec != -1) {
-					// Histo.txt has WJet xsec unequal -1, so set it to -1 to avoid scaling by framework
-					if (!HConfig.SetCrossSection(id, -1))
-						Logger(Logger::Warning) << "Could not change cross section for id " << id << std::endl;
-					printf("WJet process %i had xsec = %6.1f. Setting to %6.1f for data-driven WJet yield.\n", id, oldXSec, HConfig.GetCrossSection(id));
-				}
-				sumSelEvts += Npassed.at(type).GetBinContent(NCuts+1);
-			}
-
-			// second loop, now the total sum of all Wjets events is known, so we can scale
-			for (unsigned id = 20; id < 24; id++) {
-				if (!HConfig.hasID(id))
-					continue;
-				int type = HConfig.GetType(id);
-				double rawSelEvts = Npassed.at(type).GetBinContent(NCuts+1);
-
-				// scale all WJet histograms to data-driven yield
-				ScaleAllHistOfType(type, wJetsYieldMap[categoryFlag] / sumSelEvts);
-				printf("WJet process %i was scaled from yield %f to yield %f \n", id, rawSelEvts, Npassed.at(type).GetBinContent(NCuts+1));
-			}
-		}
-		else
-			Logger(Logger::Info) << "WJet BG: Data driven will be used at Combine stage, but not in this individual set." << std::endl;
+	if (wJetsBGSource == "Data"){
+		applyDdBkg_WJets();
 	}
 	else if (wJetsBGSource == "MC"){
 		Logger(Logger::Info) << "WJet BG: Using MC." << std::endl;
@@ -1402,31 +1559,7 @@ void HToTaumuTauh::Finish() {
 		Logger(Logger::Warning) << "WJet BG: Please specify \"MC\" or \"Data\". Using MC for this run..." << std::endl;
 
 	if(qcdShapeFromData){
-		if (mode == RECONSTRUCT) { // only apply data-driven numbers on "combine" level
-			Logger(Logger::Info) << "QCD BG: Using data driven estimation." << std::endl;
-			if(!HConfig.hasID(DataMCType::QCD)){
-				Logger(Logger::Error) << "QCD BG: Please add QCD to your Histo.txt. Abort." << std::endl;
-			}
-			else{
-				double rawQcdShapeEvents = Npassed.at(HConfig.GetType(DataMCType::QCD)).GetBinContent(NCuts+1);
-				// scale QCD histograms to data-driven yields
-				TString method;
-				if(qcdUseEfficiencyMethod && (qcdYieldEffMap.find(categoryFlag) != qcdYieldEffMap.end()) ) {
-					// use efficiency method for QCD yield
-					ScaleAllHistOfType(HConfig.GetType(DataMCType::QCD), qcdYieldEffMap[categoryFlag] / rawQcdShapeEvents);
-					method = "efficiency";
-				}
-				else{
-					// use ABCD method for QCD yield
-					ScaleAllHistOfType(HConfig.GetType(DataMCType::QCD), qcdYieldABCDMap[categoryFlag] / rawQcdShapeEvents);
-					method = "ABCD";
-				}
-
-				printf("QCD histogram was scaled from yield %f to yield %f (using %s method)\n", rawQcdShapeEvents, Npassed.at(HConfig.GetType(DataMCType::QCD)).GetBinContent(NCuts+1), method.Data());
-			}
-		}
-		else
-			Logger(Logger::Info) << "QCD BG: Data driven will be used at Combine stage, but not in this individual set." << std::endl;
+		applyDdBkg_QCD();
 	}
 	else
 		Logger(Logger::Warning) << "QCD BG: No data driven QCD background available. Histos will be empty." << std::endl;
@@ -1438,10 +1571,6 @@ void HToTaumuTauh::Finish() {
 				Logger(Logger::Error) << "Embedding: Please add DY_mutau_embedded and DY_tautau to your Histo.txt. Abort." << std::endl;
 			}
 			else{
-				// read in skimsummary
-				SkimConfig SC;
-				SC.ApplySkimEfficiency(types,Npassed,Npassed_noweight);
-
 				// yield_emb = N_MC(before mT)*eff with eff = N_emb(NCuts)/N_emb(before mT)
 				// scale factor = yield_emb / N_emb(NCuts) = N_MC(before mT)/N_emb(before mT)
 
@@ -1718,9 +1847,19 @@ void HToTaumuTauh::overwriteWithRelaxed(T cat){
 	std::vector<float> categoryValueVector = cat.get_eventValues();
 	std::vector<bool> categoryPassVector = cat.get_passCut();
 
-	for (unsigned i_cut = CatCut1; i_cut < CatCut1 + cat.get_nCuts(); i_cut++) {
-		value.at(i_cut) = categoryValueVector.at(i_cut);
-		pass.at(i_cut) = categoryPassVector.at(i_cut);
+	unsigned relaxedCut;
+	for (unsigned i_cut = CatCut1; i_cut < NCuts; i_cut++) {
+		relaxedCut = i_cut - CatCut1; // in relaxed categories, vectors start at 0
+		// overwrite values with ones from relaxed category
+		if (relaxedCut < cat.get_nCuts()){
+			value.at(i_cut) = categoryValueVector.at(relaxedCut);
+			pass.at(i_cut) = categoryPassVector.at(relaxedCut);
+		}
+		// set unused values to default values
+		else {
+			value.at(i_cut) = -9;
+			pass.at(i_cut) = true;
+		}
 	}
 }
 
@@ -1761,3 +1900,287 @@ void HToTaumuTauh::setStatusBooleans(bool resetAll){
 
 	return;
 }
+
+double HToTaumuTauh::getWJetsMCPrediction(){
+	if ( histsAreScaled ) {
+		Logger(Logger::Error) << "Histograms have been scaled by the framework before. This method must be run on unscaled histograms." << std::endl;
+		return -999;
+	}
+	unsigned histo;
+	int lowBin = h_BGM_Mt.at(0).FindFixBin(0.0);
+	int highBin = h_BGM_Mt.at(0).FindFixBin(30.0) - 1;
+	double WJetsMCPrediction(0);
+
+	for (unsigned i_id = 20; i_id < 24; i_id++){ //only for WJets processes
+		if (HConfig.GetHisto(false,i_id,histo)){
+			WJetsMCPrediction += scaleFactorToLumi(i_id) * h_BGM_Mt.at(histo).Integral(lowBin, highBin);
+		}
+	}
+
+	return WJetsMCPrediction;
+}
+
+double HToTaumuTauh::yield_DdBkg_WJets(int flag /* = Standard*/){
+	// decide which histograms to use
+	std::vector<TH1D> *pH_MtExtrapolation	= 0;
+	std::vector<TH1D> *pH_MtSideband		= 0;
+	switch (flag) {
+	case Standard:
+		pH_MtExtrapolation = &h_BGM_MtExtrapolation;
+		pH_MtSideband = &h_BGM_MtSideband;
+		break;
+	case SameSign:
+		pH_MtExtrapolation = &h_BGM_MtExtrapolationSS;
+		pH_MtSideband = &h_BGM_MtSidebandSS;
+		break;
+	case Inclusive:
+		pH_MtExtrapolation = &h_BGM_MtExtrapolationInclusive;
+		pH_MtSideband = &h_BGM_MtSidebandInclusive;
+		break;
+	case SameSignInclusive:
+		pH_MtExtrapolation = &h_BGM_MtExtrapolationSSInclusive;
+		pH_MtSideband = &h_BGM_MtSidebandSSInclusive;
+		break;
+	default:
+		Logger(Logger::Error) << "Flag " << flag << " is not valid for this method." << std::endl;
+		return -999;
+	}
+	// 1. obtain extrapolation factor from MC
+	// 2. MC prediction of WJet in signal region (for cross-checking)
+	// use unscaled MC events for this, thus do it before Selection::Finish() is called
+	unsigned histo;
+	double EPSignal(0), EPSideband(0);
+	for (unsigned i_id = 20; i_id < 24; i_id++){ //only for WJets processes
+		if (HConfig.GetHisto(false,i_id,histo)){
+			EPSignal	+= pH_MtExtrapolation->at(histo).GetBinContent(1);
+			EPSideband	+= pH_MtExtrapolation->at(histo).GetBinContent(2);
+		}
+	}
+	double EPFactor		= EPSignal / EPSideband;
+
+	// mT sideband events from data
+	double SBData;
+	if (HConfig.GetHisto(true,1,histo)){
+		SBData = pH_MtSideband->at(histo).Integral();
+	}
+
+	// remove DY, diboson and top contribution from MC
+	double SBBackgrounds(0);
+	for (unsigned i_id = 30; i_id < 80; i_id++){
+		if (i_id == DataMCType::QCD || i_id == DataMCType::DY_mutau_embedded ) continue;
+		if (HConfig.GetHisto(false,i_id,histo)){
+			SBBackgrounds += scaleFactorToLumi(i_id) * pH_MtSideband->at(histo).Integral();
+		}
+	}
+	double WJetsInSB	= SBData - SBBackgrounds;
+	double WJetsYield	= WJetsInSB * EPFactor;
+
+	// print results
+	std::cout << "  ############# W+Jets MC extrapolation factor #############" << std::endl;
+	printf("%12s  %13s : %13s = %12s \n","Category","Signal Region", "Sideband", "Extr. factor");
+	const char* format = "%12s  %13.1f : %13.1f = %12f \n";
+	printf(format,categoryFlag.Data(), EPSignal, EPSideband, EPFactor);
+	std::cout << "  ############# W+Jets Events in Sideband ##################" << std::endl;
+	printf("%12s  %13s - %13s = %14s \n","Category","Nevts Data SB", "Nevts MC SB", "Nevts WJets SB");
+	format = "%12s  %13.3f - %13.3f = %14.3f \n";
+	printf(format,categoryFlag.Data(), SBData, SBBackgrounds, WJetsInSB);
+	std::cout << "  ############# W+Jets Yield ###############################" << std::endl;
+	printf("%12s  %14s * %14s = %14s \n","Category","Nevts WJets SB", "Extr. factor", "WJets Yield");
+	format = "%12s  %14.3f * %14f = %14.1f\n";
+	printf(format,categoryFlag.Data(), WJetsInSB, EPFactor, WJetsYield);
+
+	return WJetsYield;
+}
+
+void HToTaumuTauh::applyDdBkg_WJets() {
+	if (mode != RECONSTRUCT) { // only apply data-driven numbers on "combine" level
+		Logger(Logger::Info) << "WJet BG: Data driven will be used at Combine stage, but not in this individual set." << std::endl;
+		return;
+	}
+
+	if ( histsAreScaled ) {
+		Logger(Logger::Error) << "Histograms have been scaled by the framework before. This method must be run on unscaled histograms." << std::endl;
+		return;
+	}
+
+	Logger(Logger::Info) << "WJet BG: Using data driven yield method." << std::endl;
+
+	// obtain the WJets yield from data-driven method
+	double WJetsYield = yield_DdBkg_WJets();
+
+	// calculate ratio to MC prediction for cross-checking
+	double WJetsMCPrediction = getWJetsMCPrediction();
+	double WJetsMCRatio	= WJetsYield / WJetsMCPrediction;
+
+	std::cout << "  ############# W+Jets MC Comparison #######################" << std::endl;
+	printf("%12s  %14s <-> %14s || %14s\n","Category","WJets Yield", "MC Pred.", "Data/MC");
+	const char* format = "%12s  %14.1f <-> %14.1f || %14.6f\n";
+	printf(format,categoryFlag.Data(), WJetsYield, WJetsMCPrediction, WJetsMCRatio);
+
+	// determine the total amount of selected WJets events in MC
+	double sumSelEvts = 0;
+	for (unsigned i_id = 20; i_id < 24; i_id++) {
+		if (!HConfig.hasID(i_id))
+			continue;
+		int type = HConfig.GetType(i_id);
+		// check that cross-section for WJet processes is set to -1 in Histo.txt
+		double oldXSec = HConfig.GetCrossSection(i_id);
+		if (oldXSec != -1) {
+			// Histo.txt has WJet xsec unequal -1, so set it to -1 to avoid scaling by framework
+			if (!HConfig.SetCrossSection(i_id, -1))
+				Logger(Logger::Warning) << "Could not change cross section for id " << i_id << std::endl;
+			printf("WJet process %i had xsec = %6.1f. Setting to %6.1f for data-driven WJet yield.\n", i_id, oldXSec, HConfig.GetCrossSection(i_id));
+		}
+		sumSelEvts += Npassed.at(type).GetBinContent(NCuts+1);
+	}
+
+	// second loop, now the total sum of all Wjets events in MC is known, so we can scale
+	for (unsigned i_id = 20; i_id < 24; i_id++) {
+		if (!HConfig.hasID(i_id))
+			continue;
+		int type = HConfig.GetType(i_id);
+		double rawSelEvts = Npassed.at(type).GetBinContent(NCuts+1);
+
+		// scale all WJet histograms to data-driven yield
+		ScaleAllHistOfType(type, WJetsYield / sumSelEvts);
+		printf("WJet process %i was scaled from yield %f to yield %f \n", i_id, rawSelEvts, Npassed.at(type).GetBinContent(NCuts+1));
+	}
+}
+
+double HToTaumuTauh::yield_DdBkg_QCDAbcd(int flag /*= Standard*/){
+	if ( histsAreScaled ) {
+		Logger(Logger::Error) << "Histograms have been scaled by the framework before. This method must be run on unscaled histograms." << std::endl;
+		return -999;
+	}
+
+	// decide which histograms to use
+	std::vector<TH1D> *pH_qcdABCD = 0;
+	int wjetsFlag = SameSign;
+	switch (flag) {
+	case Standard:
+		pH_qcdABCD	= &h_BGM_QcdAbcd;
+		break;
+	case Inclusive:
+		pH_qcdABCD	= &h_BGM_QcdAbcdInclusive;
+		wjetsFlag = SameSignInclusive;
+		break;
+	default:
+		Logger(Logger::Error) << "Flag " << flag << " is not valid for this method." << std::endl;
+		return -999;
+	}
+
+	// calculate the OS/SS factor
+	unsigned histo;
+	TH1D QcdABCD;
+	double OsSsRatio(0.0);
+	if (HConfig.GetHisto(true,1,histo)){
+		QcdABCD = pH_qcdABCD->at(histo);
+	}
+	OsSsRatio = QcdABCD.GetBinContent(QcdABCD.FindFixBin(2)) / QcdABCD.GetBinContent(QcdABCD.FindFixBin(4));
+
+	// get events in SS region
+	double QcdSSYieldData(0.0);
+	double QcdSSYieldWJets(0.0);
+	double QcdSSYieldMCBG(0.0);
+	double QcdSSYieldBGCleaned(0.0);
+	double QcdOSYield(0.0);
+	for (unsigned i_id = 30; i_id < 80; i_id++){ //remove DY, diboson, top from MC
+		if (i_id == DataMCType::QCD) continue;
+		if (HConfig.GetHisto(false,i_id,histo)){
+			int bin = pH_qcdABCD->at(histo).FindFixBin(3);
+			QcdSSYieldMCBG += scaleFactorToLumi(i_id) * pH_qcdABCD->at(histo).GetBinContent(bin);
+		}
+	}
+	QcdSSYieldData	= QcdABCD.GetBinContent(QcdABCD.FindFixBin(3));
+	QcdSSYieldWJets	= yield_DdBkg_WJets(wjetsFlag);
+
+	QcdSSYieldBGCleaned	= QcdSSYieldData - QcdSSYieldWJets - QcdSSYieldMCBG;
+	QcdOSYield			= QcdSSYieldBGCleaned * OsSsRatio;
+
+	// print results
+	std::cout << "  ############# QCD: OS/SS ratio #######################" << std::endl;
+	printf("%12s  %12s / %12s = %12s\n", "Category", "N(OS)", "N(SS)", "OS/SS ratio");
+	const char* format = "%12s  %12.1f / %12.1f = %12f\n";
+	double os = QcdABCD.GetBinContent(QcdABCD.FindFixBin(2));
+	double ss = QcdABCD.GetBinContent(QcdABCD.FindFixBin(4));
+	printf(format, categoryFlag.Data(), os, ss, OsSsRatio);
+
+	std::cout << "  ############# QCD: SS Yield #######################" << std::endl;
+	printf("%12s  %12s - %12s - %12s = %12s\n", "Category", "N(Data)", "N(WJets)", "N(MC BG)", "QCD SS Yield");
+	format = "%12s  %12.1f - %12.1f - %12.1f = %12f\n";
+	printf(format, categoryFlag.Data(), QcdSSYieldData, QcdSSYieldWJets, QcdSSYieldMCBG, QcdSSYieldBGCleaned);
+
+	std::cout << "  ############# QCD: OS Yield #######################" << std::endl;
+	printf("%12s  %12s * %12s = %12s\n", "Category", "SS Yield", "OS/SS ratio", "QCD OS Yield");
+	format = "%12s  %12.1f * %12.5f = %12f\n";
+	printf(format, categoryFlag.Data(), QcdSSYieldBGCleaned, OsSsRatio, QcdOSYield);
+
+	return QcdOSYield;
+}
+
+double HToTaumuTauh::yield_DdBkg_QCDEff(){
+	double numerator(0.0), denominator(0.0), efficiency(0.0), yield(0.0);
+	unsigned histo;
+
+	if (HConfig.GetHisto(true,1,histo)){
+		numerator	= h_BGM_QcdEff.at(histo).GetBinContent(2);
+		denominator	= h_BGM_QcdEff.at(histo).GetBinContent(1);
+		efficiency = (denominator != 0) ? numerator/denominator : -999;
+
+		// yield = (eff. to pass category) x (ABCD yield from inclusive selection)
+		yield = efficiency * yield_DdBkg_QCDAbcd(Inclusive);
+	}
+
+	// print results
+	std::cout << "  ############# QCD: Efficiency Method #######################" << std::endl;
+	printf("%12s  %12s / %12s = %12s => %12s\n", "Category", "N(category)", "N(inclusive)", "efficiency", "yield");
+	const char* format = "%12s  %12.1f / %12.1f = %12f => %12f\n";
+	printf(format, categoryFlag.Data(), numerator, denominator, efficiency, yield);
+
+	return yield;
+}
+
+void HToTaumuTauh::applyDdBkg_QCD() {
+	if(!HConfig.hasID(DataMCType::QCD)){
+		Logger(Logger::Error) << "Please add QCD to your Histo.txt. Abort." << std::endl;
+		return;
+	}
+	if(HConfig.GetCrossSection(DataMCType::QCD) != -1){
+		Logger(Logger::Warning) << "QCD xsec set to " << HConfig.GetCrossSection(DataMCType::QCD) <<
+				" in Histo.txt. It will be scaled twice! Set to -1 to avoid this."<< std::endl;
+	}
+
+
+	if (mode == RECONSTRUCT) { // only apply data-driven numbers on "combine" level
+		Logger(Logger::Info) << "QCD BG: Using data driven estimation." << std::endl;
+
+		double rawQcdShapeEvents = Npassed.at(HConfig.GetType(DataMCType::QCD)).GetBinContent(NCuts+1);
+
+		// decide whether to use ABCD or efficiency method
+		bool useEffMethod(false);
+		if (qcdUseEfficiencyMethod && ( (categoryFlag == "OneJetBoost") || (categoryFlag == "VBFLoose") || (categoryFlag == "VBFTight") ) )
+				useEffMethod = true;
+
+		// scale QCD histograms to data-driven yield
+		if(useEffMethod) {
+			// use efficiency method for QCD yield
+			double yield = yield_DdBkg_QCDEff();
+			ScaleAllHistOfType(HConfig.GetType(DataMCType::QCD), yield / rawQcdShapeEvents);
+		}
+		else{
+			// use ABCD method for QCD yield
+			double yield = yield_DdBkg_QCDAbcd();
+			ScaleAllHistOfType(HConfig.GetType(DataMCType::QCD), yield / rawQcdShapeEvents);
+		}
+
+		Logger(Logger::Info) << "QCD histogram was scaled from yield " << rawQcdShapeEvents <<
+				" to yield " << Npassed.at(HConfig.GetType(DataMCType::QCD)).GetBinContent(NCuts+1) <<
+				" (using " << (useEffMethod ? "Efficiency" : "ABCD") << "method)." << std::endl;
+	}
+	else
+		Logger(Logger::Info) << "QCD BG: Data driven will be used at Combine stage, but not in this individual set." << std::endl;
+
+}
+
+
+

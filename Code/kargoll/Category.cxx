@@ -52,7 +52,7 @@ void Category::doEvent() {
 
 	// run selection part of analysis
 	HToTaumuTauh::doSelection(false);
-	categorySelection();
+	catPassed = categorySelection();
 
 	// execute AnalysisCuts
 	status = AnalysisCuts(t,w,wobs);

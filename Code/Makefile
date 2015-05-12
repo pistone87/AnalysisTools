@@ -86,11 +86,10 @@ endif
 
 ifdef USE_kargoll
 	TARGETS += HToTaumuTauh Category
-	#TARGETS += HToTaumuTauhBackgroundsInclusive
 	TARGETS += OneJetBoost OneJetHigh OneJetLow VBFLoose VBFTight ZeroJetHigh ZeroJetLow Inclusive
-	TARGETS += CategoryStandalone VBFLooseStandalone VBFTightStandalone RelaxedVBFTight RelaxedVBFLoose
-	#TARGETS += HToTaumuTauhSkim MuTauSync MCDecayChain
-	#TARGETS += ZeroJetLow3Prong
+	TARGETS += CategoryStandalone VBFLooseStandalone VBFTightStandalone RelaxedVBFTightStandalone RelaxedVBFLooseStandalone
+	#TARGETS += MuTauSync MCDecayChain
+	TARGETS += ZeroJetLow3Prong
 	DEFS += -DUSE_kargoll=1
 endif 
 

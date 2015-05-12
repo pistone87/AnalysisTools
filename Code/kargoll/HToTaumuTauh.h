@@ -212,6 +212,26 @@ class HToTaumuTauh : public Selection {
 
   std::vector<TH1D> h_SVFitStatus;
 
+  std::vector<TH1D> h_BGM_Mt;
+  std::vector<TH1D> h_BGM_MtSideband;
+  std::vector<TH1D> h_BGM_MtExtrapolation;
+  std::vector<TH1D> h_BGM_MtSS;
+  std::vector<TH1D> h_BGM_MtSidebandSS;
+  std::vector<TH1D> h_BGM_MtExtrapolationSS;
+  std::vector<TH1D> h_BGM_MtSidebandInclusive;
+  std::vector<TH1D> h_BGM_MtExtrapolationInclusive;
+  std::vector<TH1D> h_BGM_MtSidebandSSInclusive;
+  std::vector<TH1D> h_BGM_MtExtrapolationSSInclusive;
+  std::vector<TH1D> h_BGM_MtAntiIso;
+  std::vector<TH1D> h_BGM_MtAntiIsoSS;
+  std::vector<TH1D> h_BGM_QcdAbcd;
+  std::vector<TH1D> h_BGM_QcdAbcdInclusive;
+  std::vector<TH1D> h_BGM_QcdOSMuIso;
+  std::vector<TH1D> h_BGM_QcdOSTauIso;
+  std::vector<TH1D> h_BGM_QcdSSMuIso;
+  std::vector<TH1D> h_BGM_QcdSSTauIso;
+  std::vector<TH1D> h_BGM_QcdEff;
+
   // cut values
   double cMu_dxy, cMu_dz, cMu_relIso, cMu_pt, cMu_eta, cMu_dRHltMatch;
   double cTau_pt, cTau_eta, cTau_rawIso, cMuTau_dR, cTau_dRHltMatch;
@@ -232,19 +252,14 @@ class HToTaumuTauh : public Selection {
   // flag to enable/disable SVFit calculation
   bool runSVFit;
 
-  // map to hold WJets yields for each category
-  std::map<TString, double> wJetsYieldMap;
-  //std::map<TString, double> wJetsYieldScaleMap;
-
-  // map to hold QCD yields for each category
-  std::map<TString, double> qcdYieldABCDMap; // ABCD method
-  std::map<TString, double> qcdYieldEffMap; // efficiency method
-
   // object corrections to use
   TString correctTaus;
   TString correctMuons;
   TString correctElecs;
   TString correctJets;
+
+  // store if category has passed or not
+  bool catPassed;
 
   // event variables
   double w; // event weight
@@ -356,6 +371,20 @@ class HToTaumuTauh : public Selection {
 
   bool migrateCategoryIntoMain(TString thisCategory, std::vector<float> categoryValueVector, std::vector<float> categoryPassVector, unsigned categoryNCuts);
   template <typename T> void overwriteWithRelaxed(T cat);
+
+  double getWJetsMCPrediction();
+  double yield_DdBkg_WJets(int flag = Standard);
+  void applyDdBkg_WJets();
+  double yield_DdBkg_QCDAbcd(int flag = Standard);
+  double yield_DdBkg_QCDEff();
+  void applyDdBkg_QCD();
+
+  enum bg_flag{
+	  Standard = 1,		// Opposite sign, including category selection
+	  SameSign,			// Same sign, including category selection
+	  Inclusive,		// Opposite sign, without category selection
+	  SameSignInclusive	// Same sign, without category selection
+  };
 
  private:
   // everything is in protected to be accessible by derived classes

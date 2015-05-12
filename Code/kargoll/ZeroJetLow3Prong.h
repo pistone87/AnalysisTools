@@ -8,19 +8,27 @@
 #ifndef ZeroJetLow3Prong_H_
 #define ZeroJetLow3Prong_H_
 
-#include "HToTaumuTauh.h"
+#include "Category.h"
 
-class ZeroJetLow3Prong: public HToTaumuTauh {
+class ZeroJetLow3Prong: public Category {
 public:
 	ZeroJetLow3Prong(TString Name_, TString id_);
 	virtual ~ZeroJetLow3Prong();
 
-	virtual void Configure();
+	// enumerator for the cuts in this category
+	enum cuts_ZeroJetLow3Prong {
+		NJet = HToTaumuTauh::CatCut1,
+		TauPt,
+		DecayMode,
+		SigmaSV,
+		NCuts
+	};
 
 protected:
-	virtual void Setup();
-	virtual void doEvent();
-	virtual void Store_ExtraDist();
+	void categoryConfiguration();
+	bool categorySelection();
+	void categoryExtradist();
+	void categoryPlotting();
 
 	// histograms
 	std::vector<TH1D> Tau3p_Plus_Pt;

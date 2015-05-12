@@ -11,21 +11,11 @@
 #include "SimpleFits/FitSoftware/interface/GlobalEventFit.h"
 
 ZeroJetLow3Prong::ZeroJetLow3Prong(TString Name_, TString id_):
-	HToTaumuTauh(Name_,id_)
+	Category(Name_,id_)
 {
 	Logger(Logger::Info) << "Setting up the class ZeroJetLow3Prong" << std::endl;
 	// run ZeroJetLow3Prong category
-	Logger(Logger::Info) << "Use ZeroJetLow category selection" << std::endl;
-	categoryFlag = "ZeroJetLow";
-
-	// run Categories using embedding
-	useEmbedding = false; //todo
-
-	// run Categories using data-driven WJets BG
-	wJetsBGSource = "MC"; //todo
-
-	// run Categories using data-driven QCD BG
-	qcdShapeFromData = false; //todo
+	categoryFlag = "ZeroJetLow3Prong";
 }
 
 ZeroJetLow3Prong::~ZeroJetLow3Prong() {
@@ -37,49 +27,60 @@ ZeroJetLow3Prong::~ZeroJetLow3Prong() {
 	  Logger(Logger::Info) << "Done." << std::endl;
 }
 
-void  ZeroJetLow3Prong::Configure(){
-  Logger(Logger::Verbose) << std::endl;
-  HToTaumuTauh::Setup();
-  ZeroJetLow3Prong::Setup();
+void  ZeroJetLow3Prong::categoryConfiguration(){
+	// Setup cut Values for this category
+	cut.at(NJet)		= 0;
+	cut.at(TauPt)		= cCat_splitTauPt;
+	cut.at(DecayMode)	= 10;	// decay mode finding
+	cut.at(SigmaSV)		= 3.0;	// SV significance
 
-  Selection::ConfigureHistograms();
-  HConfig.GetHistoInfo(types, CrossSectionandAcceptance, legend, colour);
-}
-
-void ZeroJetLow3Prong::Setup(){
-	Logger(Logger::Verbose) << std::endl;
-	// Setup Cut Values
-	// start from CatCut3, as 1&2 are already in use by ZeroJetLow category
-	for(unsigned i = CatCut3; i< NCuts; i++){
-	  if(i==CatCut3)	cut.at(CatCut3)	= 10; // decay mode finding
-	  if(i==CatCut4)	cut.at(CatCut4)	= 3.0; // SV significance
-	}
-
+	// set histograms of category cuts
 	TString hlabel;
 	TString htitle;
 	TString c;
 
-	title.at(CatCut3)="decayMode $==$";
-	title.at(CatCut3)+=cut.at(CatCut3);
-	htitle=title.at(CatCut3);
+	title.at(NJet)="Number Jets $<=$";
+	title.at(NJet)+=cut.at(NJet);
+	htitle=title.at(NJet);
+	htitle.ReplaceAll("$","");
+	htitle.ReplaceAll("\\","#");
+	hlabel="Number of Jets";
+	c="_Cut_";c+=NJet;
+	Nminus1.at(NJet) = HConfig.GetTH1D(Name+c+"_Nminus1_NJet_",htitle,11,-0.5,10.5,hlabel,"Events");
+	Nminus0.at(NJet) = HConfig.GetTH1D(Name+c+"_Nminus0_NJet_",htitle,11,-0.5,10.5,hlabel,"Events");
+
+	title.at(TauPt)="$p_{T}(\\tau_{h}) <$";
+	title.at(TauPt)+=cut.at(TauPt);
+	title.at(TauPt)+=" GeV";
+	htitle=title.at(TauPt);
+	htitle.ReplaceAll("$","");
+	htitle.ReplaceAll("\\","#");
+	hlabel="p_{T}(\\tau_{h})/GeV";
+	c="_Cut_";c+=TauPt;
+	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,50,0.,200.,hlabel,"Events");
+	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,40,0.,200.,hlabel,"Events");
+
+	title.at(DecayMode)="decayMode $==$";
+	title.at(DecayMode)+=cut.at(DecayMode);
+	htitle=title.at(DecayMode);
 	htitle.ReplaceAll("$","");
 	htitle.ReplaceAll("\\","#");
 	hlabel="#tau_{h} decay mode";
-	c="_Cut_";c+=CatCut3;
-	Nminus1.at(CatCut3) = HConfig.GetTH1D(Name+c+"_Nminus1_CatCut3_",htitle,13,-0.5,12.5,hlabel,"Events");
-	Nminus0.at(CatCut3) = HConfig.GetTH1D(Name+c+"_Nminus0_CatCut3_",htitle,13,-0.5,12.5,hlabel,"Events");
+	c="_Cut_";c+=DecayMode;
+	Nminus1.at(DecayMode) = HConfig.GetTH1D(Name+c+"_Nminus1_DecayMode_",htitle,13,-0.5,12.5,hlabel,"Events");
+	Nminus0.at(DecayMode) = HConfig.GetTH1D(Name+c+"_Nminus0_DecayMode_",htitle,13,-0.5,12.5,hlabel,"Events");
 
-	title.at(CatCut4)="$\\sigma(SV) >=$";
-	title.at(CatCut4)+=cut.at(CatCut4);
-	htitle=title.at(CatCut4);
+	title.at(SigmaSV)="$\\sigma(SV) >=$";
+	title.at(SigmaSV)+=cut.at(SigmaSV);
+	htitle=title.at(SigmaSV);
 	htitle.ReplaceAll("$","");
 	htitle.ReplaceAll("\\","#");
 	hlabel="\\sigma(SV)";
-	c="_Cut_";c+=CatCut4;
-	Nminus1.at(CatCut4) = HConfig.GetTH1D(Name+c+"_Nminus1_CatCut4_",htitle,80,-10.,30.,hlabel,"Events");
-	Nminus0.at(CatCut4) = HConfig.GetTH1D(Name+c+"_Nminus0_CatCut4_",htitle,80,-10.,30.,hlabel,"Events");
+	c="_Cut_";c+=SigmaSV;
+	Nminus1.at(SigmaSV) = HConfig.GetTH1D(Name+c+"_Nminus1_SigmaSV_",htitle,80,-10.,30.,hlabel,"Events");
+	Nminus0.at(SigmaSV) = HConfig.GetTH1D(Name+c+"_Nminus0_SigmaSV_",htitle,80,-10.,30.,hlabel,"Events");
 
-	// additional histograms
+	// setup additional histograms
 	Tau3p_Plus_Pt	= HConfig.GetTH1D(Name+"_Tau3p_Plus_Pt","Tau3p_Pt"	,50,0.,100.,"p_{T}(#tau_{3p}^{+ sol.})/GeV");
 	Tau3p_Plus_Eta	= HConfig.GetTH1D(Name+"_Tau3p_Plus_Eta","Tau3p_Eta"	,50,-2.5,2.5,"#eta(#tau_{3p}^{+ sol.})");
 	Tau3p_Plus_Phi	= HConfig.GetTH1D(Name+"_Tau3p_Plus_Phi","Tau3p_Phi"	,50,-3.14159,3.14159,"#phi(#tau_{3p}^{+ sol.})");
@@ -114,10 +115,7 @@ void ZeroJetLow3Prong::Setup(){
 	EventFit_Res_E	= HConfig.GetTH1D(Name+"_EventFit_Res_E","EventFit_Res_E"     ,50,0.,200.,"E(X^{fit})/GeV");
 }
 
-void ZeroJetLow3Prong::Store_ExtraDist(){
-	Logger(Logger::Verbose) << std::endl;
-	HToTaumuTauh::Store_ExtraDist();
-
+void ZeroJetLow3Prong::categoryExtradist(){
 	Extradist1d.push_back(&Tau3p_Plus_Pt);
 	Extradist1d.push_back(&Tau3p_Plus_Eta);
 	Extradist1d.push_back(&Tau3p_Plus_Phi);
@@ -152,45 +150,58 @@ void ZeroJetLow3Prong::Store_ExtraDist(){
 	Extradist1d.push_back(&EventFit_Res_E);
 }
 
-void ZeroJetLow3Prong::doEvent(){
-	Logger(Logger::Verbose) << std::endl;
-	HToTaumuTauh::doEvent(false); // run HToTaumuTauh::doEvent without filling framework plots
+bool ZeroJetLow3Prong::categorySelection(){
+	bool categoryPass = true;
+	std::vector<float> value_ZeroJetLow3Prong(NCuts,-10);
+	std::vector<float> pass_ZeroJetLow3Prong(NCuts,false);
 
-	// todo: split analysis part from plotting part in HToTaumuTauh
+	Logger(Logger::Debug) << "Cut: Number of Jets" << std::endl;
+	value_ZeroJetLow3Prong.at(NJet) = nJets_;
+	pass_ZeroJetLow3Prong.at(NJet) = ( value_ZeroJetLow3Prong.at(NJet) <= cut.at(NJet) );
 
-	Logger(Logger::Debug) << "Cut: Tau decay mode" << std::endl;
-	if (selTau < 0){
-		// set cuts to true for nice N-0 and N-1 plots
-		value.at(CatCut3) = -10;
-		pass.at(CatCut3) = true;
+	if (selTau == -1){
+		// TauPt cut is set to true for nice N-0 and N-1 plots
+		value_ZeroJetLow3Prong.at(TauPt) = -10.;
+		pass_ZeroJetLow3Prong.at(TauPt) = true;
+		value_ZeroJetLow3Prong.at(DecayMode) = -10;
+		pass_ZeroJetLow3Prong.at(DecayMode) = true;
+		// whole category is failing selection, to avoid NCat > 1
+		categoryPass = false;
 	}
 	else{
-		value.at(CatCut3)=Ntp->PFTau_hpsDecayMode(selTau);
-		pass.at(CatCut3)=(value.at(CatCut3)==cut.at(CatCut3));
+		Logger(Logger::Debug) << "Cut: Tau pT" << std::endl;
+		value_ZeroJetLow3Prong.at(TauPt)	= tauPt_;
+		pass_ZeroJetLow3Prong.at(TauPt)		= ( value_ZeroJetLow3Prong.at(TauPt) < cut.at(TauPt) );
+
+		Logger(Logger::Debug) << "Cut: Tau decay mode" << std::endl;
+		value_ZeroJetLow3Prong.at(DecayMode)	= Ntp->PFTau_hpsDecayMode(selTau);
+		pass_ZeroJetLow3Prong.at(DecayMode)		= (value_ZeroJetLow3Prong.at(DecayMode)==cut.at(DecayMode));
 	}
 
-	Logger(Logger::Debug) << "Cut: SV significance" << std::endl;
-	if (selTau < 0 || not pass.at(CatCut3)) {
-		value.at(CatCut4) = -999;
-		pass.at(CatCut4) = true;
+	if (selTau == -1 || not pass.at(DecayMode)) {
+		value_ZeroJetLow3Prong.at(SigmaSV) = -999;
+		pass_ZeroJetLow3Prong.at(SigmaSV) = true;
 	}
 	else if ( not Ntp->PFTau_TIP_hassecondaryVertex(selTau) ){
-		value.at(CatCut4) = -9;
-		pass.at(CatCut4) = false;
+		value_ZeroJetLow3Prong.at(SigmaSV) = -9;
+		pass_ZeroJetLow3Prong.at(SigmaSV) = false;
 	}
 	else {
+		Logger(Logger::Debug) << "Cut: SV significance" << std::endl;
 		// set sign of flight length significance by projection of tau momentum direction
 		// on fitted PV-SV direction
 		int sign = ( Ntp->PFTau_FlightLength3d(selTau).Dot( Ntp->PFTau_3PS_A1_LV(selTau).Vect()) > 0 ) ? +1 : -1;
-		value.at(CatCut4) = sign * Ntp->PFTau_FlightLength_significance(selTau);
-		pass.at(CatCut4) = ( value.at(CatCut4) >= cut.at(CatCut4) );
+		value_ZeroJetLow3Prong.at(SigmaSV) = sign * Ntp->PFTau_FlightLength_significance(selTau);
+		pass_ZeroJetLow3Prong.at(SigmaSV) = ( value_ZeroJetLow3Prong.at(SigmaSV) >= cut.at(SigmaSV) );
 	}
 
-	double wobs = 1;
-	bool status = AnalysisCuts(t,w,wobs); // true only if full selection passed
+	// migrate into main analysis if this is chosen category
+	categoryPass = migrateCategoryIntoMain("ZeroJetLow3Prong",value_ZeroJetLow3Prong, pass_ZeroJetLow3Prong,NCuts) && categoryPass;
+	return categoryPass;
+}
 
+void ZeroJetLow3Prong::categoryPlotting(){
 	if (status){
-
 		LorentzVectorParticle A1 = Ntp->PFTau_a1_lvp(selTau);
 		TrackParticle MuonTP = Ntp->Muon_TrackParticle(selMuon);
 		TVector3 PV = Ntp->PFTau_TIP_primaryVertex_pos(selTau);
@@ -251,6 +262,5 @@ void ZeroJetLow3Prong::doEvent(){
 		EventFit_Res_Phi.at(t).Fill(Results.getResonance().LV().Phi(), w);
 		EventFit_Res_E.at(t).Fill(Results.getResonance().LV().E(), w);
 	}
-
 
 }
