@@ -216,6 +216,13 @@ class HToTaumuTauh : public Selection {
 
   std::vector<TH1D> h_SVFitStatus;
 
+  std::vector<TH1D> h_SVFitMassResol;
+  std::vector<TH1D> h_visibleMassResol;
+
+  std::vector<TH1D> h_TrueMass;
+  std::vector<TH1D> h_TrueMassFull3ProngVisibleMuon;
+  std::vector<TH1D> h_TrueVisibleMass;
+
   std::vector<TH1D> h_BGM_Mt;
   std::vector<TH1D> h_BGM_MtSideband;
   std::vector<TH1D> h_BGM_MtExtrapolation;
@@ -235,6 +242,19 @@ class HToTaumuTauh : public Selection {
   std::vector<TH1D> h_BGM_QcdSSMuIso;
   std::vector<TH1D> h_BGM_QcdSSTauIso;
   std::vector<TH1D> h_BGM_QcdEff;
+
+  std::vector<TH1D> SVFitMassResol;
+  std::vector<TH1D> visibleMassResol;
+
+  std::vector<TH1D> TrueMass;
+  std::vector<TH1D> TrueMassFull3ProngVisibleMuon;
+  std::vector<TH1D> TrueVisibleMass;
+  std::vector<TH1D> TauhPtSVFitted;
+  std::vector<TH1D> TauhEtaSVFitted;
+  std::vector<TH1D> TauhPhiSVFitted;
+  std::vector<TH1D> TauMuPtSVFitted;
+  std::vector<TH1D> TauMuEtaSVFitted;
+  std::vector<TH1D> TauMuPhiSVFitted;
 
   // cut values
   double cMu_dxy, cMu_dz, cMu_relIso, cMu_pt, cMu_eta, cMu_dRHltMatch;

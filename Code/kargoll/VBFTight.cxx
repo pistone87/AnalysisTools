@@ -97,6 +97,11 @@ void VBFTight::categoryConfiguration(){
 }
 
 bool VBFTight::categorySelection(){
+	// changes to default selection in this category
+	// loose relaxed Jet selection for QCD shape
+	if(isQCDShapeEvent) calculateJetVariables(selectedLooseJets);
+
+	// categorisation
 	std::vector<float> value_VBFTight(NCuts,-10);
 	std::vector<float> pass_VBFTight(NCuts,false);
 

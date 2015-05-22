@@ -311,7 +311,6 @@ void  HToTaumuTauh::Setup(){
   h_MuSelDz=HConfig.GetTH1D(Name+"_MuSelDz","MuSelDz",60,-.6,.6,"d_{z}(#mu_{sel},Vtx)/cm");
   h_MuSelRelIso=HConfig.GetTH1D(Name+"_MuSelRelIso","MuSelRelIso",50,0.,1.,"relIso(#mu_{sel})");
   h_MuSelFakesTauID=HConfig.GetTH1D(Name+"_MuSelFakesTauID","MuSelFakesTauID",2,-0.5,1.5,"#mu_{sel} fakes #tau_{h}");
-  h_MuSelDrHlt=HConfig.GetTH1D(Name+"_MuSelDrHlt","MuSelDrHLT",50,0.,1.,"#DeltaR(#mu_{sel},#mu_{HLT})");
 
   //h_TauPt=HConfig.GetTH1D(Name+"_TauPt","TauPt",50,0.,100.,"p_{T}(#tau)/GeV");
   //h_TauEta=HConfig.GetTH1D(Name+"_TauEta","TauEta",50,-2.5,2.5,"#eta(#tau)");
@@ -439,14 +438,25 @@ void  HToTaumuTauh::Setup(){
   h_SVFitTimeCPU =  HConfig.GetTH1D(Name+"_SVFitTimeCPU","SVFitTimeCPU",200,0.,60.,"t_{CPU}(SVFit)/sec");
   h_SVFitStatus = HConfig.GetTH1D(Name+"_SVFitStatus", "SVFitStatus", 5, -0.5, 4.5, "Status of SVFit calculation");
 
+  h_SVFitMassResol = HConfig.GetTH1D(Name+"_SVFitMassResol", "SVFitMassResol", 50, -1, 1, "#frac{m_{SVfit} - m_{true}}{m_{true}}(#tau_{h},#mu)");
+  h_visibleMassResol = HConfig.GetTH1D(Name+"_visibleMassResol", "visibleMassResol", 50, -1, 1, "#frac{m_{vis} - m_{true}}{m_{true}}(#tau_{h},#mu)");
+
+  h_TrueMass						= HConfig.GetTH1D(Name+"_TrueMass","TrueMass",100,0.,200.,"m_{gen}(#tau_{h},#mu)/GeV");
+  h_TrueMassFull3ProngVisibleMuon	= HConfig.GetTH1D(Name+"_TrueMassFull3ProngVisibleMuon","TrueMassFull3ProngVisibleMuon",100,0.,200.,"m(#tau_{h}^{full, gen},#mu^{vis.})/GeV");
+  h_TrueVisibleMass					= HConfig.GetTH1D(Name+"_TrueVisibleMass","TrueVisibleMass",100,0.,200.,"m_{vis gen}(#tau_{h},#mu)/GeV");
+
   // background methods
   h_BGM_Mt = HConfig.GetTH1D(Name + "_h_BGM_Mt", "h_BGM_Mt", 125, 0., 250., "m_{T}/GeV");
-  h_BGM_MtSideband = HConfig.GetTH1D(Name + "_h_BGM_MtSideband", "h_BGM_MtSideband", 90, 70., 250., "m_{T}/GeV");
   h_BGM_MtExtrapolation = HConfig.GetTH1D(Name + "_h_BGM_MtExtrapolation", "h_BGM_MtExtrapolation", 2, 0.5, 2.5, "m_{T} signal and sideband");
 
+  std::pair<double, double> mtSb;
+  if (categoryFlag == "VBFTight" || categoryFlag == "VBFLoose") mtSb = std::make_pair(60., 120.); // VBF sideband
+  else mtSb = std::make_pair(70., 250.); // standard sideband
+  h_BGM_MtSideband = HConfig.GetTH1D(Name + "_h_BGM_MtSideband", "h_BGM_MtSideband", (mtSb.second-mtSb.first)/2, mtSb.first, mtSb.second, "m_{T}/GeV");
+
   h_BGM_MtSS = HConfig.GetTH1D(Name + "_h_BGM_MtSS", "h_BGM_MtSS", 125, 0., 250., "m_{T}/GeV");
-  h_BGM_MtSidebandSS = HConfig.GetTH1D(Name + "_h_BGM_MtSidebandSS", "h_BGM_MtSidebandSS", 90, 70., 250., "m_{T}/GeV");
   h_BGM_MtExtrapolationSS = HConfig.GetTH1D(Name + "_h_BGM_MtExtrapolationSS", "h_BGM_MtExtrapolationSS", 2, 0.5, 2.5, "m_{T} signal and sideband");
+  h_BGM_MtSidebandSS = HConfig.GetTH1D(Name + "_h_BGM_MtSidebandSS", "h_BGM_MtSidebandSS", (mtSb.second-mtSb.first)/2, mtSb.first, mtSb.second, "m_{T}/GeV");
 
   h_BGM_MtSidebandInclusive = HConfig.GetTH1D(Name + "_h_BGM_MtSidebandInclusive", "h_BGM_MtSidebandInclusive", 90, 70., 250., "m_{T}/GeV");
   h_BGM_MtExtrapolationInclusive = HConfig.GetTH1D(Name + "_h_BGM_MtExtrapolationInclusive", "h_BGM_MtExtrapolationInclusive", 2, 0.5, 2.5, "m_{T} signal and sideband");
@@ -506,13 +516,13 @@ void  HToTaumuTauh::Store_ExtraDist(){
  //Extradist1d.push_back(&h_TauPhi  );
  //Extradist1d.push_back(&h_TauDecayMode  );
  //Extradist1d.push_back(&h_TauIso );
- Extradist1d.push_back(&h_TauSelMass );
 
  Extradist1d.push_back(&h_TauSelPt  );
  Extradist1d.push_back(&h_TauSelEta  );
  Extradist1d.push_back(&h_TauSelPhi  );
  Extradist1d.push_back(&h_TauSelDecayMode  );
  Extradist1d.push_back(&h_TauSelIso );
+ Extradist1d.push_back(&h_TauSelMass );
 
  //Extradist1d.push_back(&h_MuVetoDPtSelMuon);
  //Extradist1d.push_back(&h_MuVetoInvM);
@@ -626,6 +636,12 @@ void  HToTaumuTauh::Store_ExtraDist(){
  Extradist1d.push_back(&h_SVFitTimeReal);
  Extradist1d.push_back(&h_SVFitTimeCPU);
  Extradist1d.push_back(&h_SVFitStatus);
+ Extradist1d.push_back(&h_SVFitMassResol);
+ Extradist1d.push_back(&h_visibleMassResol);
+
+ Extradist1d.push_back(&h_TrueMass);
+ Extradist1d.push_back(&h_TrueMassFull3ProngVisibleMuon);
+ Extradist1d.push_back(&h_TrueVisibleMass);
 
  Extradist1d.push_back(&h_BGM_Mt);
  Extradist1d.push_back(&h_BGM_MtSideband);
@@ -1128,12 +1144,21 @@ void HToTaumuTauh::doPlotting(){
 		//h_MuPtVsTauPt.at(t).Fill(Ntp->Muon_p4(selMuon).Pt(), Ntp->PFTau_p4(selTau).Pt(), w);
 
 		// Mu-Tau Mass
-		h_visibleMass.at(t).Fill((Ntp->Muon_p4(selMuon) + Ntp->PFTau_p4(selTau)).M(), w);
+		double m_Vis = (Ntp->Muon_p4(selMuon)+Ntp->PFTau_p4(selTau)).M();
+		double m_Truth = Ntp->getResonanceMassFromGenInfo();
+		h_visibleMass.at(t).Fill(m_Vis, w);
+		h_TrueMass.at(t).Fill(m_Truth, w);
+		int i_matchedMCTau = Ntp->matchTauTruth(selTau, true);
+		if (i_matchedMCTau >= 0) {
+		  h_TrueMassFull3ProngVisibleMuon.at(t).Fill( (Ntp->MCTau_p4(i_matchedMCTau) + Ntp->Muon_p4(selMuon)).M(), w);
+		  int mcMuIdx = Ntp->getMatchTruthIndex(Ntp->Muon_p4(selMuon), PDGInfo::mu_minus, 0.3);
+		  if(mcMuIdx>=0) h_TrueVisibleMass.at(t).Fill( (Ntp->MCTau_visiblePart(i_matchedMCTau) + Ntp->MCParticle_p4( mcMuIdx )).M(), w);
+		}
 		h_visibleMassCoarse.at(t).Fill((Ntp->Muon_p4(selMuon) + Ntp->PFTau_p4(selTau)).M(), w);
 		// SVFit
 		clock->Start("SVFit");
 		// get SVFit result from cache
-		SVFitObject *svfObj = Ntp->getSVFitResult(svfitstorage, "CorrMVAMuTau", selMuon, selTau, 50000);
+		SVFitObject *svfObj = Ntp->getSVFitResult_MuTauh(svfitstorage, "CorrMVAMuTau", selMuon, selTau, 50000);
 		clock->Stop("SVFit");
 
 		// shape distributions for final fit
@@ -1156,6 +1181,9 @@ void HToTaumuTauh::doPlotting(){
 		h_SVFitMass.at(t).Fill(svfMass, w);
 		h_SVFitMassCoarse.at(t).Fill(svfMass, w);
 
+		h_SVFitMassResol.at(t).Fill((svfObj->get_mass() - m_Truth) / m_Truth, w);
+		h_visibleMassResol.at(t).Fill((m_Vis - m_Truth) / m_Truth, w);
+
 		// ZL shape uncertainty
 		if (HConfig.GetID(t) == DataMCType::DY_ll || HConfig.GetID(t) == DataMCType::DY_ee || HConfig.GetID(t) == DataMCType::DY_mumu) {
 			h_shape_VisM_ZLScaleUp.at(t).Fill(1.02 * visMass);
@@ -1168,10 +1196,10 @@ void HToTaumuTauh::doPlotting(){
 		TLorentzVector tauP4Up = 1.03 * Ntp->PFTau_p4(selTau);
 		TLorentzVector tauP4Down = 0.97 * Ntp->PFTau_p4(selTau);
 		clock->Start("SVFitTauESUp");
-		SVFitObject *svfObjTauESUp = Ntp->getSVFitResult(svfitstorTauESUp, "CorrMVAMuTau", selMuon, selTau, 2000, "TauESUp", 1., 1.03);
+		SVFitObject *svfObjTauESUp = Ntp->getSVFitResult_MuTauh(svfitstorTauESUp, "CorrMVAMuTau", selMuon, selTau, 50000, "TauESUp", 1., 1.03);
 		clock->Stop("SVFitTauESUp");
 		clock->Start("SVFitTauESDown");
-		SVFitObject *svfObjTauESDown = Ntp->getSVFitResult(svfitstorTauESDown, "CorrMVAMuTau", selMuon, selTau, 2000, "TauESDown", 1., 0.97);
+		SVFitObject *svfObjTauESDown = Ntp->getSVFitResult_MuTauh(svfitstorTauESDown, "CorrMVAMuTau", selMuon, selTau, 50000, "TauESDown", 1., 0.97);
 		clock->Stop("SVFitTauESDown");
 
 		double visMass_tauESUp = (Ntp->Muon_p4(selMuon) + tauP4Up).M();

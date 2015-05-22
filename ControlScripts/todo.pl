@@ -420,7 +420,7 @@ if( $ARGV[0] eq "--Local" ){
 			system(sprintf("echo \"cd $OutputDir/workdir$set/Code/; source config \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"cd $OutputDir/workdir$set/Set_$B/ \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh")) ;
 			system(sprintf("chmod +x $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
-			system(sprintf("echo \"$OutputDir/workdir$set/Code/Analysis.exe 2>&1 | tee >(sed -r qq#s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g# > Set_$B.output) \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
+			system(sprintf("echo \"$OutputDir/workdir$set/Code/Analysis.exe 2>&1 | tee >(sed -r \\\"s/\\\\x1B\\\\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g\\\" > Set_$B.output) \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"echo 'Completed Job' \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 
 			# Setup Input.txt
@@ -613,7 +613,7 @@ if( $ARGV[0] eq "--DCache" ){
 			system(sprintf("echo \"mkdir  /user/scratch/$UserID/workdir$set-Set_$B  \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"cp -r *   /user/scratch/$UserID/workdir$set-Set_$B  \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"cd /user/scratch/$UserID/workdir$set-Set_$B  \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
-			system(sprintf("echo \"$OutputDir/workdir$set/Code/Analysis.exe 2>&1 | tee >(sed -r qq#s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g# > Set_$B.output) \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
+			system(sprintf("echo \"$OutputDir/workdir$set/Code/Analysis.exe 2>&1 | tee >(sed -r \\\"s/\\\\x1B\\\\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g\\\" > Set_$B.output) \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"cp -r *  $OutputDir/workdir$set/Set_$B/ \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"source $OutputDir/workdir$set/Set_$B/Set_$B-clean.sh \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));
 			system(sprintf("echo \"rm -r  /user/scratch/$UserID/workdir$set-Set_$B  \" >> $OutputDir/workdir$set/Set_$B/Set_$B.sh"));			
@@ -742,6 +742,7 @@ if( $ARGV[0] eq "--GRID" ){
     system(sprintf("cp $dir/Purge_Jobs.sh $OutputDir/workdir$set/"));
     system(sprintf("cp $dir/Cancel_Jobs.sh $OutputDir/workdir$set/"));
     system(sprintf("cp $dir/Run.sh $OutputDir/workdir$set/"));
+    system(sprintf("cp $dir/ResubmitFailedJobs.py $OutputDir/workdir$set/"));
 
     # generate compile script 
     system(sprintf("echo \"#! /bin/bash\" >> $OutputDir/workdir$set/compile "));
@@ -907,7 +908,7 @@ if( $ARGV[0] eq "--GRID" ){
 			#system(sprintf("echo \"chmod +x \\\$PWD/subs; \\\$PWD/subs '/user/scratch/$UserID' \\\$PWD Input.txt \" >> $OutputDir/workdir$set/Set_$B/Set_$B-GRID.sh"));
 			system(sprintf("echo \"export LD_LIBRARY_PATH=\\\$LD_LIBRARY_PATH:\\\$ROOTSYS/lib/\" >> $OutputDir/workdir$set/Set_$B/Set_$B-GRID.sh"));
 			system(sprintf("echo \"export LHAPATH=\\\$PWD/Code/TauSpiner/lhapdf/share/lhapdf/PDFsets/\" >> $OutputDir/workdir$set/Set_$B/Set_$B-GRID.sh"));
-			system(sprintf("echo \"echo 'System Configured.'; printenv; ls ; echo \\\$PWD ; \\\$PWD/Code/Analysis.exe > sed -r qq#s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g# \" >> $OutputDir/workdir$set/Set_$B/Set_$B-GRID.sh"));
+			system(sprintf("echo \"echo 'System Configured.'; printenv; ls ; echo \\\$PWD ; \\\$PWD/Code/Analysis.exe | sed -r \\\"s/\\\\x1B\\\\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g\\\" \" >> $OutputDir/workdir$set/Set_$B/Set_$B-GRID.sh"));
 			#
 			system(sprintf("echo \"if [ -f SKIMMED_NTUP.root ]; then \n \" >> $OutputDir/workdir$set/Set_$B/Set_$B-GRID.sh "));
 			system(sprintf("echo \"srmcp  file:////\\\$PWD/SKIMMED_NTUP.root srm://$gridsite:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$UserIDCern/workdir$set/SKIMMED_NTUP_$B.root \n fi \" >> $OutputDir/workdir$set/Set_$B/Set_$B-GRID.sh "));

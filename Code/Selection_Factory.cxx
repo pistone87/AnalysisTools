@@ -81,11 +81,8 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   else if(Analysis.Contains("tvariable_emu"))s=new Tvariable_EMu(Analysis,UncertType);
 #endif
 #ifdef USE_kargoll
-  //else if(Analysis.Contains("zerojetlow3prong")) s=new ZeroJetLow3Prong(Analysis,UncertType);
-  //else if(Analysis.Contains("htotaumutauhskim")) s=new HToTaumuTauhSkim(Analysis,UncertType);
-  //else if(Analysis.Contains("htotaumutauhbackgrounds")) s=new HToTaumuTauhBackgrounds(Analysis,UncertType);
+  else if(Analysis.Contains("zerojetlow3prong")) s=new ZeroJetLow3Prong(Analysis,UncertType);
   else if(Analysis.Contains("htotaumutauh")) s=new HToTaumuTauh(Analysis,UncertType);
-  //else if(Analysis.Contains("mutausync")) s=new MuTauSync(Analysis,UncertType);
   else if(Analysis.Contains("onejetboost")) s=new OneJetBoost(Analysis,UncertType);
   else if(Analysis.Contains("onejethigh")) s=new OneJetHigh(Analysis,UncertType);
   else if(Analysis.Contains("onejetlow")) s=new OneJetLow(Analysis,UncertType);
@@ -94,6 +91,7 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   else if(Analysis.Contains("zerojethigh")) s=new ZeroJetHigh(Analysis,UncertType);
   else if(Analysis.Contains("zerojetlow")) s=new ZeroJetLow(Analysis,UncertType);
   else if(Analysis.Contains("inclusive")) s=new Inclusive(Analysis,UncertType);
+  //else if(Analysis.Contains("mutausync")) s=new MuTauSync(Analysis,UncertType);
   //else if(Analysis.Contains("mcdecaychain")) s=new MCDecayChain(Analysis,UncertType);
 #endif
 #ifdef USE_pistone
@@ -103,7 +101,7 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   else if(Analysis.Contains("ztotaumutauh")) s=new ZToTaumuTauh(Analysis,UncertType);
 #endif
   else{
-	Logger(Logger::Error)<< "INVALID ANALYSIS TYPE.... USING DEFAULT <Example.h> " << std::endl;
+	Logger(Logger::Error)<< "Invalid Analysis type \"" << Analysis << "\". Using default <Example.h> " << std::endl;
     s=new Example(Analysis,UncertType);
   }
   s->SetMode(mode);
