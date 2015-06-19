@@ -87,13 +87,13 @@ else
 	mkdir lib
 	
 	git init 
-	git clone https://github.com/inugent/SimpleFits.git SimpleFits
+	git clone https://github.com/CMSAachen3B/SimpleFits.git SimpleFits
 	cd SimpleFits
 	git checkout
 	cd ../
 	
 	git init
-	git clone https://github.com/inugent/TauDataFormat.git TauDataFormat
+	git clone https://github.com/CMSAachen3B/TauDataFormat.git TauDataFormat
 	cd TauDataFormat
 	git checkout
 	cd ../
