@@ -16,12 +16,14 @@ public:
 	CategoryStandalone();
 	virtual ~CategoryStandalone();
 
-	bool passed();
+	virtual void run();
 
-	unsigned get_nCuts() const {return nCuts_;}
-	const std::vector<float>& get_cutValues() const {return cutValues_;}
-	const std::vector<float>& get_eventValues() const {return eventValues_;}
-	const std::vector<bool>& get_passCut() const {return passCut_;}
+	virtual bool passed();
+
+	virtual unsigned get_nCuts() const {return nCuts_;}
+	virtual const std::vector<float>& get_cutValues() {setCutValues(); return cutValues_;}
+	virtual const std::vector<float>& get_eventValues() const {return eventValues_;}
+	virtual const std::vector<bool>& get_passCut() const {return passCut_;}
 
 protected:
 	unsigned nCuts_;

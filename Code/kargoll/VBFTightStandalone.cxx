@@ -8,29 +8,24 @@
 #include "VBFTightStandalone.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 
-// only set cut values
+// incomplete constructor, allows to retrieve cut values
 VBFTightStandalone::VBFTightStandalone() {
 	nCuts_ = NCuts;
 	cutValues_.resize(nCuts_);
-	setCutValues();
 }
 
-VBFTightStandalone::VBFTightStandalone(unsigned nJets, float deltaEta, unsigned nJetRapGap, float jetInvM, float higgsPt)
+VBFTightStandalone::VBFTightStandalone(unsigned nJets, double deltaEta, int nJetRapGap, double jetInvM, double higgsPt)
 {
 	nCuts_ = NCuts;
 	cutValues_.resize(nCuts_);
 	eventValues_.resize(nCuts_);
 	passCut_.resize(nCuts_);
 
-	setCutValues();
-
 	eventValues_.at(NJet)		= nJets;
 	eventValues_.at(DeltaEta)	= deltaEta;
 	eventValues_.at(NJetRapGap)= nJetRapGap;
 	eventValues_.at(JetInvM)	= jetInvM;
-	eventValues_.at(HiggsPt)	= HiggsPt;
-
-	execute();
+	eventValues_.at(HiggsPt)	= higgsPt;
 }
 
 VBFTightStandalone::~VBFTightStandalone() {

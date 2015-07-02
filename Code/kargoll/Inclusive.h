@@ -17,7 +17,8 @@ public:
 
 protected:
 	// no additional cuts are performed for Inclusive category
-	// thus nothing needs to be set here
+	// thus nothing needs to be set here except for migrateIntoMain
+	bool categorySelection();
 };
 
 #endif /* INCLUSIVE_H_ */

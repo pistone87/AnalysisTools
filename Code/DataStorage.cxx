@@ -42,7 +42,6 @@ int DataStorage::GetFile(TString key){
   for(unsigned int i=0;i<Files.size();i++){
 	TString inFile = assemblyFileName(i);
 	// check if file already exists
-	system("ls");
     ifstream check1(inFile);
     if (check1) Logger(Logger::Warning) << "File " << inFile << " already exists and will be overwritten." << std::endl;
 

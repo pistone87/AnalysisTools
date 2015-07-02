@@ -26,10 +26,10 @@ public:
 
 protected:
 	//*** implementation of the categories goes into these functions ***
-	virtual void categoryConfiguration(){};	//= 0;
-	virtual void categoryExtradist()	{};	//= 0;
-	virtual bool categorySelection()	{return true;};	//= 0;
-	virtual void categoryPlotting()		{};	//= 0;
+	virtual void categoryConfiguration(){};
+	virtual void categoryExtradist()	{};
+	virtual bool categorySelection()	{return true;};
+	virtual void categoryPlotting()		{};
 
 	// override these functions to include category stuff
 	virtual void doEvent();

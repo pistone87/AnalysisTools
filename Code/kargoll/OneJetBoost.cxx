@@ -6,7 +6,10 @@
  */
 
 #include "OneJetBoost.h"
+#include "VBFTightStandalone.h"
+#include "VBFLooseStandalone.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
+#include "TauDataFormat/TauNtuple/interface/DataMCType.h"
 
 OneJetBoost::OneJetBoost(TString Name_, TString id_):
 	Category(Name_,id_)
@@ -65,8 +68,8 @@ void OneJetBoost::categoryConfiguration(){
 	htitle.ReplaceAll("\\","#");
 	hlabel="p_{T}(\\tau_{h})/GeV";
 	c="_Cut_";c+=TauPt;
-	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,50,0.,200.,hlabel,"Events");
-	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,50,0.,200.,hlabel,"Events");
+	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,40,0.,200.,hlabel,"Events");
+	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,40,0.,200.,hlabel,"Events");
 
 	title.at(HiggsPt)="$p_{T}(H) >=$";
 	title.at(HiggsPt)+=cut.at(HiggsPt);
@@ -76,8 +79,8 @@ void OneJetBoost::categoryConfiguration(){
 	htitle.ReplaceAll("\\","#");
 	hlabel="p_{T} of Higgs candidate";
 	c="_Cut_";c+=HiggsPt;
-	Nminus1.at(HiggsPt) = HConfig.GetTH1D(Name+c+"_Nminus1_HiggsPt_",htitle,50,0.,200.,hlabel,"Events");
-	Nminus0.at(HiggsPt) = HConfig.GetTH1D(Name+c+"_Nminus0_HiggsPt_",htitle,50,0.,200.,hlabel,"Events");
+	Nminus1.at(HiggsPt) = HConfig.GetTH1D(Name+c+"_Nminus1_HiggsPt_",htitle,40,0.,200.,hlabel,"Events");
+	Nminus0.at(HiggsPt) = HConfig.GetTH1D(Name+c+"_Nminus0_HiggsPt_",htitle,40,0.,200.,hlabel,"Events");
 }
 
 bool OneJetBoost::categorySelection(){
@@ -88,7 +91,12 @@ bool OneJetBoost::categorySelection(){
 	value_OneJetBoost.at(NJet) = nJets_;
 	pass_OneJetBoost.at(NJet) = ( value_OneJetBoost.at(NJet) >= cut.at(NJet) );
 
-	value_OneJetBoost.at(NotVbf) = passedVBF_;
+	VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	vbft.run();
+	VBFLooseStandalone vbfl(nJets_, jetdEta_, nJetsInGap_, mjj_, !vbft.passed());
+	vbfl.run();
+
+	value_OneJetBoost.at(NotVbf) = (not vbft.passed()) && (not vbfl.passed());
 	pass_OneJetBoost.at(NotVbf) = ( value_OneJetBoost.at(NotVbf) == cut.at(NotVbf) );
 
 	if (selTau == -1){
@@ -110,3 +118,29 @@ bool OneJetBoost::categorySelection(){
 	categoryPass = migrateCategoryIntoMain("OneJetBoost",value_OneJetBoost, pass_OneJetBoost,NCuts) && categoryPass;
 	return categoryPass;
 }
+
+
+void OneJetBoost::categoryPlotting(){
+	// === QCD efficiency method ===
+	// 1Jet boost: efficiency from sideband with anti-iso muon and relaxed tau iso
+	if (getStatusBoolean(FullInclusiveNoTauNoMuNoCharge, originalPass) && originalPass.at(OppCharge) && !getStatusBoolean(VtxMu, originalPass) && hasRelaxedIsoTau && hasAntiIsoMuon){
+		if (isQCDShapeEvent && hasRelaxedIsoTau){
+			if (!HConfig.GetHisto(true, DataMCType::Data, t)){
+				Logger(Logger::Error) << "failed to find id " << DataMCType::Data << std::endl;
+				return;
+			}
+		}
+
+		h_BGM_QcdEff.at(t).Fill(0., w);
+		if (catPassed) h_BGM_QcdEff.at(t).Fill(1., w);
+
+		// take care of events in QCD shape region: set t back to QCD
+		if (isQCDShapeEvent && hasRelaxedIsoTau){
+			if (!HConfig.GetHisto(false, DataMCType::QCD, t)){
+				Logger(Logger::Error) << "failed to find id " << DataMCType::QCD << std::endl;
+				return;
+			}
+		}
+	}
+}
+

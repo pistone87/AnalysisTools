@@ -27,6 +27,7 @@ public:
 protected:
 	void categoryConfiguration();
 	bool categorySelection();
+	void categoryPlotting();
 };
 
 #endif /* ONEJETBOOST_H_ */

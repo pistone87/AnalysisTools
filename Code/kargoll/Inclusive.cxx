@@ -24,3 +24,13 @@ Inclusive::~Inclusive() {
 	  }
 	  Logger(Logger::Info) << "Done." << std::endl;
 }
+
+bool Inclusive::categorySelection(){
+	bool categoryPass = true;
+	std::vector<float> value_Inclusive(HToTaumuTauh::NCuts,-10);
+	std::vector<float> pass_Inclusive(HToTaumuTauh::NCuts,false);
+
+	// migrate into main analysis if this is chosen category
+	categoryPass = migrateCategoryIntoMain("Inclusive",value_Inclusive, pass_Inclusive,HToTaumuTauh::CatCut1) && categoryPass;
+	return categoryPass;
+}

@@ -48,7 +48,8 @@ TARGETS       =	Ntuple_Controller \
 		TauSpinerInterface \
 		ReferenceScaleFactors \
 		rochcor2012jan22 \
-		Objects 
+		Objects \
+		UncertaintyValue
 
 CINTTARGETS = 
 

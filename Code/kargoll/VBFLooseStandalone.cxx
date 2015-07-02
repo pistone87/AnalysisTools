@@ -8,29 +8,24 @@
 #include "VBFLooseStandalone.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 
-// only set cut values
+// incomplete constructor, allows to retrieve cut values
 VBFLooseStandalone::VBFLooseStandalone() {
 	nCuts_ = NCuts;
 	cutValues_.resize(nCuts_);
-	setCutValues();
 }
 
-VBFLooseStandalone::VBFLooseStandalone(unsigned nJets, float deltaEta, unsigned nJetRapGap, float jetInvM, bool notVBFTight)
+VBFLooseStandalone::VBFLooseStandalone(unsigned nJets, double deltaEta, int nJetRapGap, double jetInvM, bool notVBFTight)
 {
 	nCuts_ = NCuts;
 	cutValues_.resize(nCuts_);
 	eventValues_.resize(nCuts_);
 	passCut_.resize(nCuts_);
 
-	setCutValues();
-
 	eventValues_.at(NJet)		= nJets;
 	eventValues_.at(DeltaEta)	= deltaEta;
 	eventValues_.at(NJetRapGap) = nJetRapGap;
 	eventValues_.at(JetInvM)	= jetInvM;
 	eventValues_.at(NotVbfTight)= notVBFTight;
-
-	execute();
 }
 
 VBFLooseStandalone::~VBFLooseStandalone() {

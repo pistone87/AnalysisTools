@@ -14,6 +14,12 @@ CategoryStandalone::CategoryStandalone() {
 CategoryStandalone::~CategoryStandalone() {
 }
 
+void CategoryStandalone::run(){
+	setCutValues();
+	execute();
+}
+
+
 bool CategoryStandalone::passed() {
 	for (unsigned i = 0; i < nCuts_; i++) {
 		if ( not passCut_.at(i)) return false;

@@ -6,6 +6,8 @@
  */
 
 #include "OneJetHigh.h"
+#include "VBFTightStandalone.h"
+#include "VBFLooseStandalone.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 
 OneJetHigh::OneJetHigh(TString Name_, TString id_):
@@ -67,8 +69,8 @@ void OneJetHigh::categoryConfiguration(){
 	htitle.ReplaceAll("\\","#");
 	hlabel="p_{T}(\\tau_{h})/GeV";
 	c="_Cut_";c+=TauPt;
-	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,50,0.,200.,hlabel,"Events");
-	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,50,0.,200.,hlabel,"Events");
+	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,40,0.,200.,hlabel,"Events");
+	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,40,0.,200.,hlabel,"Events");
 
 	title.at(HiggsPt)="$p_{T}(H) <$";
 	title.at(HiggsPt)+=cut.at(HiggsPt);
@@ -78,8 +80,8 @@ void OneJetHigh::categoryConfiguration(){
 	htitle.ReplaceAll("\\","#");
 	hlabel="p_{T} of Higgs candidate";
 	c="_Cut_";c+=HiggsPt;
-	Nminus1.at(HiggsPt) = HConfig.GetTH1D(Name+c+"_Nminus1_HiggsPt_",htitle,50,0.,200.,hlabel,"Events");
-	Nminus0.at(HiggsPt) = HConfig.GetTH1D(Name+c+"_Nminus0_HiggsPt_",htitle,50,0.,200.,hlabel,"Events");
+	Nminus1.at(HiggsPt) = HConfig.GetTH1D(Name+c+"_Nminus1_HiggsPt_",htitle,40,0.,200.,hlabel,"Events");
+	Nminus0.at(HiggsPt) = HConfig.GetTH1D(Name+c+"_Nminus0_HiggsPt_",htitle,40,0.,200.,hlabel,"Events");
 }
 
 bool OneJetHigh::categorySelection(){
@@ -90,7 +92,12 @@ bool OneJetHigh::categorySelection(){
 	value_OneJetHigh.at(NJet) = nJets_;
 	pass_OneJetHigh.at(NJet) = ( value_OneJetHigh.at(NJet) >= cut.at(NJet) );
 
-	value_OneJetHigh.at(NotVbf) = !passedVBF_;
+	VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	vbft.run();
+	VBFLooseStandalone vbfl(nJets_, jetdEta_, nJetsInGap_, mjj_, !vbft.passed());
+	vbfl.run();
+
+	value_OneJetHigh.at(NotVbf) = (not vbft.passed()) && (not vbfl.passed());
 	pass_OneJetHigh.at(NotVbf) = ( value_OneJetHigh.at(NotVbf) == cut.at(NotVbf) );
 
 	if (selTau == -1){

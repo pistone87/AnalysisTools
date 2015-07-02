@@ -6,6 +6,8 @@
  */
 
 #include "OneJetLow.h"
+#include "VBFTightStandalone.h"
+#include "VBFLooseStandalone.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 
 OneJetLow::OneJetLow(TString Name_, TString id_):
@@ -64,8 +66,8 @@ void OneJetLow::categoryConfiguration(){
 	htitle.ReplaceAll("\\","#");
 	hlabel="p_{T}(\\tau_{h})/GeV";
 	c="_Cut_";c+=TauPt;
-	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,50,0.,200.,hlabel,"Events");
-	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,50,0.,200.,hlabel,"Events");
+	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,40,0.,200.,hlabel,"Events");
+	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,40,0.,200.,hlabel,"Events");
 }
 
 bool OneJetLow::categorySelection(){
@@ -76,7 +78,12 @@ bool OneJetLow::categorySelection(){
 	value_OneJetLow.at(NJet) = nJets_;
 	pass_OneJetLow.at(NJet) = ( value_OneJetLow.at(NJet) >= cut.at(NJet) );
 
-	value_OneJetLow.at(NotVbf) = !passedVBF_;
+	VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	vbft.run();
+	VBFLooseStandalone vbfl(nJets_, jetdEta_, nJetsInGap_, mjj_, !vbft.passed());
+	vbfl.run();
+
+	value_OneJetLow.at(NotVbf) = (not vbft.passed()) && (not vbfl.passed());
 	pass_OneJetLow.at(NotVbf) = ( value_OneJetLow.at(NotVbf) == cut.at(NotVbf) );
 
 	if (selTau == -1){

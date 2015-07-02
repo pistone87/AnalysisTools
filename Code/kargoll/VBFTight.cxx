@@ -7,7 +7,9 @@
 
 #include "VBFTight.h"
 #include "VBFTightStandalone.h"
+#include "RelaxedVBFTightStandalone.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
+#include "TauDataFormat/TauNtuple/interface/DataMCType.h"
 
 VBFTight::VBFTight(TString Name_, TString id_):
 	Category(Name_,id_)
@@ -98,15 +100,64 @@ bool VBFTight::categorySelection(){
 	std::vector<float> value_VBFTight(NCuts,-10);
 	std::vector<float> pass_VBFTight(NCuts,false);
 
-	VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
-	std::vector<float> values	= vbft.get_eventValues();
-	std::vector<bool>  pass 	= vbft.get_passCut();
+	std::vector<float> vbft_values;
+	std::vector<bool>  vbft_pass;
 
-	for (unsigned i_cut = 0; i_cut < vbft.get_nCuts(); i_cut++){
-		value_VBFTight.at(HToTaumuTauh::CatCut1 + i_cut) = values.at(i_cut);
-		pass_VBFTight.at(HToTaumuTauh::CatCut1 + i_cut) = pass.at(i_cut);
+	VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	vbft.run();
+	RelaxedVBFTightStandalone rvbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	rvbft.run();
+	passed_VBFTightRelaxed = rvbft.passed();
+
+	if (isQCDShapeEvent){
+		// use relaxed category for QCD shape in VBFTight
+		vbft_values	= rvbft.get_eventValues();
+		vbft_pass 	= rvbft.get_passCut();
+	}
+	else {
+		vbft_values	= vbft.get_eventValues();
+		vbft_pass 	= vbft.get_passCut();
+	}
+
+	for (unsigned i_cut = 0; i_cut < vbft_values.size(); i_cut++){
+		value_VBFTight.at(HToTaumuTauh::CatCut1 + i_cut) = vbft_values.at(i_cut);
+		pass_VBFTight.at(HToTaumuTauh::CatCut1 + i_cut) = vbft_pass.at(i_cut);
 	}
 
 	// migrate into main analysis if this is chosen category
 	return migrateCategoryIntoMain("VBFTight",value_VBFTight, pass_VBFTight,NCuts);
+}
+
+void VBFTight::categoryPlotting(){
+	// === QCD efficiency method ===
+	// VBF tight: efficiency from sideband with same sign and anti-iso muon and relaxed tau iso
+	if (getStatusBoolean(FullInclusiveNoTauNoMuNoCharge, originalPass) && !originalPass.at(OppCharge) && !getStatusBoolean(VtxMu, originalPass) && hasRelaxedIsoTau && hasAntiIsoMuon) {
+		if (isQCDShapeEvent && hasRelaxedIsoTau){
+			if (!HConfig.GetHisto(true, DataMCType::Data, t)){
+				Logger(Logger::Error) << "failed to find id " << DataMCType::Data << std::endl;
+				return;
+			}
+		}
+
+		// QCD efficiency has to be calculated using default cut values
+		// -> switch jet collection temporarily to default
+		calculateJetVariables(selectedJets);
+
+		VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+		vbft.run();
+
+		h_BGM_QcdEff.at(t).Fill(0., w);
+		if (vbft.passed()) h_BGM_QcdEff.at(t).Fill(1., w);
+
+		// switch jet collection back
+		if(isQCDShapeEvent) calculateJetVariables(selectedLooseJets);
+
+		// take care of events in QCD shape region: set t back to QCD
+		if (isQCDShapeEvent && hasRelaxedIsoTau){
+			if (!HConfig.GetHisto(false, DataMCType::QCD, t)){
+				Logger(Logger::Error) << "failed to find id " << DataMCType::QCD << std::endl;
+				return;
+			}
+		}
+	}
 }

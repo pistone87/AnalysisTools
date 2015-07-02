@@ -28,6 +28,7 @@ public:
 protected:
 	void categoryConfiguration();
 	bool categorySelection();
+	void categoryPlotting();
 };
 
 #endif /* VBFTIGHT_H_ */

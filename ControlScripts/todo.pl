@@ -543,6 +543,11 @@ if( $ARGV[0] eq "--DCache" ){
 
     # Start Submit script
     system(sprintf("echo \"#! /bin/bash\" >> $OutputDir/workdir$set/Submit")) ; 
+    system(sprintf("echo \"verbosity=\\\$(grep SetLevel Code/Analysis.cxx | grep -c -e Debug -e Verbose)\" >> $OutputDir/workdir$set/Submit")) ;
+	system(sprintf("echo \"  if [[ \\\${verbosity} -ne 0 ]]; then \" >> $OutputDir/workdir$set/Submit")) ;
+	system(sprintf("echo \"    echo 'ERROR: Please make sure to set the verbosity level to Info in Analysis.cxx, otherwise your log-files will break Condor! Abort...' \" >> $OutputDir/workdir$set/Submit"));
+	system(sprintf("echo \"    exit \\\${verbosity}\" >> $OutputDir/workdir$set/Submit"));
+	system(sprintf("echo \"  fi\" >> $OutputDir/workdir$set/Submit"));
     system(sprintf("echo \"cd $OutputDir/workdir$set/ \" >> $OutputDir/workdir$set/Submit")) ;
     system(sprintf("echo \"rm Set*/*.o; rm Set*/*.e; rm Set*/*.log; \" >> $OutputDir/workdir$set/Submit")) ;
     $B=0;
@@ -777,6 +782,11 @@ if( $ARGV[0] eq "--GRID" ){
     system(sprintf("echo '  echo \"source Submit --Submit          Submits all unsubmitted jobs using installed tarball. \" ' >> $OutputDir/workdir$set/Submit")) ;
     system(sprintf("echo '  echo \"source Submit --SetupAndSubmit  Runs --Setup and then --Submit. \" ' >> $OutputDir/workdir$set/Submit")) ;
     system(sprintf("echo 'fi ' >> $OutputDir/workdir$set/Submit")) ;
+    system(sprintf("echo \"verbosity=\\\$(grep SetLevel Code/Analysis.cxx | grep -c -e Debug -e Verbose)\" >> $OutputDir/workdir$set/Submit")) ;
+	system(sprintf("echo \"  if [[ \\\${verbosity} -ne 0 ]]; then \" >> $OutputDir/workdir$set/Submit")) ;
+	system(sprintf("echo \"    echo 'ERROR: Please make sure to set the verbosity level to Info in Analysis.cxx, otherwise your log-files will break DCache! Abort...' \" >> $OutputDir/workdir$set/Submit"));
+	system(sprintf("echo \"    return \\\${verbosity}\" >> $OutputDir/workdir$set/Submit"));
+	system(sprintf("echo \"  fi\" >> $OutputDir/workdir$set/Submit"));
     system(sprintf("echo 'if [ \"\${1}\" == \"--Setup\" ] || [ \"\${1}\" == \"--SetupAndSubmit\" ]; then ' >> $OutputDir/workdir$set/Submit")) ;
     system(sprintf("echo \"  cd $OutputDir/workdir$set/ \" >> $OutputDir/workdir$set/Submit")) ;
     system(sprintf("echo \"  if [ -f $OutputDir/workdir$set/Set*/out ]; then \n    rm $OutputDir/workdir$set/Set*/out;\n    rm $OutputDir/workdir$set/Set*/err;\n    rm $OutputDir/workdir$set/Set*/*.tar; \n  fi  \" >> $OutputDir/workdir$set/Submit"));

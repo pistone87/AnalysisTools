@@ -7,7 +7,10 @@
 
 #include "VBFLoose.h"
 #include "VBFLooseStandalone.h"
+#include "VBFTightStandalone.h"
+#include "RelaxedVBFLooseStandalone.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
+#include "TauDataFormat/TauNtuple/interface/DataMCType.h"
 
 VBFLoose::VBFLoose(TString Name_, TString id_):
 	Category(Name_,id_)
@@ -94,18 +97,79 @@ void VBFLoose::categoryConfiguration(){
 }
 
 bool VBFLoose::categorySelection(){
+	// changes to default selection in this category
+	// loose relaxed Jet selection for QCD shape
+	if(isQCDShapeEvent) calculateJetVariables(selectedLooseJets);
+
+	// categorisation
 	std::vector<float> value_VBFLoose(NCuts,-10);
 	std::vector<float> pass_VBFLoose(NCuts,false);
 
-	VBFLooseStandalone vbfl(nJets_, jetdEta_, nJetsInGap_, mjj_, passedVBFTight_);
-	std::vector<float> values	= vbfl.get_eventValues();
-	std::vector<bool>  pass 	= vbfl.get_passCut();
+	std::vector<float> vbfl_values;
+	std::vector<bool>  vbfl_pass;
 
-	for (unsigned i_cut = 0; i_cut < vbfl.get_nCuts(); i_cut++){
-		value_VBFLoose.at(HToTaumuTauh::CatCut1 + i_cut) = values.at(i_cut);
-		pass_VBFLoose.at(HToTaumuTauh::CatCut1 + i_cut) = pass.at(i_cut);
+	// run VBFTight category to veto against that passed it
+	VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+	vbft.run();
+
+	VBFLooseStandalone vbfl(nJets_, jetdEta_, nJetsInGap_, mjj_, !vbft.passed());
+	vbfl.run();
+	RelaxedVBFLooseStandalone rvbfl(nJets_, jetdEta_, nJetsInGap_, mjj_);
+	rvbfl.run();
+	passed_VBFLooseRelaxed = rvbfl.passed();
+
+	if (isWJetShapeEvent || isQCDShapeEvent){
+		// use relaxed category for QCD and WJets shape in VBFLoose
+		vbfl_values	= rvbfl.get_eventValues();
+		vbfl_pass 	= rvbfl.get_passCut();
+	}
+	else{
+		vbfl_values	= vbfl.get_eventValues();
+		vbfl_pass 	= vbfl.get_passCut();
+	}
+
+	for (unsigned i_cut = 0; i_cut < vbfl_values.size(); i_cut++){
+		value_VBFLoose.at(HToTaumuTauh::CatCut1 + i_cut) = vbfl_values.at(i_cut);
+		pass_VBFLoose.at(HToTaumuTauh::CatCut1 + i_cut) = vbfl_pass.at(i_cut);
 	}
 
 	// migrate into main analysis if this is chosen category
 	return migrateCategoryIntoMain("VBFLoose",value_VBFLoose, pass_VBFLoose,NCuts);
+}
+
+void VBFLoose::categoryPlotting(){
+	// === QCD efficiency method ===
+	// VBF loose: efficiency from sideband with same sign and anti-iso muon
+	if (getStatusBoolean(FullInclusiveNoTauNoMuNoCharge, originalPass) && originalPass.at(NTauKin) && !originalPass.at(OppCharge) && !getStatusBoolean(VtxMu, originalPass) && hasAntiIsoMuon) {
+		// take care of events in QCD shape region: set t back to Data temporarily
+		if (isQCDShapeEvent){
+			if (!HConfig.GetHisto(true, DataMCType::Data, t)){
+				Logger(Logger::Error) << "failed to find id " << DataMCType::Data << std::endl;
+				return;
+			}
+		}
+
+		// QCD efficiency has to be calculated using default cut values
+		// -> switch jet collection temporarily to default
+		calculateJetVariables(selectedJets);
+
+		VBFTightStandalone vbft(nJets_, jetdEta_, nJetsInGap_, mjj_, higgsPt_);
+		vbft.run();
+		VBFLooseStandalone vbfl(nJets_, jetdEta_, nJetsInGap_, mjj_, !vbft.passed());
+		vbfl.run();
+
+		h_BGM_QcdEff.at(t).Fill(0., w);
+		if (vbfl.passed()) h_BGM_QcdEff.at(t).Fill(1., w);
+
+		// switch jet collection back
+		if(isQCDShapeEvent) calculateJetVariables(selectedLooseJets);
+
+		// take care of events in QCD shape region: set t back to QCD
+		if (isQCDShapeEvent){
+			if (!HConfig.GetHisto(false, DataMCType::QCD, t)){
+				Logger(Logger::Error) << "failed to find id " << DataMCType::QCD << std::endl;
+				return;
+			}
+		}
+	}
 }

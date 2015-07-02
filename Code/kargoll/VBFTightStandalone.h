@@ -13,7 +13,7 @@
 class VBFTightStandalone : public CategoryStandalone {
 public:
 	VBFTightStandalone();
-	VBFTightStandalone(unsigned nJets, float deltaEta, unsigned nJetRapGap, float jetInvM, float higgsPt);
+	VBFTightStandalone(unsigned nJets, double deltaEta, int nJetRapGap, double jetInvM, double higgsPt);
 	virtual ~VBFTightStandalone();
 
 	// enumerator for the cuts in this category
@@ -27,8 +27,8 @@ public:
 	};
 
 private:
-	void execute();
-	void setCutValues();
+	virtual void execute();
+	virtual void setCutValues();
 };
 
 #endif /* VBFTIGHTStandalone_H_ */

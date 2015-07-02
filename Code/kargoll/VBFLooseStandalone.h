@@ -13,7 +13,7 @@
 class VBFLooseStandalone: public CategoryStandalone {
 public:
 	VBFLooseStandalone();
-	VBFLooseStandalone(unsigned nJets, float deltaEta, unsigned nJetRapGap, float jetInvM, bool notVBFTight);
+	VBFLooseStandalone(unsigned nJets, double deltaEta, int nJetRapGap, double jetInvM, bool notVBFTight);
 	virtual ~VBFLooseStandalone();
 
 	// enumerator for the cuts in this category
@@ -27,8 +27,8 @@ public:
 	};
 
 private:
-	void execute();
-	void setCutValues();
+	virtual void execute();
+	virtual void setCutValues();
 };
 
 #endif /* VBFLOOSESTANDALONE_H_ */

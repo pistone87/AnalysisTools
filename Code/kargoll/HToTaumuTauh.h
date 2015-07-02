@@ -11,6 +11,7 @@
 #include "ReferenceScaleFactors.h"
 #include "../DataFormats/SVFitObject.h"
 #include "SVFitStorage.h"
+#include "UncertaintyValue.h"
 
 class TLorentzVector;
 class TVector3;
@@ -64,19 +65,19 @@ class HToTaumuTauh : public Selection {
   virtual void doPlotting();
 
   // Histograms
-  std::vector<TH1D> h_NVtx;
-  std::vector<TH1D> h_VtxZ;
-  std::vector<TH1D> h_VtxRho;
-  std::vector<TH1D> h_VtxPhi;
-  std::vector<TH1D> h_VtxNdof;
-  std::vector<TH1D> h_VtxIsfake;
+  //std::vector<TH1D> h_NVtx;
+  //std::vector<TH1D> h_VtxZ;
+  //std::vector<TH1D> h_VtxRho;
+  //std::vector<TH1D> h_VtxPhi;
+  //std::vector<TH1D> h_VtxNdof;
+  //std::vector<TH1D> h_VtxIsfake;
 
-  std::vector<TH1D> h_MuDxy;
-  std::vector<TH1D> h_MuDz;
-  std::vector<TH1D> h_MuRelIso;
-  std::vector<TH1D> h_MuPt;
-  std::vector<TH1D> h_MuEta;
-  std::vector<TH1D> h_MuPhi;
+  //std::vector<TH1D> h_MuDxy;
+  //std::vector<TH1D> h_MuDz;
+  //std::vector<TH1D> h_MuRelIso;
+  //std::vector<TH1D> h_MuPt;
+  //std::vector<TH1D> h_MuEta;
+  //std::vector<TH1D> h_MuPhi;
 
   std::vector<TH1D> h_MuSelPt;
   std::vector<TH1D> h_MuSelEta;
@@ -87,62 +88,62 @@ class HToTaumuTauh : public Selection {
   std::vector<TH1D> h_MuSelFakesTauID;
   std::vector<TH1D> h_MuSelDrHlt;
 
-  std::vector<TH1D> h_TauPt;
-  std::vector<TH1D> h_TauEta;
-  std::vector<TH1D> h_TauPhi;
-  std::vector<TH1D> h_TauDecayMode;
-  std::vector<TH1D> h_TauIso;
+  //std::vector<TH1D> h_TauPt;
+  //std::vector<TH1D> h_TauEta;
+  //std::vector<TH1D> h_TauPhi;
+  //std::vector<TH1D> h_TauDecayMode;
+  //std::vector<TH1D> h_TauIso;
 
   std::vector<TH1D> h_TauSelPt;
   std::vector<TH1D> h_TauSelEta;
   std::vector<TH1D> h_TauSelPhi;
-  std::vector<TH1D> h_TauSelDrHlt; // todo: not filled at the moment
+  //std::vector<TH1D> h_TauSelDrHlt; // todo: not filled at the moment
   std::vector<TH1D> h_TauSelDecayMode;
   std::vector<TH1D> h_TauSelIso;
   std::vector<TH1D> h_TauSelMass;
 
-  std::vector<TH1D> h_MuVetoDPtSelMuon;
-  std::vector<TH1D> h_MuVetoInvM;
-  std::vector<TH1D> h_MuVetoPtPositive;
-  std::vector<TH1D> h_MuVetoPtNegative;
-  std::vector<TH1D> h_MuVetoDRTau;
-  std::vector<TH1D> h_MuVetoDeltaR;
+  //std::vector<TH1D> h_MuVetoDPtSelMuon;
+  //std::vector<TH1D> h_MuVetoInvM;
+  //std::vector<TH1D> h_MuVetoPtPositive;
+  //std::vector<TH1D> h_MuVetoPtNegative;
+  //std::vector<TH1D> h_MuVetoDRTau;
+  //std::vector<TH1D> h_MuVetoDeltaR;
 
-  std::vector<TH1D> h_NMuonTriLepVeto;
-  std::vector<TH1D> h_NElecTriLepVeto;
+  //std::vector<TH1D> h_NMuonTriLepVeto;
+  //std::vector<TH1D> h_NElecTriLepVeto;
 
   std::vector<TH1D> h_MuCharge;
   std::vector<TH1D> h_TauCharge;
 
-  std::vector<TH1D> h_MuTauDR;
-  std::vector<TH1D> h_MuTauDPhi;
-  std::vector<TH1D> h_MuTauDEta;
-  std::vector<TH1D> h_MuTauDPt;
-  std::vector<TH1D> h_MuTauRelDPt;
-  std::vector<TH2D> h_MuPtVsTauPt;
+  //std::vector<TH1D> h_MuTauDR;
+  //std::vector<TH1D> h_MuTauDPhi;
+  //std::vector<TH1D> h_MuTauDEta;
+  //std::vector<TH1D> h_MuTauDPt;
+  //std::vector<TH1D> h_MuTauRelDPt;
+  //std::vector<TH2D> h_MuPtVsTauPt;
 
   std::vector<TH1D> h_MetPt;
   std::vector<TH1D> h_MetPhi;
 
-  std::vector<TH1D> h_MetLepMuDr;
-  std::vector<TH1D> h_MetLepTauDr;
-  std::vector<TH1D> h_MetLepNMu;
-  std::vector<TH1D> h_MetLepNTau;
-  std::vector<TH1D> h_MetLepNMuMinusNMu;
-  std::vector<TH1D> h_MetLepNTauMinusNTau;
-  std::vector<TH1D> h_MetLepDiffMET;
-  std::vector<TH1D> h_MetLepDiffMETPhi;
-  std::vector<TH1D> h_MetLepDiffMt;
+  //std::vector<TH1D> h_MetLepMuDr;
+  //std::vector<TH1D> h_MetLepTauDr;
+  //std::vector<TH1D> h_MetLepNMu;
+  //std::vector<TH1D> h_MetLepNTau;
+  //std::vector<TH1D> h_MetLepNMuMinusNMu;
+  //std::vector<TH1D> h_MetLepNTauMinusNTau;
+  //std::vector<TH1D> h_MetLepDiffMET;
+  //std::vector<TH1D> h_MetLepDiffMETPhi;
+  //std::vector<TH1D> h_MetLepDiffMt;
 
   std::vector<TH1D> h_NJetsKin;
-  std::vector<TH1D> h_JetKin1Pt;
-  std::vector<TH1D> h_JetKin1Eta;
-  std::vector<TH1D> h_JetKin1Phi;
-  std::vector<TH1D> h_JetKin1IsLooseId;
-  std::vector<TH1D> h_JetKin2IsLooseId;
-  std::vector<TH1D> h_JetKin2Pt;
-  std::vector<TH1D> h_JetKin2Eta;
-  std::vector<TH1D> h_JetKin2Phi;
+  //std::vector<TH1D> h_JetKin1Pt;
+  //std::vector<TH1D> h_JetKin1Eta;
+  //std::vector<TH1D> h_JetKin1Phi;
+  //std::vector<TH1D> h_JetKin1IsLooseId;
+  //std::vector<TH1D> h_JetKin2IsLooseId;
+  //std::vector<TH1D> h_JetKin2Pt;
+  //std::vector<TH1D> h_JetKin2Eta;
+  //std::vector<TH1D> h_JetKin2Phi;
   std::vector<TH1D> h_NJetsId;
   std::vector<TH1D> h_Jet1Pt;
   std::vector<TH1D> h_Jet1Eta;
@@ -164,24 +165,24 @@ class HToTaumuTauh : public Selection {
   std::vector<TH1D> h_JetsInEtaGap;
   std::vector<TH1D> h_JetsInvM;
 
-  std::vector<TH1D> h_MtMuPlusOnly;
-  std::vector<TH1D> h_MtMuMinusOnly;
-  std::vector<TH1D> h_Mt1ProngOnly;
-  std::vector<TH1D> h_Mt3ProngOnly;
-  std::vector<TH1D> h_Mt3ProngSV;
+  //std::vector<TH1D> h_MtMuPlusOnly;
+  //std::vector<TH1D> h_MtMuMinusOnly;
+  //std::vector<TH1D> h_Mt1ProngOnly;
+  //std::vector<TH1D> h_Mt3ProngOnly;
+  //std::vector<TH1D> h_Mt3ProngSV;
   std::vector<TH1D> h_Mt3ProngSVFlight;
 
-  std::vector<TH1D> h_MetPt1ProngOnly;
-  std::vector<TH1D> h_MetPhi1ProngOnly;
-  std::vector<TH1D> h_MetPt3ProngOnly;
-  std::vector<TH1D> h_MetPhi3ProngOnly;
+  //std::vector<TH1D> h_MetPt1ProngOnly;
+  //std::vector<TH1D> h_MetPhi1ProngOnly;
+  //std::vector<TH1D> h_MetPt3ProngOnly;
+  //std::vector<TH1D> h_MetPhi3ProngOnly;
 
-  std::vector<TH1D> h_MetPtNoMtCut;
-  std::vector<TH1D> h_MetPhiNoMtCut;
-  std::vector<TH1D> h_MetPtNoMtCut1ProngOnly;
-  std::vector<TH1D> h_MetPhiNoMtCut1ProngOnly;
-  std::vector<TH1D> h_MetPtNoMtCut3ProngOnly;
-  std::vector<TH1D> h_MetPhiNoMtCut3ProngOnly;
+  //std::vector<TH1D> h_MetPtNoMtCut;
+  //std::vector<TH1D> h_MetPhiNoMtCut;
+  //std::vector<TH1D> h_MetPtNoMtCut1ProngOnly;
+  //std::vector<TH1D> h_MetPhiNoMtCut1ProngOnly;
+  //std::vector<TH1D> h_MetPtNoMtCut3ProngOnly;
+  //std::vector<TH1D> h_MetPhiNoMtCut3ProngOnly;
 
   std::vector<TH1D> h_QcdShapeRegion;
 
@@ -192,7 +193,10 @@ class HToTaumuTauh : public Selection {
   std::vector<TH1D> h_HiggsGenPt;
   std::vector<TH1D> h_HiggsMassFromSampleName;
 
+  std::vector<TH1D> h_SVFitMass;
   std::vector<TH1D> h_visibleMass;
+  std::vector<TH1D> h_SVFitMassCoarse;
+  std::vector<TH1D> h_visibleMassCoarse;
 
   std::vector<TH1D> h_shape_VisM;
   std::vector<TH1D> h_shape_SVfitM;
@@ -280,8 +284,9 @@ class HToTaumuTauh : public Selection {
   // booleans about event status
   bool status; // true only if full selection passed
   bool isWJetMC; // for Wjets background method
-  bool isQCDShapeEvent;
+  bool isQCDShapeEvent, isWJetShapeEvent;
   bool isSignal;
+  std::vector<bool> originalPass; // not affected by QCD/WJet shape methods
 
   // variables to hold information for categorization
   unsigned nJets_;
@@ -290,8 +295,6 @@ class HToTaumuTauh : public Selection {
   double jetdEta_;
   int nJetsInGap_;
   double mjj_;
-  bool passedVBFTight_;
-  bool passedVBF_;
 
   // selected objects at various stages
   std::vector<int> selectedMuonsId;
@@ -308,6 +311,7 @@ class HToTaumuTauh : public Selection {
   std::vector<int> selectedJetsClean;
   std::vector<int> selectedJetsKin;
   std::vector<int> selectedJets;
+  std::vector<int> selectedLooseJets;
   std::vector<int> selectedBJets;
 
   // instance of reference scale factor class
@@ -322,20 +326,25 @@ class HToTaumuTauh : public Selection {
   TBenchmark* clock;
 
   // booleans for different analysis stages
-  void setStatusBooleans(bool resetAll = false);
-  bool passedVertex;
-  bool passedMuId;
-  bool passedMu;
-  bool passedTauIdIso;
-  bool passedTau;
-  bool passedObjects;
-  bool passedDiMuonVeto;
-  bool passedFullInclusiveSelNoBVeto;
-  bool passedFullInclusiveSel;
-  bool passedFullInclusiveSelNoMt;
-  bool passedFullInclusiveSelNoMtNoOS;
-  bool passedFullInclusiveNoTauNoMuNoCharge;
-  bool passedObjectsFailDiMuonVeto;
+  enum passedStages{
+	Vtx,
+	VtxMuId,
+	VtxMu,
+	VtxTauIdIso,
+	VtxTau,
+	Objects,
+	ObjectsDiMuonVeto,
+	ObjectsFailDiMuonVeto,
+	FullInclusiveSelNoMt,
+	FullInclusiveSelNoMtNoOS,
+	FullInclusiveNoTauNoMuNoCharge,
+	FullInclusiveSelNoBVeto,
+	FullInclusiveSel
+  };
+  bool getStatusBoolean(passedStages stage, const std::vector<bool>& passVec);
+  bool getStatusBoolean(passedStages stage){return getStatusBoolean(stage, pass);};
+  void resetPassBooleans();
+
   bool passed_VBFTightRelaxed;
   bool passed_VBFLooseRelaxed;
 
@@ -369,14 +378,15 @@ class HToTaumuTauh : public Selection {
 
   bool selectPFJet_Relaxed(unsigned i, int selectedMuon, int selectedTau);
 
+  void calculateJetVariables(const std::vector<int>& jetCollection);
+
   bool migrateCategoryIntoMain(TString thisCategory, std::vector<float> categoryValueVector, std::vector<float> categoryPassVector, unsigned categoryNCuts);
-  template <typename T> void overwriteWithRelaxed(T cat);
 
   double getWJetsMCPrediction();
-  double yield_DdBkg_WJets(int flag = Standard);
+  UncDouble yield_DdBkg_WJets(int flag = Standard);
   void applyDdBkg_WJets();
-  double yield_DdBkg_QCDAbcd(int flag = Standard);
-  double yield_DdBkg_QCDEff();
+  UncDouble yield_DdBkg_QCDAbcd(int flag = Standard);
+  UncDouble yield_DdBkg_QCDEff();
   void applyDdBkg_QCD();
 
   enum bg_flag{
