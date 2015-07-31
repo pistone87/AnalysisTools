@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import ROOT
+execfile('loadPyRoot.py')
 from glob import glob
 import argparse
 

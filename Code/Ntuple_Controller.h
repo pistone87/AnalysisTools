@@ -21,6 +21,7 @@
 #include "TMatrixT.h"
 #include "TMatrixTSym.h"
 #include "TVectorT.h"
+#include "TSystem.h"
 
 // Include files (C & C++ libraries)
 #include<iostream>
@@ -33,9 +34,14 @@
 #ifdef USE_TauSpinner
 #include "TauSpinerInterface.h"
 #endif
-#include "HistoConfig.h"
 #include "SimpleFits/FitSoftware/interface/PDGInfo.h"
 #include "TauDataFormat/TauNtuple/interface/TauDecay.h"
+
+#ifdef USE_SVfit
+#include "DataFormats/SVFitObject.h"
+#include "SVFitStorage.h"
+#include "SVfitProvider.h"
+#endif
 
 
 #include "SimpleFits/FitSoftware/interface/TrackParticle.h"
@@ -79,9 +85,9 @@ class Ntuple_Controller{
   int nb;
   bool copyTree;
 
-  bool verbose;
-
   int currentEvent;
+
+  bool cannotObtainHiggsMass; // avoid repeated printing of warning when running locally
 
   // Ntuple Access Functions
   virtual void Branch_Setup(TString B_Name, int type);
@@ -97,7 +103,7 @@ class Ntuple_Controller{
   void doMET();
   unsigned int ObjEvent;
 
-  // helper function for MC decay tree drawer
+  // helper functions for internal calculations
   void printMCDecayChain(unsigned int par, unsigned int level = 0, bool printStatus = false, bool printPt = false, bool printEtaPhi = false, bool printQCD = false);
 
   // Object Variables
@@ -138,6 +144,20 @@ class Ntuple_Controller{
   bool                                fitStatus;
   bool                                isInit;
 
+  // muon correction related objects
+  rochcor2012*   rmcor;
+  std::vector<TLorentzVector> Muon_corrected_p4;
+  void           CorrectMuonP4();
+  bool           Muon_isCorrected;
+
+  // helpers for SVFit
+#ifdef USE_SVfit
+  // create SVFitObject from standard muon and standard tau_h
+  void runAndSaveSVFit_MuTauh(SVFitObject* svfObj, SVFitStorage& svFitStor, const TString& metType, unsigned muIdx, unsigned tauIdx, double scaleMu, double scaleTau, bool save = true);
+  // create SVFitObject from standard muon and fully reconstructed 3prong tau
+  void runAndSaveSVFit_MuTau3p(SVFitObject* svfObj, SVFitStorage& svFitStor, const TString& metType, unsigned muIdx, TLorentzVector tauLV, LorentzVectorParticle neutrino, double scaleMu, double scaleTau, bool save = true);
+#endif
+
  public:
   // Constructor
   Ntuple_Controller(std::vector<TString> RootFiles);
@@ -162,6 +182,13 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
      qualitySize = 7
    };
   enum TrackPar{i_qoverp = 0, i_lambda, i_phi, i_dxy,i_dsz};
+
+  // access to SVFit
+  #ifdef USE_SVfit
+  SVFitObject* getSVFitResult_MuTauh(SVFitStorage& svFitStor, TString metType, unsigned muIdx, unsigned tauIdx, unsigned rerunEvery = 5000, TString suffix = "", double scaleMu = 1 , double scaleTau = 1);
+  SVFitObject* getSVFitResult_MuTau3p(SVFitStorage& svFitStor, TString metType, unsigned muIdx, TLorentzVector tauLV, LorentzVectorParticle neutrino, TString suffix = "", double scaleMu = 1, double scaleTau = 1);
+  #endif
+
 
   // Ntuple Access Functions 
   virtual Int_t Get_Entries();
@@ -190,10 +217,27 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
   void SetMuonCorrections(TString muonCorr){muonCorrection = muonCorr;}
   void SetElecCorrections(TString elecCorr){elecCorrection = elecCorr;}
   void SetJetCorrections(TString jetCorr){jetCorrection = jetCorr;}
+  // corresponding getters
+  const TString& GetTauCorrections() const {return tauCorrection;}
+  const TString& GetMuonCorrections() const {return muonCorrection;}
+  const TString& GetElecCorrections() const {return elecCorrection;}
+  const TString& GetJetCorrections() const {return jetCorrection;}
+
+  // Information from input Ntuple path name
+  TString GetInputNtuplePath();
+  TString GetInputDatasetName();
+  TString GetInputPublishDataName();
+  int getSampleHiggsMass();
+  int readHiggsMassFromString(TString input);
+
+  // resonance mass
+  int getHiggsSampleMassFromGenInfo();
+  double getResonanceMassFromGenInfo(bool useZ0 = true, bool useHiggs0 = true, bool useW = true);
 
   // Physics Variable Get Functions
   // Event Variables
-  int GetMCID();
+  int64_t GetMCID();
+  int GetStrippedMCID();
   unsigned int RunNumber(){return Ntp->Event_RunNumber;}
   unsigned int EventNumber(){ return Ntp->Event_EventNumber;}
   int BunchCrossing(){ return Ntp->Event_bunchCrossing;}
@@ -334,11 +378,6 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
   bool           isSelectedMuon(unsigned int i, unsigned int j, double impact_xy, double impact_z, TString corr = "default");
   bool			 isLooseMuon(unsigned int i);
   float          Muon_RelIso(unsigned int i, TString corr = "default");
-  rochcor2012*   rmcor;
-  std::vector<TLorentzVector> Muon_corrected_p4;
-  void           CorrectMuonP4();
-  bool           Muon_isCorrected;
-
 
   //Base Tau Information (PF)
    unsigned int      NPFTaus(){return Ntp->PFTau_p4->size();}
@@ -713,6 +752,7 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    std::vector<int>           MCParticle_childpdgid(unsigned int i){return Ntp->MC_childpdgid->at(i);}
    std::vector<int>           MCParticle_childidx(unsigned int i){return Ntp->MC_childidx->at(i);}
    int						  MCParticle_status(unsigned int i){return Ntp->MC_status->at(i);}
+   int 						  getMatchTruthIndex(TLorentzVector tvector, int pid, double dr);
    int						  matchTruth(TLorentzVector tvector);
    bool						  matchTruth(TLorentzVector tvector, int pid, double dr);
    // decay tree functionality
@@ -729,6 +769,13 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    int MCTau_charge(unsigned int i){return MCTauandProd_charge(i,0);}
    unsigned int MCTau_JAK(unsigned int i){return Ntp->MCTau_JAK->at(i);}
    unsigned int MCTau_DecayBitMask(unsigned int i){return Ntp->MCTau_DecayBitMask->at(i);}
+   int MCTau_getDaughterOfType(unsigned int i_mcTau, int daughter_pdgid, bool ignoreCharge = true);
+   int MCTau_true3prongAmbiguity(unsigned int i);
+   int matchTauTruth(unsigned int i_hpsTau, bool onlyHadrDecays = false);
+   TLorentzVector BoostToRestFrame(TLorentzVector TLV1, TLorentzVector TLV2);
+   TLorentzVector MCTau_invisiblePart(unsigned int i);
+   TLorentzVector MCTau_visiblePart(unsigned int i);
+
    //Tau and decay products
    int NMCTauDecayProducts(unsigned int i){if(0<=i && i<(unsigned int)NMCTaus()) return Ntp->MCTauandProd_p4->at(i).size(); return 0;}
    TLorentzVector MCTauandProd_p4(unsigned int i, unsigned int j){return TLorentzVector(Ntp->MCTauandProd_p4->at(i).at(j).at(1),Ntp->MCTauandProd_p4->at(i).at(j).at(2),Ntp->MCTauandProd_p4->at(i).at(j).at(3),Ntp->MCTauandProd_p4->at(i).at(j).at(0));}
@@ -741,6 +788,8 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    bool hasSignalTauDecay(PDGInfo::PDGMCNumbering parent_pdgid,unsigned int &Boson_idx,TauDecay::JAK tau_jak, unsigned int &idx);
    bool hasSignalTauDecay(PDGInfo::PDGMCNumbering parent_pdgid,unsigned int &Boson_idx,unsigned int &tau1_idx, unsigned int &tau2_idx);
 
+
+   // overlap of objects
    bool jethasMuonOverlap(unsigned int jet_idx,unsigned int &muon_idx);
    bool muonhasJetOverlap(unsigned int muon_idx,unsigned int &jet_idx);
    bool muonhasJetMatch(unsigned int muon_idx,unsigned int &jet_idx);
@@ -894,7 +943,6 @@ TauSpinerInt.SetTauSignalCharge(signalcharge);
    double       GenEventInfoProduct_x1(){return Ntp->GenEventInfoProduct_x1;}
    double       GenEventInfoProduct_x2(){return Ntp->GenEventInfoProduct_x2;}
    double       GenEventInfoProduct_scalePDF(){return Ntp->GenEventInfoProduct_scalePDF;}
-
 };
 
 #endif

@@ -11,7 +11,6 @@ class Parameters {
   Parameters(TString f);
   virtual ~Parameters();
 
-
   void    SetFile(TString f);
   TString GetFile();
 

@@ -14,15 +14,15 @@ SHELL = /bin/sh
 ###                              ###
 ####################################
 
-SHAREDLIBFLAGS =-L./CommonUtils/lib -lTauNtuple 
-SHAREDCXXFLAGS =-I./CommonUtils 
+SHAREDLIBFLAGS =-L./CommonUtils/lib -lTauNtuple -L./DataFormats/lib -lDataFormats
+SHAREDCXXFLAGS =-I./CommonUtils -I./DataFormats
 SUBDIRS = CommonUtils/ 
 TAUSPINERFLAG = 
 
 override CXXFLAGS += 
 ALLCXXFLAGS = $(CXXFLAGS) -I$(ROOTSYS)/include -c -I/include $(SHAREDCXXFLAGS) -c -I./ -c
 LDFLAGS       =  
-ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lCint -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lReflexDict -lReflex -lPostscript -lMatrix -lPhysics -lGui -LObj -lMinuit2 -lThread -rdynamic -Wl,--rpath $(ROOTSYS)/lib
+ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lCint -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lReflexDict -lReflex -lPostscript -lMatrix -lPhysics -lGui -LObj -lMinuit2 -lThread -lTreePlayer -lRIO -lMathCore -rdynamic -Wl,--rpath $(ROOTSYS)/lib
 
 # -ldl -lpthread
 
@@ -47,7 +47,11 @@ TARGETS       =	Ntuple_Controller \
 		TauSpinExample \
 		TauSpinerInterface \
 		ReferenceScaleFactors \
-		rochcor2012jan22
+		rochcor2012jan22 \
+		Objects \
+		UncertaintyValue
+
+CINTTARGETS = 
 
 # now include conditional options set by flags in make.inc
 ifdef USE_TauSpinner
@@ -64,6 +68,13 @@ ifdef USE_TauSpinner
 	DEFS += -DUSE_TauSpinner=1
 endif
 
+ifdef USE_SVfit
+	TARGETS += SVfitProvider DataStorage SVFitStorage
+	CINTTARGETS += SVFitObject
+	SHAREDLIBFLAGS += -L./CommonUtils/lib -lSVfit
+	DEFS += -DUSE_SVfit=1
+endif
+
 ifdef USE_cherepanov
 	TARGETS += Ztotautau_hadmu_ControlSample Tau_momentum_calculation Validation
 	DEFS += -DUSE_cherepanov=1
@@ -75,7 +86,11 @@ ifdef USE_inugent
 endif
 
 ifdef USE_kargoll
-	TARGETS += HToTaumuTauh HToTaumuTauhSkim HToTaumuTauhBackgrounds MuTauSync OneJetBoost OneJetHigh OneJetLow VBFLoose VBFTight ZeroJetHigh ZeroJetLow Inclusive MCDecayChain
+	TARGETS += HToTaumuTauh Category
+	TARGETS += OneJetBoost OneJetHigh OneJetLow VBFLoose VBFTight ZeroJetHigh ZeroJetLow Inclusive
+	TARGETS += CategoryStandalone VBFLooseStandalone VBFTightStandalone RelaxedVBFTightStandalone RelaxedVBFLooseStandalone
+	#TARGETS += MuTauSync MCDecayChain
+	TARGETS += ZeroJetLow3Prong
 	DEFS += -DUSE_kargoll=1
 endif 
 
@@ -135,24 +150,31 @@ vpath %.h CommonFiles
 $(OBJS): %.o : %.cxx
 	$(CXX) $(ALLCXXFLAGS) $(DEFS) $< -o i386_linux/$@ 
 
-.PHONY: clean cleanall all install sharedlib 
+.PHONY: clean cleanall cleandf all dataformats install sharedlib 
 
-install: Analysis.exe
+install: dataformats Analysis.exe
 
+
+dataformats: 
+	@cd DataFormats; gmake install; cd ../
 
 clean:
 	@rm i386_linux/*.o
 	@rm Analysis.exe
+
+cleandf:
+	@cd DataFormats; gmake clean; cd ../
 
 cleanall:
 	@for subdir in $(SUBDIRS); do \
 		echo "Making all in $$subdir"; \
 		cd $$subdir && $(MAKE) -f Makefile.standalone clean && cd ../../; \
 	done
+	@cd DataFormats; gmake clean; cd ../
 	@rm i386_linux/*.o
 	@rm Analysis.exe
 
-all: sharedlib install
+all: sharedlib dataformats install
 
 sharedlib:
 	@for subdir in $(SUBDIRS); do \
@@ -162,8 +184,18 @@ sharedlib:
 			cd $$subdir && $(MAKE) -f Makefile.standalone $(TAUSPINERFLAG) && cd ../ && pwd; \
 		else \
 			echo without flag ; \
-			cd $$subdir echo $(CXXFLAGS) && $(MAKE) -f Makefile.standalone CXXFLAGS+='$(CXXFLAGS)' && cd ../ && pwd; \
+			cd $$subdir echo $(CXXFLAGS) && $(MAKE) -f Makefile.standalone CXXFLAGS+='$(CXXFLAGS)' ; \
+			pwd; \
+			if [ $$subdir == "CommonUtils/" ]; then \
+				echo $(USE_SVfit); \
+				if [ $(USE_SVfit) -eq 1 ]; then \
+					$(MAKE) -f Makefile.SVfitStandalone CXXFLAGS+='$(CXXFLAGS)' ; \
+				fi \
+			fi \
+			&& cd ../ && pwd; \
 		fi \
 	done
 	$(install)
+
+
 

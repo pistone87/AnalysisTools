@@ -7,6 +7,7 @@
 
 #include "ReferenceScaleFactors.h"
 #include "Selection_Base.h"
+#include "SimpleFits/FitSoftware/interface/Logger.h"
 
 ///////////////////////////
 //
@@ -33,9 +34,9 @@ ReferenceScaleFactors::ReferenceScaleFactors(int runType, bool load_ElectronID, 
 	// Electron Id's
 	if(loadElectronID){
 		// open root files
-		ETrigIdEffFile = new TFile(basedir+"ElectronEfficiencies_Run2012ReReco_53X_Trig.root");
-		ENonTrigIdEffFile = new TFile(basedir+"ElectronEfficiencies_Run2012ReReco_53X_NonTrig.root");
-		ERecoEffFile = new TFile(basedir+"Electrons_ScaleFactors_Reco_8TeV.root");
+		ETrigIdEffFile = new TFile(basedir+"ElectronEfficiencies_Run2012ReReco_53X_Trig.root", "READ");
+		ENonTrigIdEffFile = new TFile(basedir+"ElectronEfficiencies_Run2012ReReco_53X_NonTrig.root", "READ");
+		ERecoEffFile = new TFile(basedir+"Electrons_ScaleFactors_Reco_8TeV.root", "READ");
 		// load histograms
 		ElectronTrigEff = (TH2D*)(ETrigIdEffFile->Get("electronsDATAMCratio_FO_ID_ISO"));
 		ElectronNonTrigEff = (TH2D*)(ENonTrigIdEffFile->Get("h_electronScaleFactor_IdIsoSip"));
@@ -45,7 +46,7 @@ ReferenceScaleFactors::ReferenceScaleFactors(int runType, bool load_ElectronID, 
 	// Trigger efficiencies
 	if(loadEMuTriggerEff){
 		// open root files
-		HWW_TriggerEfficiencies = new TFile(basedir+"TriggerEfficienciesWW_TH1D.root");
+		HWW_TriggerEfficiencies = new TFile(basedir+"TriggerEfficienciesWW_TH1D.root", "READ");
 		// load histograms
 		HiggsWW_EMu_SingleEle15 = (TH1D*)(HWW_TriggerEfficiencies->Get("SingleEle15"));
 		HiggsWW_EMu_SingleEle25 = (TH1D*)(HWW_TriggerEfficiencies->Get("SingleEle25"));
@@ -67,12 +68,25 @@ ReferenceScaleFactors::ReferenceScaleFactors(int runType, bool load_ElectronID, 
 
 	// Higgs Pt Weights
 	if(loadHiggsPtWeights){
-		// open root files
-		HiggsPtWeightM125File = new TFile(basedir+"HRes_weight_pTH_mH125_8TeV.root");
-		// load histograms
-		HiggsPtWeightM125Nominal = (TH1D*)(HiggsPtWeightM125File->Get("Nominal"));
-		HiggsPtWeightM125Down = (TH1D*)(HiggsPtWeightM125File->Get("Down"));
-		HiggsPtWeightM125Up= (TH1D*)(HiggsPtWeightM125File->Get("Up"));
+		// loop over masses
+		for (unsigned mass = 100; mass <= 160; mass += 5){
+			// open root files
+			// files are taken from
+			HiggsPtWeightFiles.insert(
+					std::pair<unsigned, TFile*>( mass,
+							new TFile(basedir + "HiggsPtWeights/weight_ptH_"+ TString::UItoa(mass,10) + "_8TeV.root", "READ")));
+
+			// load histograms
+			HiggsPtWeightsNominal.insert(
+					std::pair<unsigned, TH1D*>( mass,
+							(TH1D*)(HiggsPtWeightFiles[mass]->Get("Nominal"))));
+			HiggsPtWeightsDown.insert(
+					std::pair<unsigned, TH1D*>( mass,
+							(TH1D*)(HiggsPtWeightFiles[mass]->Get("Down"))));
+			HiggsPtWeightsUp.insert(
+					std::pair<unsigned, TH1D*>( mass,
+							(TH1D*)(HiggsPtWeightFiles[mass]->Get("Up"))));
+		}
 	}
 }
 
@@ -86,7 +100,9 @@ ReferenceScaleFactors::~ReferenceScaleFactors(){
 		delete HWW_TriggerEfficiencies;
 	}
 	if(loadHiggsPtWeights){
-		delete HiggsPtWeightM125File;
+	    for(std::map<unsigned, TFile*>::iterator itr = HiggsPtWeightFiles.begin(); itr != HiggsPtWeightFiles.end(); itr++){
+	        delete itr->second;
+	    }
 	}
 }
 
@@ -636,7 +652,7 @@ double ReferenceScaleFactors::HiggsTauTau_MuTau_IsoUnc_Mu(TLorentzVector vect){
 
 // Electrons need eta from supercluster -> not using four vector as argument
 double ReferenceScaleFactors::ElectronReconstruction2012(double Et, double Eta){
-	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadElectronID){Logger(Logger::Error) << "Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double eff = 1.;
 	if(fabs(Eta)<2.5){
@@ -647,7 +663,7 @@ double ReferenceScaleFactors::ElectronReconstruction2012(double Et, double Eta){
 }
 
 double ReferenceScaleFactors::ElectronReconstructionUnc2012(double Et, double Eta){
-	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadElectronID){Logger(Logger::Error) << "Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double err = 0.;
 	if(fabs(Eta)<2.5){
@@ -658,7 +674,7 @@ double ReferenceScaleFactors::ElectronReconstructionUnc2012(double Et, double Et
 }
 
 double ReferenceScaleFactors::ElectronIdTrig2012(double Et, double Eta){
-	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadElectronID){Logger(Logger::Error) << "Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double eta = fabs(Eta);
 	double eff = 1.;
@@ -670,7 +686,7 @@ double ReferenceScaleFactors::ElectronIdTrig2012(double Et, double Eta){
 }
 
 double ReferenceScaleFactors::ElectronIdTrigUnc2012(double Et, double Eta){
-	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadElectronID){Logger(Logger::Error) << "Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double eta = fabs(Eta);
 	double err = 0.;
@@ -682,7 +698,7 @@ double ReferenceScaleFactors::ElectronIdTrigUnc2012(double Et, double Eta){
 }
 
 double ReferenceScaleFactors::ElectronIdNonTrig2012(double Et, double Eta){
-	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadElectronID){Logger(Logger::Error) << "Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double eff = 1.;
 	if(fabs(Eta)<2.5){
@@ -693,7 +709,7 @@ double ReferenceScaleFactors::ElectronIdNonTrig2012(double Et, double Eta){
 }
 
 double ReferenceScaleFactors::ElectronIdNonTrigUnc2012(double Et, double Eta){
-	if(!loadElectronID){std::cout << "ERROR: Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadElectronID){Logger(Logger::Error) << "Electron ID not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double err = 0.;
 	if(fabs(Eta)<2.5){
@@ -1173,7 +1189,7 @@ double ReferenceScaleFactors::HiggsWW_EMu_Trigger(TLorentzVector mu_vect, double
 }
 
 double ReferenceScaleFactors::HiggsWW_EMu_SingleEle(double Et, double Eta){
-	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadEMuTriggerEff){Logger(Logger::Error) << "EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double eta = fabs(Eta);
 	double eff = 1.;
@@ -1184,7 +1200,7 @@ double ReferenceScaleFactors::HiggsWW_EMu_SingleEle(double Et, double Eta){
 }
 
 double ReferenceScaleFactors::HiggsWW_EMu_DoubleEleLeading(double Et, double Eta){
-	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadEMuTriggerEff){Logger(Logger::Error) << "EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double eta = fabs(Eta);
 	double eff = 1.;
@@ -1195,7 +1211,7 @@ double ReferenceScaleFactors::HiggsWW_EMu_DoubleEleLeading(double Et, double Eta
 }
 
 double ReferenceScaleFactors::HiggsWW_EMu_DoubleEleTrailing(double Et, double Eta){
-	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadEMuTriggerEff){Logger(Logger::Error) << "EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double et = Et;
 	double eta = fabs(Eta);
 	double eff = 1.;
@@ -1206,7 +1222,7 @@ double ReferenceScaleFactors::HiggsWW_EMu_DoubleEleTrailing(double Et, double Et
 }
 
 double ReferenceScaleFactors::HiggsWW_EMu_SingleMu(TLorentzVector vect){
-	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadEMuTriggerEff){Logger(Logger::Error) << "EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double pt = vect.Pt();
 	double eta = fabs(vect.Eta());
 	double eff = 1.;
@@ -1219,7 +1235,7 @@ double ReferenceScaleFactors::HiggsWW_EMu_SingleMu(TLorentzVector vect){
 }
 
 double ReferenceScaleFactors::HiggsWW_EMu_DoubleMuLeading(TLorentzVector vect){
-	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadEMuTriggerEff){Logger(Logger::Error) << "EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double pt = vect.Pt();
 	double eta = fabs(vect.Eta());
 	double eff = 1.;
@@ -1231,7 +1247,7 @@ double ReferenceScaleFactors::HiggsWW_EMu_DoubleMuLeading(TLorentzVector vect){
 }
 
 double ReferenceScaleFactors::HiggsWW_EMu_DoubleMuTrailing(TLorentzVector vect){
-	if(!loadEMuTriggerEff){std::cout << "ERROR: EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
+	if(!loadEMuTriggerEff){Logger(Logger::Error) << "EMu trigger efficiency not loaded in ReferenceScaleFactors." << std::endl; return -999;}
 	double pt = vect.Pt();
 	double eta = fabs(vect.Eta());
 	double eff = 1.;
@@ -1487,16 +1503,24 @@ double ReferenceScaleFactors::HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta
 }
 
 // Higgs pT reweighting
-double ReferenceScaleFactors::HiggsPtWeight_M125(TLorentzVector vect, TString shift){
-	// define which scale to use. Default is nominal.
-	TH1D* hist;
-	if (shift == "nominal")		hist = HiggsPtWeightM125Nominal;
-	else if (shift == "down")	hist = HiggsPtWeightM125Down;
-	else if (shift == "up")		hist = HiggsPtWeightM125Up;
-	else {printf("ERROR: shift of type %s not known for Higgs pT weights.\n", shift.Data()); return -999;}
-	// check Higgs mass
-	if( fabs(vect.M() - 125.0) > 3.0 ) printf("WARNING: Using Higgs pT weights valid vor m(H)=125, but event has m(H)=%f\n", vect.M());
+double ReferenceScaleFactors::HiggsPtWeight(TLorentzVector vect, int mass, TString shift){
+	// define which scale to use. Default is "nominal".
+	std::map<unsigned, TH1D*> weightMap;
+	if (shift == "nominal")		weightMap = HiggsPtWeightsNominal;
+	else if (shift == "down")	weightMap = HiggsPtWeightsDown;
+	else if (shift == "up")		weightMap = HiggsPtWeightsUp;
+	else {
+		Logger(Logger::Error) << "ERROR: shift of type " << shift.Data() << " not known for Higgs pT weights." << std::endl;
+		return -999;
+	}
+
+	// do some checks
+	if( weightMap.find(mass) == weightMap.end() ){
+		Logger(Logger::Error) << "Requested mass " << mass << " not available for Higgs pT reweighting." << std::endl;
+		return -999;
+	}
 
 	// read weight from histogram
-	return hist->GetBinContent(hist->FindFixBin(vect.Pt()));
+	return weightMap[mass]->GetBinContent( weightMap[mass]->FindFixBin( vect.Pt() ) );
 }
+

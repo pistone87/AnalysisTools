@@ -1,4 +1,5 @@
 #include "Parameters.h"
+#include "SimpleFits/FitSoftware/interface/Logger.h"
 
 #include <cstdlib>
 #include <algorithm>                                     
@@ -15,7 +16,7 @@
 #include <math.h>
 
 // Static var
-TString Parameters::file="Tools/Par.dat";
+TString Parameters::file = "Tools/Par.dat";
 
 Parameters::Parameters(){
 }
@@ -66,16 +67,16 @@ void Parameters::GetVectorString(TString p, std::vector<TString> &v, TString dv)
   ifstream input_file;
   input_file.open(file, std::ios::in);
   if (!(input_file)){
-    std::cout << "\nERROR: Opening xml file "<< file <<" for Parameters has failed.\n" << std::endl;
+    Logger(Logger::Error) << "Opening xml file "<< file <<" for Parameters has failed." << std::endl;
     return;
   }
-  //std::cout << "\nOpened Parameters xml file: "<< file <<".\n" << std::endl;
+  Logger(Logger::Verbose) << "Opened Parameters xml file: "<< file <<"." << std::endl;
 
   std::string s;
   unsigned int a=0;
   while(getline(input_file, s)){
     a++;
-    if(a>10000){std::cout << "Error More than 10000 line in file??? Breaking" << std::endl; break;}
+    if(a>50000){Logger(Logger::Error) << "More than 50000 line in file??? Breaking" << std::endl; break;}
     std::stringstream line(s);
     TString par;
     TString val;
@@ -97,7 +98,7 @@ void Parameters::GetVectorString(TString p, std::vector<TString> &v, TString dv)
   }
   if(dv!="" && v.size()==0) v.push_back(dv);
   for(unsigned int i=0; i<v.size();i++){
-    std::cout << "Parameters::GetVectorString File=" << file  << " Found: " <<  p << "=" << v.at(i) << std::endl;
+	  Logger(Logger::Verbose) << "Parameters::GetVectorString File=" << file  << " Found: " <<  p << "=" << v.at(i) << std::endl;
   }
   return;
 }
@@ -110,16 +111,16 @@ void Parameters::GetParameter(TString p, T &v,T dv){
   ifstream input_file;
   input_file.open(file, std::ios::in);
   if (!(input_file)){
-    std::cout << "\nERROR: Opening xml file "<< file <<" for Parameters has failed.\n" << std::endl;
+	  Logger(Logger::Error) << "Opening xml file "<< file <<" for Parameters has failed." << std::endl;
     return;
   }
-  //std::cout << "\nOpened Parameters xml file: "<< file <<".\n" << std::endl;
+  Logger(Logger::Verbose) << "Opened Parameters xml file: "<< file <<"." << std::endl;
 
   std::string s;
   unsigned int a=0;
   while(getline(input_file, s)){
     a++;
-    if(a>10000){std::cout << "Error More than 10000 line in file??? Breaking" << std::endl; break;}
+    if(a>10000){Logger(Logger::Error) << "More than 10000 line in file??? Breaking" << std::endl; break;}
     std::stringstream line(s); 
     TString par;
     T val;
@@ -128,12 +129,12 @@ void Parameters::GetParameter(TString p, T &v,T dv){
     p.ToLower();
     if(p.Contains(par) && par.Contains(p)){
       v=val;
-      std::cout << "Parameters::GetParameter File=" << file << " Found: " <<  p << "=" << v << std::endl;
+      Logger(Logger::Verbose) << "Parameters::GetParameter File=" << file << " Found: " <<  p << "=" << v << std::endl;
       return;
     }
   }
   v=dv;
-  std::cout << "Parameters::GetParameter File=" << file << " Not Found: " <<  p << "=" << v << std::endl;
+  Logger(Logger::Warning) << "Parameters::GetParameter File=" << file << " Not Found: " <<  p << "=" << v << std::endl;
   input_file.close();
   return;
 }
@@ -146,16 +147,15 @@ void Parameters::GetVectorStringDouble(TString p, std::vector<TString> &v1, std:
   ifstream input_file;
   input_file.open(file, std::ios::in);
   if (!(input_file)){
-    std::cout << "\nERROR: Opening xml file "<< file <<" for Parameters has failed.\n" << std::endl;
+	Logger(Logger::Error) << "Opening xml file "<< file <<" for Parameters has failed." << std::endl;
     return;
   }
-  //std::cout << "\nOpened Parameters xml file: "<< file <<".\n" << std::endl;
 
   std::string s;
   unsigned int a=0;
   while(getline(input_file, s)){
     a++;
-    if(a>10000){std::cout << "Error More than 10000 line in file??? Breaking" << std::endl; break;}
+    if(a>10000){Logger(Logger::Error) << "More than 10000 line in file??? Breaking" << std::endl; break;}
     std::stringstream line(s);
     TString par;
     TString val1;
@@ -179,7 +179,7 @@ void Parameters::GetVectorStringDouble(TString p, std::vector<TString> &v1, std:
     }
   }
   for(unsigned int i=0; i<v1.size();i++){
-    std::cout << "Parameters::GetVectorStringDouble File=" << file  << " Found: " <<  p << "=" << v1.at(i) << " " << v2.at(i) << std::endl;
+	  Logger(Logger::Verbose) << "Parameters::GetVectorStringDouble File=" << file  << " Found: " <<  p << "=" << v1.at(i) << " " << v2.at(i) << std::endl;
   }
   return;
 }
