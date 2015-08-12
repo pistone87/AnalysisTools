@@ -30,6 +30,9 @@ protected:
 	void categoryExtradist();
 	void categoryPlotting();
 
+	// flag to enable/disable SVFit calculation
+	bool runSVFit_;
+
 	// svfit
 	SVFitStorage svfitstor_Tau3pPlus;
 	SVFitStorage svfitstor_Tau3pMinus;
@@ -79,11 +82,6 @@ protected:
 	std::vector<TH1D> svFit3pMassResol_MinusSol;
 	std::vector<TH1D> svFit3pMassResol_ZeroSol;
 	std::vector<TH1D> svFit3pMassResol_TrueSol;
-
-	std::vector<TH2D> Tau_Pt_3pTrueVsSVfit3pTrueSol;
-	std::vector<TH1D> Tau_Pt_3pTrueSVfit3pTrueSolResol;
-	std::vector<TH2D> Tau_Pt_3pTrueVsSVfit3pZeroSol;
-	std::vector<TH1D> Tau_Pt_3pTrueSVfit3pZeroSolResol;
 
 	std::vector<TH1D> vis3pMass_PlusSol;
 	std::vector<TH1D> vis3pMass_MinusSol;
