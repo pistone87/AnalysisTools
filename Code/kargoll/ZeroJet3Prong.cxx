@@ -1,28 +1,28 @@
 /*
- * ZeroJetLow3Prong.cxx
+ * ZeroJet3Prong.cxx
  *
  *  Created on: Mar 21, 2014
  *      Author: kargoll
  */
 
-#include "ZeroJetLow3Prong.h"
+#include "ZeroJet3Prong.h"
 #include "SimpleFits/FitSoftware/interface/Logger.h"
 #include "../Tools.h"
 
 #include "TauDataFormat/TauNtuple/interface/DataMCType.h"
 #include "SimpleFits/FitSoftware/interface/GlobalEventFit.h"
 
-ZeroJetLow3Prong::ZeroJetLow3Prong(TString Name_, TString id_):
+ZeroJet3Prong::ZeroJet3Prong(TString Name_, TString id_):
 	Category(Name_,id_)
 {
-	Logger(Logger::Info) << "Setting up the class ZeroJetLow3Prong" << std::endl;
-	// run ZeroJetLow3Prong category
-	categoryFlag = "ZeroJetLow3Prong";
+	Logger(Logger::Info) << "Setting up the class ZeroJet3Prong" << std::endl;
+	// run ZeroJet3Prong category
+	categoryFlag = "ZeroJet3Prong";
 
 	runSVFit_ = true;
 }
 
-ZeroJetLow3Prong::~ZeroJetLow3Prong() {
+ZeroJet3Prong::~ZeroJet3Prong() {
 	  for(unsigned int j=0; j<Npassed.size(); j++){
 	    Logger(Logger::Info) << "Selection Summary before: "
 		 << Npassed.at(j).GetBinContent(1)     << " +/- " << Npassed.at(j).GetBinError(1)     << " after: "
@@ -31,10 +31,9 @@ ZeroJetLow3Prong::~ZeroJetLow3Prong() {
 	  Logger(Logger::Info) << "Done." << std::endl;
 }
 
-void  ZeroJetLow3Prong::categoryConfiguration(){
+void  ZeroJet3Prong::categoryConfiguration(){
 	// Setup cut Values for this category
 	cut.at(NJet)		= 0;
-	cut.at(TauPt)		= cCat_splitTauPt;
 	cut.at(DecayMode)	= 10;	// decay mode finding
 	cut.at(SigmaSV)		= 3.0;	// SV significance
 
@@ -52,17 +51,6 @@ void  ZeroJetLow3Prong::categoryConfiguration(){
 	c="_Cut_";c+=NJet;
 	Nminus1.at(NJet) = HConfig.GetTH1D(Name+c+"_Nminus1_NJet_",htitle,11,-0.5,10.5,hlabel,"Events");
 	Nminus0.at(NJet) = HConfig.GetTH1D(Name+c+"_Nminus0_NJet_",htitle,11,-0.5,10.5,hlabel,"Events");
-
-	title.at(TauPt)="$p_{T}(\\tau_{h}) <$";
-	title.at(TauPt)+=cut.at(TauPt);
-	title.at(TauPt)+=" GeV";
-	htitle=title.at(TauPt);
-	htitle.ReplaceAll("$","");
-	htitle.ReplaceAll("\\","#");
-	hlabel="p_{T}(\\tau_{h})/GeV";
-	c="_Cut_";c+=TauPt;
-	Nminus1.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus1_TauPt_",htitle,50,0.,200.,hlabel,"Events");
-	Nminus0.at(TauPt) = HConfig.GetTH1D(Name+c+"_Nminus0_TauPt_",htitle,40,0.,200.,hlabel,"Events");
 
 	title.at(DecayMode)="decayMode $==$";
 	title.at(DecayMode)+=cut.at(DecayMode);
@@ -173,7 +161,7 @@ void  ZeroJetLow3Prong::categoryConfiguration(){
 	MetMinus3pNeutrino_PxPyPull	= HConfig.GetTH2D(Name+"_MetMinus3pNeutrino_PxPyPull",	"MetMinus3pNeutrino_PxPyPull", 30, -3., 3.,30, -3., 3., "E_{x}(#nu_{#tau,#mu}) pull", "E_{y}(#nu_{#tau,#mu}) pull");
 }
 
-void ZeroJetLow3Prong::categoryExtradist(){
+void ZeroJet3Prong::categoryExtradist(){
 	Extradist1d.push_back(&Tau3p_Plus_Pt);
 	Extradist1d.push_back(&Tau3p_Plus_Eta);
 	Extradist1d.push_back(&Tau3p_Plus_Phi);
@@ -262,21 +250,19 @@ void ZeroJetLow3Prong::categoryExtradist(){
 	Extradist2d.push_back(&MetMinus3pNeutrino_PxPyPull);
 }
 
-bool ZeroJetLow3Prong::categorySelection(){
+bool ZeroJet3Prong::categorySelection(){
 	bool categoryPass = true;
-	std::vector<float> value_ZeroJetLow3Prong(NCuts,-10);
-	std::vector<float> pass_ZeroJetLow3Prong(NCuts,false);
+	std::vector<float> value_ZeroJet3Prong(NCuts,-10);
+	std::vector<float> pass_ZeroJet3Prong(NCuts,false);
 
 	Logger(Logger::Debug) << "Cut: Number of Jets" << std::endl;
-	value_ZeroJetLow3Prong.at(NJet) = nJets_;
-	pass_ZeroJetLow3Prong.at(NJet) = ( value_ZeroJetLow3Prong.at(NJet) <= cut.at(NJet) );
+	value_ZeroJet3Prong.at(NJet) = nJets_;
+	pass_ZeroJet3Prong.at(NJet) = ( value_ZeroJet3Prong.at(NJet) <= cut.at(NJet) );
 
 	if (selTau == -1){
-		// TauPt cut is set to true for nice N-0 and N-1 plots
-		value_ZeroJetLow3Prong.at(TauPt) = -10.;
-		pass_ZeroJetLow3Prong.at(TauPt) = true;
-		value_ZeroJetLow3Prong.at(DecayMode) = -10;
-		pass_ZeroJetLow3Prong.at(DecayMode) = true;
+		// decayMode cut is set to true for nice N-0 and N-1 plots
+		value_ZeroJet3Prong.at(DecayMode) = -10;
+		pass_ZeroJet3Prong.at(DecayMode) = true;
 		// whole category is failing selection, to avoid NCat > 1
 		categoryPass = false;
 	}
@@ -294,38 +280,34 @@ bool ZeroJetLow3Prong::categorySelection(){
 		else value.at(CatCut3)=Ntp->PFTau_hpsDecayMode(selTau);
 		pass.at(CatCut3)=(value.at(CatCut3)==cut.at(CatCut3));
 		*/
-		Logger(Logger::Debug) << "Cut: Tau pT" << std::endl;
-		value_ZeroJetLow3Prong.at(TauPt)	= tauPt_;
-		pass_ZeroJetLow3Prong.at(TauPt)		= ( value_ZeroJetLow3Prong.at(TauPt) < cut.at(TauPt) );
-
 		Logger(Logger::Debug) << "Cut: Tau decay mode" << std::endl;
-		value_ZeroJetLow3Prong.at(DecayMode)	= Ntp->PFTau_hpsDecayMode(selTau);
-		pass_ZeroJetLow3Prong.at(DecayMode)		= (value_ZeroJetLow3Prong.at(DecayMode)==cut.at(DecayMode));
+		value_ZeroJet3Prong.at(DecayMode)	= Ntp->PFTau_hpsDecayMode(selTau);
+		pass_ZeroJet3Prong.at(DecayMode)		= (value_ZeroJet3Prong.at(DecayMode)==cut.at(DecayMode));
 	}
 
-	if (selTau == -1 || not pass_ZeroJetLow3Prong.at(DecayMode)) {
-		value_ZeroJetLow3Prong.at(SigmaSV) = -999;
-		pass_ZeroJetLow3Prong.at(SigmaSV) = true;
+	if (selTau == -1 || not pass_ZeroJet3Prong.at(DecayMode)) {
+		value_ZeroJet3Prong.at(SigmaSV) = -999;
+		pass_ZeroJet3Prong.at(SigmaSV) = true;
 	}
 	else if ( not Ntp->PFTau_TIP_hassecondaryVertex(selTau) ){
-		value_ZeroJetLow3Prong.at(SigmaSV) = -9;
-		pass_ZeroJetLow3Prong.at(SigmaSV) = false;
+		value_ZeroJet3Prong.at(SigmaSV) = -9;
+		pass_ZeroJet3Prong.at(SigmaSV) = false;
 	}
 	else {
 		Logger(Logger::Debug) << "Cut: SV significance" << std::endl;
 		// set sign of flight length significance by projection of tau momentum direction
 		// on fitted PV-SV direction
 		int sign = ( Ntp->PFTau_FlightLength3d(selTau).Dot( Ntp->PFTau_3PS_A1_LV(selTau).Vect()) > 0 ) ? +1 : -1;
-		value_ZeroJetLow3Prong.at(SigmaSV) = sign * Ntp->PFTau_FlightLength_significance(selTau);
-		pass_ZeroJetLow3Prong.at(SigmaSV) = ( value_ZeroJetLow3Prong.at(SigmaSV) >= cut.at(SigmaSV) );
+		value_ZeroJet3Prong.at(SigmaSV) = sign * Ntp->PFTau_FlightLength_significance(selTau);
+		pass_ZeroJet3Prong.at(SigmaSV) = ( value_ZeroJet3Prong.at(SigmaSV) >= cut.at(SigmaSV) );
 	}
 
 	// migrate into main analysis if this is chosen category
-	categoryPass = migrateCategoryIntoMain("ZeroJetLow3Prong",value_ZeroJetLow3Prong, pass_ZeroJetLow3Prong,NCuts) && categoryPass;
+	categoryPass = migrateCategoryIntoMain("ZeroJet3Prong",value_ZeroJet3Prong, pass_ZeroJet3Prong,NCuts) && categoryPass;
 	return categoryPass;
 }
 
-void ZeroJetLow3Prong::categoryPlotting(){
+void ZeroJet3Prong::categoryPlotting(){
 	TPTRObject TPResults;
 
 	if (status){

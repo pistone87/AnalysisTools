@@ -90,7 +90,7 @@ ifdef USE_kargoll
 	TARGETS += OneJetBoost OneJetHigh OneJetLow VBFLoose VBFTight ZeroJetHigh ZeroJetLow Inclusive
 	TARGETS += CategoryStandalone VBFLooseStandalone VBFTightStandalone RelaxedVBFTightStandalone RelaxedVBFLooseStandalone
 	#TARGETS += MuTauSync MCDecayChain
-	TARGETS += ZeroJetLow3Prong
+	TARGETS += ZeroJet3Prong
 	DEFS += -DUSE_kargoll=1
 endif 
 
