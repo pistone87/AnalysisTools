@@ -44,6 +44,9 @@
 #ifdef USE_zotz
 #include "zotz/ZToTaumuTauh.h"
 #endif
+#ifdef USE_stahl
+
+#endif
 
 Selection_Factory::Selection_Factory(){
 }
@@ -99,6 +102,9 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
 #endif
 #ifdef USE_zotz
   else if(Analysis.Contains("ztotaumutauh")) s=new ZToTaumuTauh(Analysis,UncertType);
+#endif
+#ifdef USE_stahl
+
 #endif
   else{
 	Logger(Logger::Error)<< "Invalid Analysis type \"" << Analysis << "\". Using default <Example.h> " << std::endl;

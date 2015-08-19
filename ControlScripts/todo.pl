@@ -33,6 +33,10 @@ if($UserID eq "zotz"){
     $UserIDCern="azotz";
     $UserDir="--zotz";
 }
+if($UserID eq "stahl"){
+    $UserIDCern="stahl";
+    $UserDir="--stahl";
+}
 
 
 #Default vaules
