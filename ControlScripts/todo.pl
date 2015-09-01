@@ -823,6 +823,7 @@ if( $ARGV[0] eq "--GRID" ){
  system(sprintf("echo \"  hasdir=\\\$(srmls -recursion_depth=2 srm://$gridsite:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$UserIDCern/ | grep /pnfs/physik.rwth-aachen.de/cms/store/user/$UserIDCern/workdir$set/  | wc -l) \n  if [ \\\$hasdir == 0 ]; then \" >> $OutputDir/workdir$set/Submit "));
     system(sprintf("echo \"    srmmkdir srm://$gridsite:8443/pnfs/physik.rwth-aachen.de/cms/store/user/$UserIDCern/workdir$set \n  fi \" >> $OutputDir/workdir$set/Submit"));
     system(sprintf("echo 'fi ' >> $OutputDir/workdir$set/Submit")) ;
+    system(sprintf("chmod u+x $OutputDir/workdir$set/Submit")) ;
 
     # get file list from dcache to remove old skims
     system(sprintf("echo '\n\n\nif [ \"\${1}\" == \"--Submit\" ] || [ \"\${1}\" == \"--SetupAndSubmit\" ]; then ' >> $OutputDir/workdir$set/Submit")) ;
