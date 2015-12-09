@@ -101,10 +101,11 @@ if($ARGV[0] eq "--help" || $ARGV[0] eq ""){
     printf("\n                                                     --TauSpinner Option to turn on TauSpinner");
     printf("\n                                                     --SVfit Option to turn on SVfit");
     printf("\n  ");
-    printf("\n./todo.pl --GRID <Input.txt> <ListofDS.txt>        ALTERNATIVE FOR REGULAR USE");
+    printf("\n./todo.pl --GRID <Input.txt> <ListofDS.txt> --ROOTSYS \$ROOTSYS       ALTERNATIVE FOR REGULAR USE");
     printf("\n                                                   Configure a directory to run from. <InputPar.txt> name of file that");
     printf("\n                                                   contains input command template.");
     printf("\n                                                   <ListoDS.txt> list of DCache Dataset directories you want to run on.");
+    printf("\n                                                     --ROOTSYS <ROOTSYS> the current ROOTSYS variable if --BuildRoot is not defined");
     printf("\n                                                   Optional commands:  ");
     printf("\n                                                     --OutputDir <OutputDir> ");
     printf("\n                                                     --CodeDir <CodeDir>");
@@ -113,7 +114,6 @@ if($ARGV[0] eq "--help" || $ARGV[0] eq ""){
     printf("\n                                                     --NMaxMC <Max Number of MC files per job > Default value: $maxmc ");
     printf("\n                                                     --NMaxEmbed <Max Number of Embedding files per job > Default value: $maxemb ");
     printf("\n                                                     --BuildRoot <ROOT Version> builds custom version for root instead of copying lib+include");
-    printf("\n                                                     --ROOTSYS <ROOTSYS> the current ROOTSYS variable if --BuildRoot is not defined");
     printf("\n                                                     --GRIDSite <site> the grid site you wish to run on. Default=grid-srm.physik.rwth-aachen.de");
     printf("\n                                                     --LongQueue Option to run on CMS queue (allows for longer jobs)");
     printf("\n                                                     --TauSpinner Option to turn on TauSpinner");
@@ -470,11 +470,6 @@ if( $ARGV[0] eq "--Local" ){
 	system(sprintf("mkdir $OutputDir/workdir$set/root"));
 	system(sprintf("cd root_v$buildrootversion; ./configure --enable-python --enable-roofit --enable-minuit2 --disable-xrootd --disable-sqlite --disable-python --disable-mysql --prefix=$OutputDir/workdir$set/root; make & make install "));
     }
-    else{
-        printf("Copying local root $MYROOTSYS ");
-        system(sprintf("mkdir $OutputDir/workdir$set/root/"));
-        system(sprintf("cp -r $MYROOTSYS/* $OutputDir/workdir$set/root/"));
-    }
 
     # Finish Submit script
     system(sprintf("echo \"cd  $OutputDir/workdir$set/ \" >> $OutputDir/workdir$set/Submit"));
@@ -691,11 +686,6 @@ if( $ARGV[0] eq "--DCache" ){
 	system(sprintf("gzip -dc root_v$buildrootversion.source.tar.gz | tar -xf -"));
 	system(sprintf("mkdir $OutputDir/workdir$set/root"));
 	system(sprintf("cd root_v$buildrootversion; ./configure --enable-python --enable-roofit --enable-minuit2 --disable-xrootd --disable-sqlite --disable-python --disable-mysql --prefix=$OutputDir/workdir$set/root; make & make install "));
-    }
-    else{
-        printf("Copying local root $MYROOTSYS ");
-        system(sprintf("mkdir $OutputDir/workdir$set/root/"));
-        system(sprintf("cp -r $MYROOTSYS/* $OutputDir/workdir$set/root/"));
     }
 
     # Finish Submit script
