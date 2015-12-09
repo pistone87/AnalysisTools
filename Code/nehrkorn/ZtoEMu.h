@@ -7,6 +7,7 @@
 #include "TF1.h"
 #include "TGraphAsymmErrors.h"
 #include "ReferenceScaleFactors.h"
+#include "PDFweights.h"
 
 class ZtoEMu : public Selection {
 
@@ -18,15 +19,14 @@ class ZtoEMu : public Selection {
   virtual void Finish();
 
   enum cuts {TriggerOk=0,
-	     PrimeVtx,
+	  	 PrimeVtx,
 		 NMu,
 		 NE,
 		 ptthreshold,
 		 mll,
-		 diMuonVeto,
 		 triLeptonVeto,
 		 charge,
-		 jetVeto,
+		 oneJet,
 		 MtMu,
 	     ptBalance,
 	     ZMassmax,
@@ -50,7 +50,6 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> mtE;
   std::vector<TH1D> etaMu;
   std::vector<TH1D> etaE;
-  std::vector<TH1D> jetsum;
   std::vector<TH1D> NJets;
   std::vector<TH1D> NJetsLoose;
   std::vector<TH1D> NJetsMedium;
@@ -61,8 +60,6 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> deltaphi;
   std::vector<TH1D> ptbal;
   std::vector<TH1D> chargesumsigned;
-  std::vector<TH1D> FirstJetPt;
-  std::vector<TH1D> SecondJetPt;
   
   std::vector<TH1D> invmass_zmass;
   std::vector<TH1D> invmass_ptbalance;
@@ -78,7 +75,6 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> invmass_vetos_m;
   std::vector<TH1D> invmass_only_object_id_m;
 
-  std::vector<TH1D> invmass_dimuon_only;
   std::vector<TH1D> invmass_trilepton_only;
   std::vector<TH1D> invmass_charge_only;
   std::vector<TH1D> invmass_jetveto_only;
@@ -86,81 +82,93 @@ class ZtoEMu : public Selection {
   std::vector<TH1D> invmass_ptbal_only;
 
   std::vector<TH1D> nm0_met;
-  std::vector<TH1D> nm0_jetsum;
+  std::vector<TH1D> nm0_mvamet;
   std::vector<TH1D> nm0_onejet;
   std::vector<TH1D> nm0_mtmu;
   std::vector<TH1D> nm0_ptbalance;
+  std::vector<TH1D> nmm_met;
+  std::vector<TH1D> nmm_mvamet;
+  std::vector<TH1D> nmm_onejet;
+  std::vector<TH1D> nmm_mtmu;
+  std::vector<TH1D> nmm_ptbalance;
   
   std::vector<TH1D> NPV;
   std::vector<TH1D> NPV3d;
   std::vector<TH1D> NPVfine;
-  std::vector<TH1D> evtweight;
   
   std::vector<TH1D> met;
   std::vector<TH1D> met_uncorr;
   std::vector<TH1D> onejet;
-  std::vector<TH1D> mte_mtmu;
+  std::vector<TH1D> onejet_eta;
   std::vector<TH1D> NbJets;
   std::vector<TH1D> NbJetsVtxL;
   std::vector<TH1D> NbJetsVtxM;
   std::vector<TH1D> NbJetsVtxT;
 
-  // binning tests
-  std::vector<TH1D> etaE_offBins;
-  std::vector<TH1D> etaE_manyBins;
-  std::vector<TH1D> etaMu_offBins;
-  std::vector<TH1D> etaMu_manyBins;
-
   // cross checks
-  std::vector<TH1D> mtmu_metgr30;
-  std::vector<TH1D> mtmu_metsm30;
-  std::vector<TH1D> jet1E;
-  std::vector<TH1D> jet2E;
-  std::vector<TH1D> jet1Mu;
-  std::vector<TH1D> jet2Mu;
+  std::vector<TH1D> mtmu_phicorr;
+  std::vector<TH1D> mte_mtmu;
+  std::vector<TH1D> mtmu_mufake;
+  std::vector<TH1D> mtmu_efake;
+  std::vector<TH1D> mtmu_onefake;
+  std::vector<TH1D> mtmu_twofakes;
+  std::vector<TH1D> mtmu_nmu;
 
   // comparison of generators
-
   std::vector<TH1D> zpt;
   std::vector<TH1D> zeta;
   std::vector<TH1D> zmass;
-  std::vector<TH1D> leadingjet_pt;
-  std::vector<TH1D> subleadingjet_pt;
-  std::vector<TH1D> leadingjet_eta;
-  std::vector<TH1D> subleadingjet_eta;
-  std::vector<TH1D> jetsumcustom;
+  std::vector<TH1D> znjets;
+  std::vector<TH1D> zjetpt;
+  std::vector<TH1D> zmet;
+  std::vector<TH1D> zmtlead;
+  std::vector<TH1D> zmttrail;
+  std::vector<TH1D> znjets_rec;
+  std::vector<TH1D> zjetpt_rec;
+  std::vector<TH1D> zleadpt;
+  std::vector<TH1D> ztrailpt;
 
-  std::vector<TH1D> ptbal_chargepass;
-  std::vector<TH1D> ptbal_chargefail;
-
-  std::vector<TH1D> Dxy_trig;
-  std::vector<TH1D> Dz_trig;
-  std::vector<TH1D> Dxy_nontrig;
-  std::vector<TH1D> Dz_nontrig;
-  std::vector<TH1D> Dxy_trignoip;
-  std::vector<TH1D> Dz_trignoip;
-  std::vector<TH2D> eta_mu_e;
-  std::vector<TH2D> pt_vs_eta_mu;
-  std::vector<TH2D> pt_vs_eta_e;
+  std::vector<TH1D> sip;
+  std::vector<TH1D> sip_nm0;
+  std::vector<TH1D> ptbal_zoom;
   std::vector<TH1D> nfakes;
-  std::vector<TH2D> pt_vs_eta_mu_gen;
-  std::vector<TH2D> pt_vs_eta_e_gen;
-  std::vector<TH1D> higgs_mass;
+  std::vector<TH1D> ht_pseudo;
+  std::vector<TH1D> zmass_zoom;
+  std::vector<TH1D> invmass_high;
+  std::vector<TH1D> ptsum;
+  std::vector<TH1D> ptsum_nm0;
+  std::vector<TH1D> mvamet;
+  std::vector<TH1D> mva_mtmu;
+  std::vector<TH1D> invmass_ptbalance_widerange;
+  std::vector<TH1D> invmass_objectid_ss;
+  std::vector<TH1D> invmass_ptbal_ss;
 
-  double mu_ptlow,mu_pthigh,mu_eta,e_ptlow,e_pthigh,e_eta,jet_pt,jet_eta,jet_sum,singlejet,zmin,zmax,mtmu,ptbalance,mmin;
-  int n_mu,n_e;
-  bool doHiggsObjects;
-  bool doWWObjects;
-  bool useMadgraphZ;
-  
+  std::vector<TH1D> pdf_w0;
+  std::vector<TH1D> pdf_w1;
+
+  double mu_ptlow,mu_pthigh,mu_eta,e_ptlow,e_pthigh,e_eta,mmin,mmax,jet_pt,jet_eta,singlejet,mtmu,ptbalance,zmin,zmax;
   double csvl,csvm,csvt;
+  double normunc_dy,normunc_tt,normunc_tw,normunc_diboson,normunc_qcd;
+  bool doPDFuncertainty;
+  bool doTriggerUncertainty,doPileupUncertainty;
+  bool doElectronIdUncertainty,doElectronScaleUncertainty,doElectronResUncertainty;
+  bool doMuonIdUncertainty,doMuonScaleUncertainty,doMuonResUncertainty;
+  bool doJECUncertainty, doJERUncertainty;
+  bool doFakeRateUncertainty;
+  bool doMetUncertainty;
+  bool upwardUncertainty,systValid;
+  TString mucorr, ecorr, jetcorr;
+
+  TString pdfname1;
+  TString pdfname2;
+  PDFweights* pdf;
+  int nPDFmembers;
 
   double calculatePzeta(int muiterator, int eiterator);
   double calculatePzetaDQM(int muiterator, int eiterator);
   double cosphi2d(double px1, double py1, double px2, double py2);
   double cosphi3d(TVector3 vec1, TVector3 vec2);
   int findBin(TGraphAsymmErrors* graph, double xval);
-  int nCutsAboveZero(int id);
   
   bool isFakeMuon(unsigned int idx);
   bool isFakeMuon(unsigned int idx, unsigned int vtx);
@@ -169,35 +177,24 @@ class ZtoEMu : public Selection {
   bool isFakeElectron(unsigned int idx, unsigned int vtx);
 
   double ZPtReweight(double zpt);
-  double PowhegReweight(double zpt);
-  double CorrectJER(unsigned int idx);
-  double JetEnergyResolutionCorr(double jeteta);
-  double JetEnergyResolutionCorrErr(double jeteta);
-  TLorentzVector GenJet(unsigned int recjet);
+  double ZPtRelUnc(double zpt);
+  double ZPtMadgraphRelUnc(double zpt);
 
-  double Fakerate(TLorentzVector vec, TH2D *fakeRateHist, std::string type);
-  double FakerateWW(unsigned int idx, std::string type);
-  double FakerateWWerror(unsigned int idx, std::string type);
+  // Fake rate stuff
+
+  double Fakerate(double pt, double eta, TH2D *fakeRateHist);
+  double FakerateError(double pt, double eta, TH2D *fakeRateHist);
   
   TFile* FRFile;
-  TFile* ZptCorrFile;
-  TH1D* ZptCorrection;
-  TH2D* ElectronFakeRate;
-  TH2D* MuonFakeRate;
+  TH2D* ElectronFakeRate35;
+  TH2D* ElectronFakeRate20;
+  TH2D* ElectronFakeRate50;
+  TH2D* MuonFakeRate15;
+  TH2D* MuonFakeRate5;
+  TH2D* MuonFakeRate30;
   double fakeRate;
   double fakeRateMu;
   double fakeRateE;
-  
-  TFile* FakeRates;
-
-  TGraphAsymmErrors* EleFake1;
-  TGraphAsymmErrors* EleFake15;
-  TGraphAsymmErrors* EleFake2;
-  TGraphAsymmErrors* EleFake25;
-  TGraphAsymmErrors* MuFake1;
-  TGraphAsymmErrors* MuFake15;
-  TGraphAsymmErrors* MuFake2;
-  TGraphAsymmErrors* MuFake25;
 
 };
 #endif

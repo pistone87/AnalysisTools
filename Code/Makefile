@@ -3,9 +3,9 @@ include make.inc
 ### Defining Compiling variables              ###
 #################################################
 
-CXX           = g++ -Wno-deprecated
+CXX           = g++ -Wno-deprecated -Wall
 #-m32  -Wno-deprecated
-LD            = g++ -Wno-deprecated
+LD            = g++ -Wno-deprecated -Wall
 #-m32  -Wno-deprecated 
 INSTALL	      = /usr/bin/install
 SHELL = /bin/sh
@@ -14,13 +14,15 @@ SHELL = /bin/sh
 ###                              ###
 ####################################
 
-SHAREDLIBFLAGS =-L./CommonUtils/lib -lTauNtuple 
-SHAREDCXXFLAGS =-I./CommonUtils 
+SHAREDLIBFLAGS =-L./CommonUtils/lib -lTauNtuple -L./DataFormats/lib -lDataFormats
+SHAREDCXXFLAGS =-I./CommonUtils -I./DataFormats
 SUBDIRS = CommonUtils/ 
+TAUSPINERFLAG = 
 
-CXXFLAGS      = -I$(ROOTSYS)/include -c -I/include $(SHAREDCXXFLAGS) -c -I./ -c
+override CXXFLAGS += 
+ALLCXXFLAGS = $(CXXFLAGS) -I$(ROOTSYS)/include -c -I/include $(SHAREDCXXFLAGS) -c -I./ -c
 LDFLAGS       =  
-ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lCint -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lReflexDict -lReflex -lPostscript -lMatrix -lPhysics -lGui -LObj -lMinuit2 -lThread -rdynamic -Wl,--rpath $(ROOTSYS)/lib
+ROOTLIBS      =  -L$(ROOTSYS)/lib -L/usr/lib/ -L/lib/i686/  -lCore -lCint -lHist -lGraf  -lGraf3d -lGpad -lTree -lRint -lReflexDict -lReflex -lPostscript -lMatrix -lPhysics -lGui -LObj -lMinuit2 -lThread -lTreePlayer -lRIO -lMathCore -rdynamic -Wl,--rpath $(ROOTSYS)/lib
 
 # -ldl -lpthread
 
@@ -44,7 +46,12 @@ TARGETS       =	Ntuple_Controller \
 		TauSolver \
 		TauSpinExample \
 		TauSpinerInterface \
-		ReferenceScaleFactors
+		ReferenceScaleFactors \
+		rochcor2012jan22 \
+		Objects \
+		UncertaintyValue
+
+CINTTARGETS = 
 
 # now include conditional options set by flags in make.inc
 ifdef USE_TauSpinner
@@ -61,6 +68,13 @@ ifdef USE_TauSpinner
 	DEFS += -DUSE_TauSpinner=1
 endif
 
+ifdef USE_SVfit
+	TARGETS += SVfitProvider DataStorage SVFitStorage
+	CINTTARGETS += SVFitObject
+	SHAREDLIBFLAGS += -L./CommonUtils/lib -lSVfit
+	DEFS += -DUSE_SVfit=1
+endif
+
 ifdef USE_cherepanov
 	TARGETS += Ztotautau_hadmu_ControlSample Tau_momentum_calculation Validation
 	DEFS += -DUSE_cherepanov=1
@@ -72,19 +86,36 @@ ifdef USE_inugent
 endif
 
 ifdef USE_kargoll
-	TARGETS += HToTaumuTauh HToTaumuTauhSkim HToTaumuTauhBackgrounds MuTauSync OneJetBoost OneJetHigh OneJetLow VBFLoose VBFTight ZeroJetHigh ZeroJetLow Inclusive
+	TARGETS += HToTaumuTauh Category
+	TARGETS += OneJetBoost OneJetHigh OneJetLow VBFLoose VBFTight ZeroJetHigh ZeroJetLow Inclusive
+	TARGETS += CategoryStandalone VBFLooseStandalone VBFTightStandalone RelaxedVBFTightStandalone RelaxedVBFLooseStandalone
+	#TARGETS += MuTauSync MCDecayChain
+	TARGETS += ZeroJet3Prong
 	DEFS += -DUSE_kargoll=1
 endif 
 
 ifdef USE_nehrkorn
-	TARGETS += ZtoEMu ZtoEMu_Skim ZtoEMu_Fakerate ZtoEMu_Wjets ZtoEMu_QCD
+ifndef USE_TauSpinner
+	TAUSPINERFLAG = LHAPDF
+	SUBDIRS += TauSpiner/
+	SHAREDLIBFLAGS +=	-L./TauSpiner/lhapdf/lib -lLHAPDF
+	SHAREDCXXFLAGS +=	-I./TauSpiner/lhapdf/include/
+endif
+	TARGETS += PDFweights ZtoEMu Tvariable_Base Tvariable_EE Tvariable_MuMu Tvariable_EMu
 	DEFS += -DUSE_nehrkorn=1
 endif
 
 ifdef USE_pistone
-        DEFS += -DUSE_pistone=1
+	DEFS += -DUSE_pistone=1
 endif
-
+ifdef USE_zotz
+	TARGETS += ZToTaumuTauh
+	DEFS += -DUSE_zotz=1
+endif
+ifdef USE_stahl
+	TARGETS += 
+	DEFS += -DUSE_stahl=1
+endif
 
 
 HDRS          = $(TARGETS:=.h) 		
@@ -108,6 +139,12 @@ vpath %.cxx kargoll
 vpath %.h kargoll
 vpath %.cxx nehrkorn
 vpath %.h nehrkorn
+vpath %.cxx zotz
+vpath %.h zotz
+vpath %.cxx stahl
+vpath %.h stahl
+vpath %.cxx CommonFiles
+vpath %.h CommonFiles
 
 #	@$(LD) $(LDFLAGS) $(OBJS) $(LIBS) -o ../$(PROGRAM)
 
@@ -116,31 +153,54 @@ vpath %.h nehrkorn
 ##########################################################
 
 $(OBJS): %.o : %.cxx
-	$(CXX) $(CXXFLAGS) $(DEFS) $< -o i386_linux/$@ 
+	$(CXX) $(ALLCXXFLAGS) $(DEFS) $< -o i386_linux/$@ 
 
-.PHONY: clean cleanall all install sharedlib 
+.PHONY: clean cleanall cleandf all dataformats install sharedlib 
 
-install: Analysis.exe
+install: dataformats Analysis.exe
 
+
+dataformats: 
+	@cd DataFormats; gmake install; cd ../
 
 clean:
 	@rm i386_linux/*.o
 	@rm Analysis.exe
+
+cleandf:
+	@cd DataFormats; gmake clean; cd ../
 
 cleanall:
 	@for subdir in $(SUBDIRS); do \
 		echo "Making all in $$subdir"; \
 		cd $$subdir && $(MAKE) -f Makefile.standalone clean && cd ../../; \
 	done
+	@cd DataFormats; gmake clean; cd ../
 	@rm i386_linux/*.o
 	@rm Analysis.exe
 
-all: sharedlib install
+all: sharedlib dataformats install
 
 sharedlib:
 	@for subdir in $(SUBDIRS); do \
 		echo "Making all in $$subdir"; \
-		cd $$subdir && $(MAKE) -f Makefile.standalone && cd ../ && pwd; \
+		if [ $$subdir == "TauSpiner/" ]; then \
+			echo with flag; \
+			cd $$subdir && $(MAKE) -f Makefile.standalone $(TAUSPINERFLAG) && cd ../ && pwd; \
+		else \
+			echo without flag ; \
+			cd $$subdir echo $(CXXFLAGS) && $(MAKE) -f Makefile.standalone CXXFLAGS+='$(CXXFLAGS)' ; \
+			pwd; \
+			if [ $$subdir == "CommonUtils/" ]; then \
+				echo $(USE_SVfit); \
+				if [ $(USE_SVfit) -eq 1 ]; then \
+					$(MAKE) -f Makefile.SVfitStandalone CXXFLAGS+='$(CXXFLAGS)' ; \
+				fi \
+			fi \
+			&& cd ../ && pwd; \
+		fi \
 	done
 	$(install)
+
+
 

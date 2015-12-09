@@ -1,4 +1,5 @@
 #include "Selection_Factory.h"
+#include "SimpleFits/FitSoftware/interface/Logger.h"
 
 #include "Example.h"
 #include "TauSpinExample.h"
@@ -18,17 +19,14 @@
 #include "inugent/TauLifeTime.h"
 #endif
 #ifdef USE_nehrkorn
-#include "nehrkorn/ZtoEMu_Wjets.h"
-#include "nehrkorn/ZtoEMu_QCD.h"
-#include "nehrkorn/ZtoEMu_Fakerate.h"
-#include "nehrkorn/ZtoEMu_Skim.h"
 #include "nehrkorn/ZtoEMu.h"
+#include "nehrkorn/Tvariable_EE.h"
+#include "nehrkorn/Tvariable_MuMu.h"
+#include "nehrkorn/Tvariable_EMu.h"
 #endif
 #ifdef USE_kargoll
 #include "kargoll/HToTaumuTauh.h"
-#include "kargoll/HToTaumuTauhSkim.h"
-#include "kargoll/HToTaumuTauhBackgrounds.h"
-#include "kargoll/MuTauSync.h"
+//#include "kargoll/MuTauSync.h"
 #include "kargoll/OneJetBoost.h"
 #include "kargoll/OneJetHigh.h"
 #include "kargoll/OneJetLow.h"
@@ -37,8 +35,16 @@
 #include "kargoll/ZeroJetHigh.h"
 #include "kargoll/ZeroJetLow.h"
 #include "kargoll/Inclusive.h"
+//#include "kargoll/MCDecayChain.h"
+#include "kargoll/ZeroJet3Prong.h"
 #endif
 #ifdef USE_pistone
+
+#endif
+#ifdef USE_zotz
+#include "zotz/ZToTaumuTauh.h"
+#endif
+#ifdef USE_stahl
 
 #endif
 
@@ -72,17 +78,14 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   else if(Analysis.Contains("taulifetime"))s=new TauLifeTime(Analysis,UncertType);
 #endif
 #ifdef USE_nehrkorn
-  else if(Analysis.Contains("ztoemu_wjets")) s=new ZtoEMu_Wjets(Analysis,UncertType);
-  else if(Analysis.Contains("ztoemu_qcd")) s=new ZtoEMu_QCD(Analysis,UncertType);
-  else if(Analysis.Contains("ztoemu_fakerate"))s=new ZtoEMu_Fakerate(Analysis,UncertType);
-  else if(Analysis.Contains("ztoemu_skim"))s=new ZtoEMu_Skim(Analysis,UncertType);
   else if(Analysis.Contains("ztoemu"))s=new ZtoEMu(Analysis,UncertType);
+  else if(Analysis.Contains("tvariable_ee"))s=new Tvariable_EE(Analysis,UncertType);
+  else if(Analysis.Contains("tvariable_mumu"))s=new Tvariable_MuMu(Analysis,UncertType);
+  else if(Analysis.Contains("tvariable_emu"))s=new Tvariable_EMu(Analysis,UncertType);
 #endif
 #ifdef USE_kargoll
-  else if(Analysis.Contains("htotaumutauhskim")) s=new HToTaumuTauhSkim(Analysis,UncertType);
-  else if(Analysis.Contains("htotaumutauhbackgrounds")) s=new HToTaumuTauhBackgrounds(Analysis,UncertType);
+  else if(Analysis.Contains("zerojet3prong")) s=new ZeroJet3Prong(Analysis,UncertType);
   else if(Analysis.Contains("htotaumutauh")) s=new HToTaumuTauh(Analysis,UncertType);
-  else if(Analysis.Contains("mutausync")) s=new MuTauSync(Analysis,UncertType);
   else if(Analysis.Contains("onejetboost")) s=new OneJetBoost(Analysis,UncertType);
   else if(Analysis.Contains("onejethigh")) s=new OneJetHigh(Analysis,UncertType);
   else if(Analysis.Contains("onejetlow")) s=new OneJetLow(Analysis,UncertType);
@@ -91,12 +94,20 @@ Selection_Base* Selection_Factory::Factory(TString Analysis, TString UncertType,
   else if(Analysis.Contains("zerojethigh")) s=new ZeroJetHigh(Analysis,UncertType);
   else if(Analysis.Contains("zerojetlow")) s=new ZeroJetLow(Analysis,UncertType);
   else if(Analysis.Contains("inclusive")) s=new Inclusive(Analysis,UncertType);
+  //else if(Analysis.Contains("mutausync")) s=new MuTauSync(Analysis,UncertType);
+  //else if(Analysis.Contains("mcdecaychain")) s=new MCDecayChain(Analysis,UncertType);
 #endif
 #ifdef USE_pistone
 
 #endif
+#ifdef USE_zotz
+  else if(Analysis.Contains("ztotaumutauh")) s=new ZToTaumuTauh(Analysis,UncertType);
+#endif
+#ifdef USE_stahl
+
+#endif
   else{
-    std::cout << "WARNING: Selection_Factory::Factory INVALID ANALYSIS TYPE.... USING DEFAULT <Example.h> " << std::endl;
+	Logger(Logger::Error)<< "Invalid Analysis type \"" << Analysis << "\". Using default <Example.h> " << std::endl;
     s=new Example(Analysis,UncertType);
   }
   s->SetMode(mode);

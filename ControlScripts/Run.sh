@@ -3,11 +3,12 @@
 if [ "${1}"  == "--help" ] ; then
     echo "Script to submit grid jobs (if wanted), monitor grid jobs, run Combine and purge the jobs."
     echo "Options for running this this script"
-    echo " source Run.sh --Runtime <number of mintues>     Set Maximum RunTime of GRID gobs. Default 24hr. "
-    echo " source Run.sh --NoCombine                       Turn off Combining the files from the GRID.  "    
-    echo " source Run.sh --Submit                          Submits jobs to the GRID before starting job monitoring." 
+    echo "./Run.sh --Runtime <number of minutes>     Set Maximum RunTime of GRID jobs. Default 24hr. "
+    echo "./Run.sh --NoCombine                       Turn off Combining the files from the GRID.  "
+    echo "./Run.sh --NoPurge                         Turn off Purging of the jobs for debugging. Make sure you purge them manually!  "
+    echo "./Run.sh --Submit                          Submits jobs to the GRID before starting job monitoring." 
 else
-
+    nretries=0;
     haveProxy=`voms-proxy-info --all | wc -l`;
     echo "Line in proxy: " $haveProxy
     if [ "${haveProxy}" -ge "16"  ]; then
@@ -19,7 +20,7 @@ else
 	    nmin=$nmindefault;
 	fi
 	
-	if [ "${1}"  == "--Submit" ] || [ "${2}"  == "--Submit" ] || [ "${3}"  == "--Submit" ] || [ "${4}"  == "--Submit" ];   then
+	if [ "${1}"  == "--Submit" ] || [ "${2}"  == "--Submit" ] || [ "${3}"  == "--Submit" ] || [ "${4}"  == "--Submit" ] || [ "${5}"  == "--Submit" ];   then
 	    if [ -f  jobs_complete ]; then
 		rm jobs_complete
 	    fi
@@ -42,26 +43,52 @@ else
 	while (test "$nmin" -ge "$idx" )
 	  do
 	  sleep 300;
-	  nsets=$(ls | grep Set_ | wc -l)
-	  njobs=$(cat jobs_submittedOrComplete | wc -l)
+	  nsets=$(ls | grep Set_ | wc -l);
+	  njobs=$(cat jobs_submittedOrComplete | wc -l);
 	  if [[ ${nsets} -ne ${njobs} ]]; then
 	      echo "not all jobs were submitted. Retrying failed submissions..."
-	      source Submit --Submit 
+	      source Submit --Submit
+	  else
+	      echo ${njobs}" jobs were submitted. Skipping resubmission"
 	  fi
 	  source CheckandGet.sh  --get >& junk_CG; rm junk_CG;
-	  eval=`cat jobs_submitted  | wc -l`
-	  echo ${eval} " jobs still running"
-	  if [[  ${eval} -eq 0 ]]; then
-	      source Purge_Jobs.sh --all
-	      if [ "${1}"  == "--NoCombine" ] || [ "${2}"  == "--NoCombine" ] || [ "${3}"  == "--NoCombine" ] || [ "${4}"  == "--NoCombine" ]; then
+	  running=`cat jobs_submitted  | wc -l`
+	  echo ${running} " jobs still running"
+	  if [[  ${running} -eq 0 ]]; then
+	      if [ "${1}"  == "--NoCombine" ] || [ "${2}"  == "--NoCombine" ] || [ "${3}"  == "--NoCombine" ] || [ "${4}"  == "--NoCombine" ] || [ "${5}"  == "--NoCombine" ]; then
 		  echo "Jobs Complete"
 	      else
 		  echo "Starting Combine"
-		  source Combine >& log_Combine
+		  source Combine 2>&1 | tee >(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g" > log_Combine)
+		  if [[ ${nretries} -eq 0 ]]; then
+		      let nsetspad=10+${nsets}
+		      echo "Searching " ${nsetspad} " line for failed jobs."
+		      touch junk_cleaner
+		      grep -A  ${nsetspad} "List of Bad Files:"  log_Combine | grep $PWD | awk -v pwd=${PWD} '{gsub(pwd,"",$1);gsub("/","",$1); print "sed \x27/"$1"/d \x27 jobs_complete | tee tmplist; cp tmplist jobs_complete"}' >> junk_cleaner
+		      grep -A  ${nsetspad} "List of Bad Files:"  log_Combine | grep $PWD | awk -v pwd=${PWD} '{gsub(pwd,"",$1);gsub("/","",$1); print "sed \x27/"$1"/d \x27 jobs_submitted | tee tmplist; cp tmplist jobs_submitted"}' >> junk_cleaner
+		      grep -A  ${nsetspad} "List of Bad Files:"  log_Combine | grep $PWD | awk -v pwd=${PWD} '{gsub(pwd,"",$1);gsub("/","",$1); print "sed \x27/"$1"/d \x27 jobs_submittedOrComplete | tee tmplist; cp tmplist jobs_submittedOrComplete"}' >> junk_cleaner
+		      nBAD=`cat junk_cleaner | grep jobs_submittedOrComplete | wc -l`
+		      echo "Number of FailedJobs ${nBAD}"
+		      echo 
+		      source junk_cleaner >& junk2
+		      rm junk_cleaner junk2
+		      let nretries=nretries+1
+		      source Submit --Submit
+		  fi
+	      fi
+	      nrunning=`cat jobs_submitted  | wc -l`
+	      echo ${nrunning} " jobs still running"
+	      if [[  ${nrunning} -eq 0 ]]; then
+		  echo "finished in loop " $idx
+		  let idx=nmin+1
+		  if [ "${1}"  == "--NoPurge" ] || [ "${2}"  == "--NoPurge" ] || [ "${3}"  == "--NoPurge" ] || [ "${4}"  == "--NoPurge" ] || [ "${5}"  == "--NoPurge" ]; then
+			echo "Jobs are not purged. Make sure to purge them manually."
+		  else
+			echo "Purging jobs..."
+			source Purge_Jobs.sh --all
+		  fi
 		  echo "Job Complete"
 	      fi
-	      echo "finished in loop " $idx
-	      let idx=nmin+1
 	  else
 	      let idx=idx+1 
 	      echo "in loop " $idx

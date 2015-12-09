@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include "HistoConfig.h"
 #include <iostream>
+#include "SVFitObject.h"
+#include "SimpleFits/FitSoftware/interface/Logger.h"
 
 Example::Example(TString Name_, TString id_):
   Selection(Name_,id_)
@@ -10,12 +12,12 @@ Example::Example(TString Name_, TString id_):
 }
 
 Example::~Example(){
-  for(int j=0; j<Npassed.size(); j++){
-    std::cout << "Example::~Example Selection Summary before: " 
+  for(unsigned int j=0; j<Npassed.size(); j++){
+	 Logger(Logger::Info) << "Selection Summary before: "
 	 << Npassed.at(j).GetBinContent(1)     << " +/- " << Npassed.at(j).GetBinError(1)     << " after: "
-	 << Npassed.at(j).GetBinContent(NCuts) << " +/- " << Npassed.at(j).GetBinError(NCuts) << std::endl;
+	 << Npassed.at(j).GetBinContent(NCuts+1) << " +/- " << Npassed.at(j).GetBinError(NCuts) << std::endl;
   }
-  std::cout << "Example::~Example()" << std::endl;
+  Logger(Logger::Info) << "complete." << std::endl;
 }
 
 void  Example::Configure(){
@@ -30,7 +32,7 @@ void  Example::Configure(){
 
   TString hlabel;
   TString htitle;
-  for(unsigned int i=0; i<NCuts; i++){
+  for(int i=0; i<NCuts; i++){
     title.push_back("");
     distindx.push_back(false);
     dist.push_back(std::vector<float>());
@@ -77,7 +79,7 @@ void  Example::Store_ExtraDist(){
 void  Example::doEvent(){
   unsigned int t;
   int id(Ntp->GetMCID());
-  if(!HConfig.GetHisto(Ntp->isData(),id,t)){ std::cout << "failed to find id" <<std::endl; return;}
+  if(!HConfig.GetHisto(Ntp->isData(),id,t)){ Logger(Logger::Error) << "failed to find id" <<std::endl; return;}
   
   // Apply Selection
   unsigned int nGoodVtx=0;
@@ -89,7 +91,7 @@ void  Example::doEvent(){
   value.at(PrimeVtx)=nGoodVtx;
   pass.at(PrimeVtx)=(value.at(PrimeVtx)>=cut.at(PrimeVtx));
   
-  value.at(TriggerOk)=1;
+  value.at(TriggerOk)=(Ntp->EventNumber()%1000)==1;
   pass.at(TriggerOk)=true;
   
   double wobs=1;

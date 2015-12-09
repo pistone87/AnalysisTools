@@ -8,7 +8,9 @@
 #ifndef REFERENCESCALEFACTORS_H_
 #define REFERENCESCALEFACTORS_H_
 
+#include <map>
 #include "TFile.h"
+#include "TH1D.h"
 #include "TH2F.h"
 #include "TLorentzVector.h"
 
@@ -16,7 +18,7 @@ class ReferenceScaleFactors {
 
 public:
 
-	ReferenceScaleFactors(int runType);
+	ReferenceScaleFactors(int runType, bool load_ElectronID = true, bool load_EMuTriggerEff = true, bool load_HiggsPtWeights = true);
 	virtual ~ReferenceScaleFactors();
 
 	// Muon Id scale factors
@@ -25,8 +27,13 @@ public:
 	double MuonIsoTight2012(TLorentzVector vect);
 	double MuonIsoUncTight2012(TLorentzVector vect);
 	double TrackingEfficiency2012(TLorentzVector vect);
-	double HiggsEMuId_Mu(TLorentzVector vect);
-	double HiggsEMuIdUnc_Mu(TLorentzVector vect);
+	double TrackingEfficiencyUnc2012(TLorentzVector vect);
+	double HiggsTauTau_EMu_Id_Mu(TLorentzVector vect);
+	double HiggsTauTau_EMu_IdUnc_Mu(TLorentzVector vect);
+	double HiggsTauTau_MuTau_Id_Mu(TLorentzVector vect);
+	double HiggsTauTau_MuTau_IdUnc_Mu(TLorentzVector vect);
+	double HiggsTauTau_MuTau_Iso_Mu(TLorentzVector vect);
+	double HiggsTauTau_MuTau_IsoUnc_Mu(TLorentzVector vect);
 
 	// Electron Id scale factors
 	double ElectronReconstruction2012(double Et, double Eta);
@@ -45,6 +52,9 @@ public:
 	// Trigger efficiency scale factors
 	//
 
+	// ++++++++++ Single lepton ++++++++++
+	double IsoMu24_eta2p1(TLorentzVector vect);
+	double IsoMu24_eta2p1_unc(TLorentzVector vect);
 	// ++++++++++ Final state: e+mu ++++++++++
 	// use this for full trigger efficiency
 	double HiggsWW_EMu_Trigger(TLorentzVector mu_vect, double e_et, double e_eta, TString path);
@@ -61,8 +71,23 @@ public:
 	double HiggsTauTau_EMu_TriggerUnc_E(double Et, double Eta);
 
 	// Final state: mu+tau
+	double Efficiency(double m, double m0, double sigma, double alpha, double n, double norm);
+	double HiggsTauTau_MuTau_Trigger_Mu_Eff_Data(TLorentzVector vect);
+	double HiggsTauTau_MuTau_Trigger_Mu_Eff_MC(TLorentzVector vect);
+	double HiggsTauTau_MuTau_Trigger_Mu_ScaleMCtoData(TLorentzVector vect);
+	double HiggsTauTau_MuTau_Trigger_Tau_Eff_Data(TLorentzVector vect);
+	double HiggsTauTau_MuTau_Trigger_Tau_Eff_MC(TLorentzVector vect);
+	double HiggsTauTau_MuTau_Trigger_Tau_ScaleMCtoData(TLorentzVector vect);
+
+	// Higgs pT reweighting
+	double HiggsPtWeight(TLorentzVector vect, int mass, TString shift = "nominal");
 
 private:
+	// booleans to switch on/off individual scale factors
+	bool loadElectronID;
+	bool loadEMuTriggerEff;
+	bool loadHiggsPtWeights;
+
 	//
 	// Root files for scale factors
 	//
@@ -73,6 +98,8 @@ private:
 	TFile* ERecoEffFile;
 	// Trigger efficiencies
 	TFile* HWW_TriggerEfficiencies;
+	// Higgs pT reweighting
+	std::map<unsigned, TFile*> HiggsPtWeightFiles;
 
 	//
 	// Histograms for scale factors
@@ -99,7 +126,10 @@ private:
 	TH1D* HiggsWW_EMu_DoubleMuTrail12;
 	TH1D* HiggsWW_EMu_DoubleMuTrail21;
 	TH1D* HiggsWW_EMu_DoubleMuTrail25;
-
+	// Higgs pT reweighting
+	std::map<unsigned, TH1D*> HiggsPtWeightsNominal;
+	std::map<unsigned, TH1D*> HiggsPtWeightsDown;
+	std::map<unsigned, TH1D*> HiggsPtWeightsUp;
 };
 
 
