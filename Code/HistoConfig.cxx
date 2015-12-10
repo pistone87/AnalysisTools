@@ -212,7 +212,7 @@ bool HistoConfig::hasID(int64_t id_){
 }
 
 
-int HistoConfig::GetID(unsigned int i){
+int64_t HistoConfig::GetID(unsigned int i){
   if(ID.size()>i) return ID.at(i);
   return -999;
 }

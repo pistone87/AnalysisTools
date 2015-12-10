@@ -106,6 +106,7 @@ endif
 endif
 
 ifdef USE_pistone
+	TARGETS += PhiCP
 	DEFS += -DUSE_pistone=1
 endif
 ifdef USE_zotz
@@ -143,6 +144,8 @@ vpath %.cxx zotz
 vpath %.h zotz
 vpath %.cxx stahl
 vpath %.h stahl
+vpath %.cxx pistone
+vpath %.h pistone
 vpath %.cxx CommonFiles
 vpath %.h CommonFiles
 

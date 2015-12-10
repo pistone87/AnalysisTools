@@ -35,7 +35,7 @@ class HistoConfig {
   bool SetCrossSection(int64_t id, double xsec);
   void GetHistoInfo(std::vector<int64_t> &types,std::vector<float> &CrossSectionandAcceptance,std::vector<TString> &legend,std::vector<int> &colour);
   bool hasID(int64_t id_);
-  int GetID(unsigned int i);
+  int64_t GetID(unsigned int i);
   int GetType(int64_t id);
   static bool isloaded() { return loaded; }
 

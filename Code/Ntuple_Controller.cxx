@@ -237,7 +237,7 @@ int64_t Ntuple_Controller::GetMCID(){
 		return DataMCTypeFromTupel;
 	}
 
-	int dmcType = -999;
+	int64_t dmcType = -999;
 
 	// hack for Higgs mass splitting
 	// Higgs mass is added to the MCId, such that the structure is JJJJJJAAABB (with JJJJJJ = JakID, AAA = mass, BB = DataMCType)
@@ -251,6 +251,10 @@ int64_t Ntuple_Controller::GetMCID(){
 	  if (HistoC.hasID(DataMCTypeFromTupel % 100000)) {
 	  		dmcType = DataMCTypeFromTupel % 100000;
 	  	}
+	  else{
+	    cout<< "NC: ID  "<< DataMCTypeFromTupel <<endl;
+	    dmcType = DataMCTypeFromTupel; 
+	  }
 	}
 	else {
 		// strip off JAK-Id from DataMCType
